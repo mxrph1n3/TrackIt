@@ -1,0 +1,77 @@
+import type { WorkoutTrack } from '../../types/workout';
+import { cardioBlock, day, ex, warmup } from './builder';
+
+export const FAT_LOSS_TRACK: WorkoutTrack = {
+  id: 'fat_loss',
+  slug: 'fat_loss',
+  title: 'Fat Loss',
+  description: 'Cardio blocks in zones 1–2 + strength supersets for fat burning.',
+  durationWeeks: 2,
+  days: [
+    day(1, 1, 'Cardio + Full Body A', [
+      warmup(12),
+      cardioBlock(15, 'Treadmill: incline 8, speed 3.5–4', [1, 2]),
+      ex('Hack Squat / Smith Squat', 3, '10'),
+      ex('Bench Press', 3, '12'),
+      ex('Calf Raise', 3, '12-15'),
+      ex('Seated Row', 3, '12'),
+      ex('Glute Bridge', 3, '12'),
+      ex('Lateral Raises', 3, '12-15'),
+      ex('Ab Crunches', 3, '15-20'),
+    ]),
+    day(1, 2, 'Cardio + Full Body B', [
+      cardioBlock(15, 'Elliptical, resistance 6', [1, 2]),
+      ex('Bulgarian Split Squats', 3, '10'),
+      ex('Seated Dumbbell Press', 3, '12'),
+      ex('Stiff-Leg Deadlift', 3, '10'),
+      ex('Lat Pulldown', 3, '12'),
+      ex('Leg Curl', 3, '12-15'),
+      ex('Cable Pullover', 3, '15'),
+      ex('Leg Extension', 3, '12-15'),
+    ]),
+    day(1, 3, 'Cardio + Arms + Abs', [
+      cardioBlock(15, 'Stationary Bike', [1, 2]),
+      ex('Standing Biceps Curl', 3, '12'),
+      ex('Cable Triceps Extension', 3, '15'),
+      ex('Crunches (Machine)', 3, '20'),
+      cardioBlock(15, 'Treadmill: incline 8, speed 4', [1, 2]),
+    ]),
+    day(1, 4, 'Cardio + Pull + Back', [
+      cardioBlock(10, 'Treadmill: incline 8, speed 4', [1, 2]),
+      ex('Deadlift', 3, '10'),
+      ex('Lat Pulldown to Chest', 3, '12'),
+      ex('Seated Cable Row', 3, '10'),
+      ex('Pullover (Machine)', 3, '12'),
+      ex('Assisted Pull-ups', 3, '12'),
+      cardioBlock(12, 'Rowing Machine', [1, 2]),
+    ]),
+    day(2, 1, 'Long Cardio + Upper', [
+      cardioBlock(35, 'Stationary Bike', [1, 2]),
+      ex('Seated Dumbbell Press', 3, '12'),
+      ex('Assisted Dips', 3, '12'),
+      ex('Dumbbell Press', 3, '12'),
+      ex('Flyes', 3, '12'),
+      ex('Biceps Curls', 3, '10'),
+      ex('Rope Pushdown (Triceps)', 3, '12'),
+    ]),
+    day(2, 2, 'Cardio + Core', [
+      cardioBlock(55, 'Your choice (zone 1–2)', [1, 2]),
+      ex('Hyperextension', 3, '12'),
+      ex('Ab Crunches', 3, '20'),
+      ex('Plank', 3, '30-40 sec'),
+    ]),
+    day(2, 3, 'Cardio + Full Body C', [
+      cardioBlock(15, 'Treadmill: incline 8, speed 4.5', [1, 2]),
+      ex('Smith Machine Bench Press', 3, '12'),
+      ex('Barbell Row', 3, '10'),
+      ex('Lunges', 3, '15'),
+      ex('Flyes', 3, '15'),
+      ex('Seated Overhead Rope Extension', 3, '12'),
+      ex('Plank', 3, '1 min'),
+      cardioBlock(15, 'Rowing', [1, 2]),
+    ], [
+      'Heart rate during warm-up and cool-down — zones 1 and 2.',
+      'Max HR formula: 220 − age (M) / 226 − age (F).',
+    ]),
+  ],
+};

@@ -1,0 +1,17 @@
+import { create } from 'zustand';
+
+import type { PremiumFeatureId } from '../types/subscription';
+
+type PaywallState = {
+  isOpen: boolean;
+  feature: PremiumFeatureId | null;
+  openPaywall: (feature?: PremiumFeatureId) => void;
+  closePaywall: () => void;
+};
+
+export const usePaywallStore = create<PaywallState>((set) => ({
+  isOpen: false,
+  feature: null,
+  openPaywall: (feature) => set({ isOpen: true, feature: feature ?? null }),
+  closePaywall: () => set({ isOpen: false, feature: null }),
+}));

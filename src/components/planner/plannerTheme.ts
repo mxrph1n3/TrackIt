@@ -1,0 +1,20 @@
+/** Planner ecosystem copy — TrackIt 2.0 */
+export const PLANNER_COPY = {
+  screenTitle: 'PLANNER',
+  todayFocus: 'TODAY\'S FOCUS',
+  tasks: 'TASKS',
+  workouts: 'WORKOUTS',
+  nutrition: 'NUTRITION',
+  finance: 'FINANCE',
+  stats: 'STATS',
+  projects: 'PROJECTS',
+  habits: 'HABITS',
+  viewAll: 'View All',
+  open: 'Open',
+  addJournal: 'Add entry',
+  editJournal: 'Edit',
+  noTasks: 'No tasks for this day',
+  noProjects: 'No projects yet',
+  startWorkout: 'Start',
+  logMeal: 'Log meal',
+} as const;

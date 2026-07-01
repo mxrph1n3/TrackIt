@@ -1,0 +1,66 @@
+{
+  "expo": {
+    "name": "TrackIt",
+    "slug": "trackit-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon-light.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "trackit2",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zenith.trackit",
+      "usesAppleSignIn": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F3F5FA",
+        "foregroundImage": "./assets/android-icon-light-foreground.png",
+        "backgroundImage": "./assets/android-icon-light-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.zenith.trackit",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "trackit2",
+              "host": "auth",
+              "pathPrefix": "/callback"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-apple-authentication",
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon-dark.png",
+          "color": "#07070A"
+        }
+      ],
+      [
+        "@g9k/expo-dynamic-app-icon",
+        {
+          "obsidian": {
+            "ios": "./assets/icon-dark.png",
+            "android": {
+              "foregroundImage": "./assets/android-icon-foreground.png",
+              "backgroundColor": "#07070A"
+            }
+          }
+        }
+      ]
+    ]
+  }
+}
