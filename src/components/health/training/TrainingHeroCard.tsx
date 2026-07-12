@@ -18,16 +18,16 @@ export function TrainingHeroCard() {
   const openWorkoutGoalPicker = useHealthStore((s) => s.openWorkoutGoalPicker);
   const { push } = useHealthNavigation();
   const programDay = useCurrentProgramDay();
-  const { mode } = useTheme();
+  const { isDark } = useTheme();
   const { workoutHero } = useHealthAssets();
   const healthTheme = useHealthTheme();
-  const heroScrim = getImageScrim(mode, 'vertical');
+  const heroScrim = getImageScrim(isDark ? 'obsidian' : 'ethereal', 'vertical');
 
   return (
     <PremiumCard onPress={() => push('WorkoutDetails')} padding={0} style={styles.card}>
       <ImageBackground
         source={workoutHero}
-        style={styles.heroBg}
+        style={[styles.heroBg, { backgroundColor: healthTheme.background }]}
         imageStyle={styles.heroImage}
         resizeMode="cover"
       >

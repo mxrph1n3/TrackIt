@@ -43,7 +43,7 @@ export function RecentWorkoutCard() {
       <View style={styles.row}>
         <ImageBackground
           source={workoutHero}
-          style={[styles.thumb, { backgroundColor: healthTheme.accentSoft }]}
+          style={[styles.thumb, { backgroundColor: healthTheme.background }]}
           imageStyle={styles.thumbImage}
           resizeMode="cover"
         />

@@ -2,6 +2,7 @@ import { ChevronRight, Dumbbell } from 'lucide-react-native';
 import { Image, ScrollView, Text, View } from 'react-native';
 
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
+import { useHealthAssets } from '../../lib/healthAssets';
 import { useHealthNavigation } from '../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
@@ -37,7 +38,7 @@ export function WorkoutDetailsScreen() {
       borderRadius: t.radius.card,
       overflow: 'hidden',
       marginBottom: 16,
-      backgroundColor: t.accentSoft,
+      backgroundColor: t.background,
     },
     heroImg: {
       width: '100%',
@@ -49,8 +50,8 @@ export function WorkoutDetailsScreen() {
       right: 0,
       top: 0,
       bottom: 0,
-      backgroundColor: t.card,
-      opacity: 0.55,
+      backgroundColor: t.background,
+      opacity: 0.72,
       justifyContent: 'flex-end',
       padding: 20,
     },

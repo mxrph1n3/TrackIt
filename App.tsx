@@ -20,6 +20,7 @@ import { AppNavigator } from './src/navigation/AppNavigator';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { WelcomeGateScreen } from './src/screens/WelcomeGateScreen';
 import { completeOAuthSessionFromCurrentUrl } from './src/lib/auth/oauth';
+import { tryTelegramAutoSignIn } from './src/lib/auth/telegramAuthService';
 import { IS_WEB } from './src/lib/platform/constants';
 import { supabase } from './src/lib/supabase';
 import { useGamificationStore } from './src/stores/useGamificationStore';
@@ -81,9 +82,17 @@ function AuthGuardRoot() {
         await completeOAuthSessionFromCurrentUrl();
       }
 
-      const { data, error } = await supabase.auth.getSession();
+      let { data, error } = await supabase.auth.getSession();
       if (!isMounted) {
         return;
+      }
+
+      if (!data.session) {
+        await tryTelegramAutoSignIn();
+        ({ data, error } = await supabase.auth.getSession());
+        if (!isMounted) {
+          return;
+        }
       }
 
       if (error) {

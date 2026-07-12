@@ -15,12 +15,12 @@ export type HealthAssets = {
 };
 
 export function useHealthAssets(): HealthAssets {
-  const { mode } = useTheme();
+  const { isDark } = useTheme();
 
   return {
-    workoutHero: getWorkoutHeroImage(mode),
-    todayWidget: getTodayWidgetImage(mode),
-    nutritionWidget: getNutritionWidgetImage(mode),
+    workoutHero: getWorkoutHeroImage(isDark ? 'obsidian' : 'ethereal'),
+    todayWidget: getTodayWidgetImage(isDark ? 'obsidian' : 'ethereal'),
+    nutritionWidget: getNutritionWidgetImage(isDark ? 'obsidian' : 'ethereal'),
   };
 }
 
