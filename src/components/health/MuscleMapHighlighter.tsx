@@ -5,6 +5,8 @@ import type { BodyView as MuscleDiagramView } from '@musclemap/assets';
 
 import { highlightToMuscleMapValues } from '../../lib/health/muscleMapAdapter';
 import { mergeMuscleHighlights } from '../../lib/health/muscleMap';
+import { useHealthTheme } from '../../hooks/useHealthTheme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { MuscleHighlight, MuscleId } from '../../types/workout';
 import { MuscleMapBodyFigure } from './MuscleMapBodyFigure';
 
@@ -28,6 +30,8 @@ export function MuscleMapHighlighter({
 }: MuscleMapHighlighterProps) {
   const [view, setView] = useState<MuscleDiagramView>('FRONT');
   const { width: screenWidth } = useWindowDimensions();
+  const { isDark } = useTheme();
+  const healthTheme = useHealthTheme();
 
   const dualFigureWidth = Math.min(
     DUAL_FIGURE_MAX_WIDTH,
@@ -41,7 +45,10 @@ export function MuscleMapHighlighter({
     const figureHeight = figureWidth * 1.45;
 
     return (
-      <View className="w-full items-center justify-center" style={{ minHeight: figureHeight + 8 }}>
+      <View
+        className="w-full items-center justify-center"
+        style={{ minHeight: figureHeight + 8, backgroundColor: healthTheme.background }}
+      >
         <View className="flex-row items-center justify-center">
           <View
             className="items-center justify-center"
@@ -69,20 +76,28 @@ export function MuscleMapHighlighter({
   }
 
   return (
-    <View className="items-center">
+    <View className="items-center" style={{ backgroundColor: healthTheme.background }}>
       <View className="mb-2 flex-row gap-2">
         {(['FRONT', 'BACK'] as MuscleDiagramView[]).map((side) => (
           <Pressable
             key={side}
             onPress={() => setView(side)}
-            className={`rounded-full px-3 py-1 ${
-              view === side ? 'bg-obsidian-primary/20' : 'bg-white/5'
-            }`}
+            style={{
+              borderRadius: 999,
+              paddingHorizontal: 12,
+              paddingVertical: 4,
+              backgroundColor:
+                view === side ? `${healthTheme.accent}33` : isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+            }}
           >
             <Text
-              className={`text-[10px] font-bold uppercase tracking-wider ${
-                view === side ? 'text-obsidian-primary' : 'text-ethereal-slate'
-              }`}
+              style={{
+                fontSize: 10,
+                fontWeight: '700',
+                letterSpacing: 1,
+                textTransform: 'uppercase',
+                color: view === side ? healthTheme.accent : healthTheme.slate,
+              }}
             >
               {side === 'FRONT' ? 'Front' : 'Back'}
             </Text>

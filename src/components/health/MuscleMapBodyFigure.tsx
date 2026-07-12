@@ -8,8 +8,10 @@ import { getBodyDiagram, type BodyDiagram, type BodyView } from '@musclemap/asse
 import { useMemo } from 'react';
 import Svg, { G, Path } from 'react-native-svg';
 
+import { useTheme } from '../../theme/ThemeContext';
 import {
-  TRACKIT_MUSCLE_BASE,
+  TRACKIT_MUSCLE_BASE_DARK,
+  TRACKIT_MUSCLE_BASE_LIGHT,
   TRACKIT_MUSCLE_COLOR,
 } from '../../lib/health/muscleMapAdapter';
 
@@ -21,10 +23,29 @@ type ExpandedMuscle = {
   score: number | null;
 };
 
-const OUTLINE_TOP = '#E8EDF5';
-const OUTLINE_BOTTOM = '#CBD5E1';
-const MUSCLE_REST = 'rgba(148, 163, 184, 0.28)';
-const STROKE = 'rgba(26, 21, 44, 0.12)';
+type BodyFigurePalette = {
+  outlineTop: string;
+  outlineBottom: string;
+  muscleRest: string;
+  stroke: string;
+  muscleBase: string;
+};
+
+const LIGHT_PALETTE: BodyFigurePalette = {
+  outlineTop: '#E8EDF5',
+  outlineBottom: '#CBD5E1',
+  muscleRest: 'rgba(148, 163, 184, 0.28)',
+  stroke: 'rgba(26, 21, 44, 0.12)',
+  muscleBase: TRACKIT_MUSCLE_BASE_LIGHT,
+};
+
+const DARK_PALETTE: BodyFigurePalette = {
+  outlineTop: '#151320',
+  outlineBottom: '#0D0B14',
+  muscleRest: 'rgba(255, 255, 255, 0.1)',
+  stroke: 'rgba(255, 255, 255, 0.08)',
+  muscleBase: TRACKIT_MUSCLE_BASE_DARK,
+};
 
 function expandMuscle(
   path: BodyDiagram['muscles'][number],
@@ -64,6 +85,8 @@ type MuscleMapBodyFigureProps = {
 };
 
 export function MuscleMapBodyFigure({ view, values, width }: MuscleMapBodyFigureProps) {
+  const { isDark } = useTheme();
+  const palette = isDark ? DARK_PALETTE : LIGHT_PALETTE;
   const diagram = useMemo(() => getBodyDiagram('MALE', view), [view]);
   const visibleGroups = useMemo(
     () => new Set(getVisibleMuscleGroups(view, 'FULL_BODY')),
@@ -83,12 +106,17 @@ export function MuscleMapBodyFigure({ view, values, width }: MuscleMapBodyFigure
       <G>
         {diagram.outline.map((part) => (
           <G key={part.id}>
-            <Path d={part.d} fill={OUTLINE_TOP} stroke={STROKE} strokeWidth={0.6} />
+            <Path
+              d={part.d}
+              fill={palette.outlineTop}
+              stroke={palette.stroke}
+              strokeWidth={0.6}
+            />
             {part.side === 'LEFT' ? (
               <Path
                 d={part.d}
-                fill={OUTLINE_BOTTOM}
-                stroke={STROKE}
+                fill={palette.outlineBottom}
+                stroke={palette.stroke}
                 strokeWidth={0.6}
                 transform={mirrorTransform(diagram.centerX)}
               />
@@ -99,15 +127,15 @@ export function MuscleMapBodyFigure({ view, values, width }: MuscleMapBodyFigure
         {muscles.map((muscle) => {
           const fill =
             muscle.score != null
-              ? getMonochromeColor(muscle.score, TRACKIT_MUSCLE_COLOR, TRACKIT_MUSCLE_BASE)
-              : MUSCLE_REST;
+              ? getMonochromeColor(muscle.score, TRACKIT_MUSCLE_COLOR, palette.muscleBase)
+              : palette.muscleRest;
 
           return (
             <Path
               key={muscle.key}
               d={muscle.d}
               fill={fill}
-              stroke={STROKE}
+              stroke={palette.stroke}
               strokeWidth={muscle.score != null ? 0.9 : 0.5}
               opacity={muscle.score != null ? 1 : 0.85}
               transform={muscle.mirrored ? mirrorTransform(diagram.centerX) : undefined}

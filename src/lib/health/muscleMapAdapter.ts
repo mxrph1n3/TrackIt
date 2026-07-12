@@ -23,7 +23,10 @@ const MUSCLE_ID_TO_GROUPS: Partial<Record<MuscleId, MuscleGroup[]>> = {
 };
 
 export const TRACKIT_MUSCLE_COLOR = '#775DD8';
-export const TRACKIT_MUSCLE_BASE = '#CBD5E1';
+export const TRACKIT_MUSCLE_BASE_LIGHT = '#CBD5E1';
+export const TRACKIT_MUSCLE_BASE_DARK = '#3D3654';
+/** @deprecated Use TRACKIT_MUSCLE_BASE_LIGHT or theme-aware palette in MuscleMapBodyFigure */
+export const TRACKIT_MUSCLE_BASE = TRACKIT_MUSCLE_BASE_LIGHT;
 export const PRIMARY_MUSCLE_SCORE = 92;
 export const SECONDARY_MUSCLE_SCORE = 48;
 

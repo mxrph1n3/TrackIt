@@ -19,3 +19,5 @@ See `.cursor/rules/telegram-mini-app-web.mdc` for full checklist.
 3. Set env vars on the host: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, optional `EXPO_PUBLIC_WEB_APP_URL`
 4. Supabase Auth → Redirect URLs: add `https://your-domain.com/auth/callback`
 5. BotFather → Mini App URL: `https://your-domain.com`
+
+Подробная архитектура бота, оплаты Stars и webhook: [docs/TELEGRAM_BOT.md](docs/TELEGRAM_BOT.md)

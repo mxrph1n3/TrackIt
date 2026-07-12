@@ -312,13 +312,25 @@ export function ActiveWorkoutModal() {
                   centerContent={
                     <>
                       <Text
-                        className="text-center text-base font-bold text-ethereal-ink"
+                        style={{
+                          textAlign: 'center',
+                          fontSize: 16,
+                          fontWeight: '700',
+                          color: healthTheme.ink,
+                        }}
                         numberOfLines={3}
                       >
                         {currentExercise?.name}
                       </Text>
                       {currentExercise?.template ? (
-                        <Text className="mt-1 text-center text-xs text-ethereal-slate">
+                        <Text
+                          style={{
+                            marginTop: 4,
+                            textAlign: 'center',
+                            fontSize: 12,
+                            color: healthTheme.slate,
+                          }}
+                        >
                           {formatExerciseSubtitle(currentExercise.template)}
                         </Text>
                       ) : null}
