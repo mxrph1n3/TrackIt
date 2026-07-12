@@ -225,6 +225,23 @@ export function selectIsPro(state: SubscriptionState): boolean {
   return state.status.isPro;
 }
 
+/** Paid Pro (Stars / store) — excludes TMA trial-only access so users can subscribe early. */
+export function selectHasPaidPro(state: SubscriptionState): boolean {
+  if (__DEV__ && state.devProOverride) {
+    return true;
+  }
+  if (IS_WEB && canSyncTmaAccess()) {
+    if (state.tmaAccess.hasStarsSubscription) {
+      return true;
+    }
+    if (state.tmaAccess.isInTrial) {
+      return false;
+    }
+    return state.status.isPro;
+  }
+  return state.status.isPro;
+}
+
 export function selectCanUseNotifications(state: SubscriptionState): boolean {
   if (__DEV__ && state.devProOverride) {
     return true;

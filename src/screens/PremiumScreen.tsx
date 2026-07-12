@@ -29,7 +29,7 @@ import { PREMIUM_FEATURE_META } from '../lib/subscription/features';
 import { IS_WEB } from '../lib/platform/constants';
 import { triggerHaptic } from '../lib/platform/haptics';
 import { isTelegramMiniApp } from '../lib/telegram/telegramWebApp';
-import { isRevenueCatReady, selectIsPro, useSubscriptionStore } from '../stores/useSubscriptionStore';
+import { isRevenueCatReady, selectHasPaidPro, useSubscriptionStore } from '../stores/useSubscriptionStore';
 import { usePaywallStore } from '../stores/usePaywallStore';
 import { useProfileModuleStore } from '../stores/useProfileModuleStore';
 import { BRAND, RADIUS } from '../theme/designTokens';
@@ -55,7 +55,7 @@ export function PremiumScreen({
   const closeModule = useProfileModuleStore((s) => s.closeModule);
   const closePaywall = usePaywallStore((s) => s.closePaywall);
 
-  const isPro = useSubscriptionStore(selectIsPro);
+  const hasPaidPro = useSubscriptionStore(selectHasPaidPro);
   const tmaAccess = useSubscriptionStore((s) => s.tmaAccess);
   const isTma = IS_WEB && isTelegramMiniApp();
   const starsPrice = getTmaStarsPrice();
@@ -326,7 +326,7 @@ export function PremiumScreen({
         ) : null}
       </LinearGradient>
 
-      {isPro ? (
+      {hasPaidPro ? (
         <GlassPanel borderRadius={RADIUS.inset}>
           <View style={styles.proActiveCard}>
             <Crown color={BRAND.primary} size={40} />
@@ -406,7 +406,7 @@ export function PremiumScreen({
                     </Text>
                     <Text style={[styles.planMeta, { marginTop: 6 }]}>
                       {tmaAccess.trialDaysRemaining} day(s) left — full Pro access and Telegram
-                      reminders included.
+                      reminders included. Subscribe now to keep access after the trial.
                     </Text>
                   </View>
                 </GlassPanel>
