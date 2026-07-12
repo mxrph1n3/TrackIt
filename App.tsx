@@ -12,6 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthBootScreen } from './src/components/auth/AuthBootScreen';
 import { LevelUpModal } from './src/components/gamification/LevelUpModal';
 import { SubscriptionBootstrap } from './src/components/subscription/SubscriptionBootstrap';
+import { WebBootErrorBoundary } from './src/components/system/WebBootErrorBoundary';
 import { TelegramBootstrap } from './src/components/telegram/TelegramBootstrap';
 import { TmaAccessBootstrap } from './src/components/telegram/TmaAccessBootstrap';
 import { AuthProvider } from './src/hooks/useAuth';
@@ -139,7 +140,7 @@ function AuthGuardRoot() {
 export default function App() {
   const RootWrapper = Platform.OS === 'web' ? View : GestureHandlerRootView;
 
-  return (
+  const tree = (
     <RootWrapper style={styles.root}>
       <SafeAreaProvider>
         <TelegramBootstrap />
@@ -149,6 +150,12 @@ export default function App() {
       </SafeAreaProvider>
     </RootWrapper>
   );
+
+  if (IS_WEB) {
+    return <WebBootErrorBoundary>{tree}</WebBootErrorBoundary>;
+  }
+
+  return tree;
 }
 
 const styles = StyleSheet.create({

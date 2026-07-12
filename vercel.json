@@ -1,6 +1,12 @@
 {
   "buildCommand": "npm run export:web",
+  "installCommand": "npm install",
   "outputDirectory": "dist",
   "framework": null,
-  "rewrites": [{ "source": "/((?!_expo/|assets/|favicon.ico).*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/((?!_expo/|assets/|favicon.ico).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
