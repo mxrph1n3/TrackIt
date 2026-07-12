@@ -1,7 +1,7 @@
 import { ChevronLeft } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 
 import { GlobalLeaderboard } from '../../components/analytics/GlobalLeaderboard';
 import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBarStyles';
@@ -10,7 +10,7 @@ import { getThemedSurfaces } from '../../theme/themedSurfaces';
 import { useTheme } from '../../theme/ThemeContext';
 
 export function LeaderboardScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();

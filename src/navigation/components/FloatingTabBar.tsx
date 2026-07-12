@@ -12,6 +12,7 @@ import Animated, {
 
 import { QuickActionSheet } from '../../components/QuickActionSheet';
 import { QuickCreateButton } from '../../components/QuickCreateButton';
+import { supportsNativeBlur } from '../../lib/platform/blur';
 import { ETHEREAL_COLORS } from '../../theme/etherealTokens';
 import { premiumQuickSpringConfig, timingStandard } from '../../theme/motion';
 import { routeExternalQuickAction } from '../../lib/quickActions/actionRouter';
@@ -170,11 +171,13 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
       {hideForWorkout ? null : (
       <View pointerEvents="box-none" style={tabBar.container}>
         <View style={tabBar.shell}>
-          <BlurView
-            intensity={tabBar.blurIntensity}
-            tint={tabBar.blurTint}
-            style={tabBar.styles.blurLayer}
-          />
+          {supportsNativeBlur() ? (
+            <BlurView
+              intensity={tabBar.blurIntensity}
+              tint={tabBar.blurTint}
+              style={tabBar.styles.blurLayer}
+            />
+          ) : null}
           <View style={tabBar.panel}>
             <View style={tabBar.row}>
               {LEFT_TABS.map((tab) => {

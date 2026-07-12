@@ -14,6 +14,8 @@ export function useDashboardFinanceStyles() {
       StyleSheet.create({
         cardShell: {
           marginBottom: 14,
+          alignSelf: 'stretch',
+          width: '100%',
           borderRadius: RADIUS.card,
           overflow: 'hidden',
           borderWidth: 1,
@@ -233,13 +235,15 @@ export function useDashboardFinanceStyles() {
         },
         emptyBody: {
           marginTop: 14,
-          borderRadius: 18,
+          marginHorizontal: -16,
+          alignSelf: 'stretch',
+          borderRadius: 16,
           borderWidth: 1,
           borderStyle: 'dashed',
           borderColor: surfaces.dashedBorder,
           backgroundColor: surfaces.empty,
           paddingHorizontal: 16,
-          paddingVertical: 18,
+          paddingVertical: 20,
           alignItems: 'center',
         },
         emptyTitle: {

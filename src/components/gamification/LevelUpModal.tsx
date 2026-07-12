@@ -1,10 +1,10 @@
-import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Sparkles } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { useGamificationStore } from '../../stores/useGamificationStore';
 import { useTheme } from '../../theme/ThemeContext';
 import { DismissibleOverlay } from '../ui/DismissibleOverlay';
@@ -13,14 +13,14 @@ const LIGHT_PANEL_GRADIENT = ['rgba(255,255,255,0.98)', 'rgba(243,245,250,0.96)'
 const DARK_PANEL_GRADIENT = ['rgba(28, 24, 48, 0.98)', 'rgba(22, 18, 38, 0.96)', '#12101F'] as const;
 
 export function LevelUpModal() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { isDark } = useTheme();
   const celebration = useGamificationStore((s) => s.levelUpCelebration);
   const dismissLevelUp = useGamificationStore((s) => s.dismissLevelUp);
 
   useEffect(() => {
     if (celebration) {
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void triggerHaptic('success');
     }
   }, [celebration]);
 

@@ -5,17 +5,21 @@ import './global.css';
 
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { useEffect, useRef, useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, Platform, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthBootScreen } from './src/components/auth/AuthBootScreen';
 import { LevelUpModal } from './src/components/gamification/LevelUpModal';
 import { SubscriptionBootstrap } from './src/components/subscription/SubscriptionBootstrap';
+import { TelegramBootstrap } from './src/components/telegram/TelegramBootstrap';
+import { TmaAccessBootstrap } from './src/components/telegram/TmaAccessBootstrap';
 import { AuthProvider } from './src/hooks/useAuth';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { WelcomeGateScreen } from './src/screens/WelcomeGateScreen';
+import { completeOAuthSessionFromCurrentUrl } from './src/lib/auth/oauth';
+import { IS_WEB } from './src/lib/platform/constants';
 import { supabase } from './src/lib/supabase';
 import { useGamificationStore } from './src/stores/useGamificationStore';
 import { AppThemeRoot } from './src/theme/AppThemeRoot';
@@ -61,6 +65,9 @@ function AuthGuardRoot() {
   };
 
   useEffect(() => {
+    if (IS_WEB) {
+      return;
+    }
     void Image.prefetch(Image.resolveAssetSource(WELCOME_BACKGROUND_LIGHT).uri);
     void Image.prefetch(Image.resolveAssetSource(WELCOME_BACKGROUND_DARK).uri);
   }, []);
@@ -68,7 +75,12 @@ function AuthGuardRoot() {
   useEffect(() => {
     let isMounted = true;
 
-    void supabase.auth.getSession().then(({ data, error }) => {
+    const bootstrapSession = async () => {
+      if (IS_WEB) {
+        await completeOAuthSessionFromCurrentUrl();
+      }
+
+      const { data, error } = await supabase.auth.getSession();
       if (!isMounted) {
         return;
       }
@@ -80,7 +92,9 @@ function AuthGuardRoot() {
       setUserSession(data.session);
       setIsLoading(false);
       handleAuthSession(data.session);
-    });
+    };
+
+    void bootstrapSession();
 
     const {
       data: { subscription },
@@ -111,6 +125,7 @@ function AuthGuardRoot() {
           <>
             <AppNavigator />
             <SubscriptionBootstrap />
+            <TmaAccessBootstrap />
             <LevelUpModal />
           </>
         )
@@ -122,14 +137,17 @@ function AuthGuardRoot() {
 }
 
 export default function App() {
+  const RootWrapper = Platform.OS === 'web' ? View : GestureHandlerRootView;
+
   return (
-    <GestureHandlerRootView style={styles.root}>
+    <RootWrapper style={styles.root}>
       <SafeAreaProvider>
+        <TelegramBootstrap />
         <AppThemeRoot>
           <AuthGuardRoot />
         </AppThemeRoot>
       </SafeAreaProvider>
-    </GestureHandlerRootView>
+    </RootWrapper>
   );
 }
 

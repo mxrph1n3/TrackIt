@@ -1,6 +1,6 @@
-import { toDayKey } from '../../utils/plannerDates';
 import { ACHIEVEMENT_DEFINITIONS, type AchievementDefinition } from '../../constants/achievements';
 import type { UserAchievementRow } from '../../types/achievements';
+import { toDayKey } from '../../utils/plannerDates';
 import { isSupabaseConfigured, supabase } from '../supabase';
 
 export type AchievementProgress = AchievementDefinition & {
@@ -17,19 +17,26 @@ export type AchievementMetrics = {
   level: number;
 };
 
-function metricValue(metrics: AchievementMetrics, key: AchievementDefinition['metricKey']): number {
-  switch (key) {
-    case 'tasks_completed':
-      return metrics.tasksCompleted;
-    case 'habit_streak_days':
-      return metrics.habitStreakDays;
-    case 'focus_sessions':
-      return metrics.focusSessions;
-    case 'level_reached':
-      return metrics.level;
-    default:
-      return 0;
+export type CollectAchievementResult = {
+  leveledUp: boolean;
+  newLevel: number;
+  newXp: number;
+  xpAwarded: number;
+};
+
+function mapRowToProgress(row: UserAchievementRow): AchievementProgress | null {
+  const definition = ACHIEVEMENT_DEFINITIONS.find((item) => item.id === row.achievement_id);
+  if (!definition) {
+    return null;
   }
+
+  return {
+    ...definition,
+    progress: row.progress,
+    unlocked: Boolean(row.unlocked_at),
+    unlockedAt: row.unlocked_at,
+    xpCollected: row.xp_collected,
+  };
 }
 
 export async function fetchAchievementMetrics(userId: string): Promise<AchievementMetrics> {
@@ -92,64 +99,63 @@ export async function fetchUserAchievements(userId: string): Promise<UserAchieve
   return (data ?? []) as UserAchievementRow[];
 }
 
-export async function syncAchievements(
-  userId: string,
-  metrics: AchievementMetrics,
-): Promise<AchievementProgress[]> {
-  const stored = await fetchUserAchievements(userId);
-  const storedMap = new Map(stored.map((row) => [row.achievement_id, row]));
-
-  const results: AchievementProgress[] = [];
-
-  for (const definition of ACHIEVEMENT_DEFINITIONS) {
-    const progress = Math.min(metricValue(metrics, definition.metricKey), definition.targetValue);
-    const existing = storedMap.get(definition.id);
-    const unlocked = progress >= definition.targetValue;
-    const unlockedAt = existing?.unlocked_at ?? (unlocked ? new Date().toISOString() : null);
-
-    if (isSupabaseConfigured) {
-      await supabase.from('user_achievements').upsert(
-        {
-          user_id: userId,
-          achievement_id: definition.id,
-          progress,
-          unlocked_at: unlockedAt,
-          xp_collected: existing?.xp_collected ?? false,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id,achievement_id' },
-      );
-    }
-
-    results.push({
-      ...definition,
-      progress,
-      unlocked: Boolean(unlockedAt),
-      unlockedAt,
-      xpCollected: existing?.xp_collected ?? false,
-    });
-  }
-
-  return results;
-}
-
-export async function collectAchievementXp(
-  userId: string,
-  achievementId: string,
-): Promise<void> {
+/** Server-side sync — metrics computed in Postgres, client cannot forge unlocks. */
+export async function syncAchievements(userId: string): Promise<AchievementProgress[]> {
   if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured.');
+    return ACHIEVEMENT_DEFINITIONS.map((definition) => ({
+      ...definition,
+      progress: 0,
+      unlocked: false,
+      unlockedAt: null,
+      xpCollected: false,
+    }));
   }
 
-  const { error } = await supabase
-    .from('user_achievements')
-    .update({ xp_collected: true, updated_at: new Date().toISOString() })
-    .eq('user_id', userId)
-    .eq('achievement_id', achievementId);
+  const { data, error } = await supabase.rpc('sync_user_achievements');
 
   if (error) {
     throw error;
   }
+
+  const rows = (data ?? []) as UserAchievementRow[];
+  if (rows.length === 0) {
+    return ACHIEVEMENT_DEFINITIONS.map((definition) => ({
+      ...definition,
+      progress: 0,
+      unlocked: false,
+      unlockedAt: null,
+      xpCollected: false,
+    }));
+  }
+
+  return rows
+    .map(mapRowToProgress)
+    .filter((item): item is AchievementProgress => item != null)
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+export async function collectAchievementXp(
+  _userId: string,
+  achievementId: string,
+): Promise<CollectAchievementResult> {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured.');
+  }
+
+  const { data, error } = await supabase.rpc('collect_achievement_reward', {
+    p_achievement_id: achievementId,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  const result = (data as CollectAchievementResult[] | null)?.[0];
+  if (!result) {
+    throw new Error('Could not collect achievement reward.');
+  }
+
+  return result;
 }
 
 export function countUncollectedXp(achievements: AchievementProgress[]): number {

@@ -1,9 +1,10 @@
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Sparkles } from 'lucide-react-native';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { BlurView } from 'expo-blur';
 
+import { supportsNativeBlur } from '../../lib/platform/blur';
 import { ObsidianTheme } from '../../theme/obsidian';
+import { AuthBrandCrystal } from './AuthBrandCrystal';
 
 export function AuthBootScreen() {
   return (
@@ -16,13 +17,13 @@ export function AuthBootScreen() {
       />
 
       <View style={styles.glassShell}>
-        <BlurView intensity={ObsidianTheme.blurIntensity} tint="dark" style={StyleSheet.absoluteFill} />
+        {supportsNativeBlur() ? (
+          <BlurView intensity={ObsidianTheme.blurIntensity} tint="dark" style={StyleSheet.absoluteFill} />
+        ) : null}
         <View style={styles.glassOverlay} />
 
         <View style={styles.content}>
-          <View style={styles.iconRing}>
-            <Sparkles color={ObsidianTheme.primary} size={28} strokeWidth={2.2} />
-          </View>
+          <AuthBrandCrystal size={72} />
 
           <Text style={styles.title}>TrackIt</Text>
           <Text style={styles.subtitle}>Restoring your session…</Text>
@@ -64,18 +65,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     paddingVertical: 36,
   },
-  iconRing: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(168, 85, 247, 0.35)',
-    backgroundColor: 'rgba(168, 85, 247, 0.12)',
-    marginBottom: 20,
-  },
   title: {
+    marginTop: 20,
     fontSize: 22,
     fontWeight: '800',
     color: ObsidianTheme.textPrimary,

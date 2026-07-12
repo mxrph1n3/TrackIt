@@ -1,9 +1,9 @@
-import * as Haptics from 'expo-haptics';
 import { CalendarDays } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
 
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import type { HealthTabId } from '../../types/health';
 import { MenuHeaderButton } from '../navigation/MenuHeaderButton';
 
@@ -111,7 +111,7 @@ export function HealthTabSwitcher({
         {activeTab === 'nutrition' ? (
           <Pressable
             onPress={() => {
-              void Haptics.selectionAsync();
+              void triggerHaptic('selection');
               onCalendarPress?.();
             }}
             style={styles.calendarBtn}
@@ -131,7 +131,7 @@ export function HealthTabSwitcher({
             <Pressable
               key={tab.id}
               onPress={() => {
-                void Haptics.selectionAsync();
+                void triggerHaptic('selection');
                 onTabChange(tab.id);
               }}
               style={[styles.tab, isActive && styles.tabActive]}

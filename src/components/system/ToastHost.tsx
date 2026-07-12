@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useToastStore } from '../../stores/useToastStore';
 
 const TYPE_STYLES = {
@@ -19,7 +19,7 @@ const TYPE_STYLES = {
 } as const;
 
 export function ToastHost() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const message = useToastStore((state) => state.message);
   const type = useToastStore((state) => state.type);
   const dismiss = useToastStore((state) => state.dismiss);
@@ -51,11 +51,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 8,
+    ...Platform.select({
+      web: {
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.2,
+        shadowRadius: 16,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   text: {
     color: '#FFFFFF',

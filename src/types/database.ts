@@ -14,6 +14,11 @@ export type ProfileRow = {
   diet_goal?: 'fat_loss' | 'maintenance' | 'bulk' | null;
   goal_pace_kg?: number | null;
   current_rank?: string;
+  is_pro?: boolean;
+  pro_expires_at?: string | null;
+  tma_trial_started_at?: string | null;
+  telegram_user_id?: number | null;
+  telegram_reminders_enabled?: boolean;
   updated_at: string;
 };
 
@@ -659,14 +664,29 @@ export type Database = {
     };
     Functions: {
       award_xp_and_check_level: {
-        Args:
-          | { user_id: string; xp_amount: number }
-          | { user_id: string; xp_amount: number; source_type: string };
+        Args: { user_id: string; xp_amount: number; source_type?: string };
         Returns: {
           leveled_up: boolean;
           new_level: number;
           new_xp: number;
         }[];
+      };
+      sync_user_achievements: {
+        Args: Record<string, never>;
+        Returns: Database['public']['Tables']['user_achievements']['Row'][];
+      };
+      collect_achievement_reward: {
+        Args: { p_achievement_id: string };
+        Returns: {
+          leveled_up: boolean;
+          new_level: number;
+          new_xp: number;
+          xp_awarded: number;
+        }[];
+      };
+      user_has_pro_access: {
+        Args: { p_user_id: string };
+        Returns: boolean;
       };
       xp_required_for_level: {
         Args: { p_level: number };

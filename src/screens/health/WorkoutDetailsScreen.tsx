@@ -1,18 +1,20 @@
 import { ChevronRight, Dumbbell } from 'lucide-react-native';
 import { Image, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useHealthAssets } from '../../lib/healthAssets';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useHealthNavigation } from '../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
+import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBarStyles';
 import { useCurrentProgramDay, useHealthStore, useTodayWorkoutPreview } from '../../stores/useHealthStore';
 import { HealthPrimaryButton } from '../../components/health/ui/HealthPrimaryButton';
 import { HealthScreenHeader } from '../../components/health/ui/HealthScreenHeader';
 import { PremiumCard } from '../../components/health/ui/PremiumCard';
 
 export function WorkoutDetailsScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
+  const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
+  const stickyFooterHeight = 68;
   const { workoutHero } = useHealthAssets();
   const { pop, push } = useHealthNavigation();
   const openWorkoutGoalPicker = useHealthStore((s) => s.openWorkoutGoalPicker);
@@ -23,6 +25,9 @@ export function WorkoutDetailsScreen() {
     root: {
       flex: 1,
       backgroundColor: 'transparent',
+    },
+    scroll: {
+      flex: 1,
     },
     content: {
       paddingHorizontal: 20,
@@ -128,8 +133,12 @@ export function WorkoutDetailsScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
       <ScrollView
+        style={styles.scroll}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: scrollContentPaddingBottom + stickyFooterHeight + 12 },
+        ]}
       >
         <HealthScreenHeader title="Workout Details" subtitle={focusName} onBack={pop} />
 
@@ -178,7 +187,7 @@ export function WorkoutDetailsScreen() {
         ))}
       </ScrollView>
 
-      <View style={[styles.sticky, { paddingBottom: insets.bottom + 16 }]}>
+      <View style={[styles.sticky, { paddingBottom: scrollContentPaddingBottom }]}>
         <HealthPrimaryButton label="Start Workout" onPress={() => openWorkoutGoalPicker()} />
       </View>
     </View>

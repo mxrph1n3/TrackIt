@@ -23,7 +23,10 @@ export function AuthTextField({
 
   return (
     <View className="mb-4">
-      <Text className="mb-2 text-[10px] font-bold uppercase tracking-widest text-ethereal-slate">
+      <Text
+        className="mb-2 text-[11px] font-semibold tracking-wide"
+        style={{ color: theme.textMuted }}
+      >
         {label}
       </Text>
       <TextInput
@@ -37,21 +40,24 @@ export function AuthTextField({
           setIsFocused(false);
           onBlur?.(event);
         }}
-        className={`rounded-xl border px-4 py-3.5 text-base text-ethereal-ink ${
+        className={`rounded-2xl border px-4 py-3.5 text-[15px] ${
           error
             ? 'border-finance-red/60'
             : isFocused
               ? 'border-obsidian-primary'
-              : 'border-obsidian-border'
+              : 'border-obsidian-border/70'
         } ${className ?? ''}`}
         style={[
-          { backgroundColor: surfaces.inset },
+          {
+            backgroundColor: surfaces.inset,
+            color: theme.textPrimary,
+          },
           isFocused && !error
             ? {
                 shadowColor: '#775DD8',
                 shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: 0.35,
-                shadowRadius: 8,
+                shadowOpacity: 0.22,
+                shadowRadius: 12,
               }
             : undefined,
         ]}

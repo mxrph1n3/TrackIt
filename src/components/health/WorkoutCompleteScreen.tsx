@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ImageBackground, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -11,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { getWorkoutAchieveImage } from '../../lib/themeAssets';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { BRAND } from '../../theme/designTokens';
 import { MOTION_EASING } from '../../theme/motion';
 import { useTheme } from '../../theme/ThemeContext';
@@ -73,7 +73,7 @@ export function WorkoutCompleteScreen({ summary, onDismiss }: WorkoutCompleteScr
         return;
       }
 
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void triggerHaptic('success');
     };
 
     countFrameRef.current = requestAnimationFrame(tick);
@@ -202,7 +202,7 @@ export function WorkoutCompleteScreen({ summary, onDismiss }: WorkoutCompleteScr
     if (!canDismiss) {
       return;
     }
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void triggerHaptic('light');
     onDismiss();
   };
 

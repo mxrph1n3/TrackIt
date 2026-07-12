@@ -1,5 +1,4 @@
 import { BlurView } from 'expo-blur';
-import * as Haptics from 'expo-haptics';
 import {
   Check,
   ChevronDown,
@@ -23,13 +22,15 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useHeartRateProfile } from '../../hooks/useHeartRateProfile';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
 import { countCompletedExercises, formatExerciseSubtitle, sessionElapsedSeconds } from '../../lib/health/workoutEngine';
 import { resolveMusclesForExercise } from '../../lib/health/muscleMap';
+import { supportsNativeBlur } from '../../lib/platform/blur';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import type { MuscleHighlight } from '../../types/workout';
 import { useHealthStore } from '../../stores/useHealthStore';
 import { useTheme } from '../../theme/ThemeContext';
@@ -132,7 +133,7 @@ function SetRow({
 }
 
 export function ActiveWorkoutModal() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { isDark } = useTheme();
   const healthTheme = useHealthTheme();
   const styles = useHealthStyles((t) => ({
@@ -214,7 +215,7 @@ export function ActiveWorkoutModal() {
   const blurTint = isDark ? 'dark' : 'light';
 
   const handleCompleteExercise = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void triggerHaptic('medium');
     void advanceExerciseOrFinish();
   };
 
@@ -228,7 +229,7 @@ export function ActiveWorkoutModal() {
           text: 'Exit',
           style: 'destructive',
           onPress: () => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            void triggerHaptic('warning');
             cancelWorkout();
           },
         },
@@ -237,17 +238,24 @@ export function ActiveWorkoutModal() {
   };
 
   const handleToggle = (exerciseId: string, setId: string) => {
-    void Haptics.selectionAsync();
+    void triggerHaptic('selection');
     toggleSet(exerciseId, setId);
   };
 
   return (
     <Modal visible animationType="slide" presentationStyle="fullScreen">
       <View style={{ flex: 1, backgroundColor: healthTheme.background }}>
-        <BlurView intensity={24} tint={blurTint} style={StyleSheet.absoluteFill} />
+        {supportsNativeBlur() ? (
+          <BlurView intensity={24} tint={blurTint} style={StyleSheet.absoluteFill} />
+        ) : null}
 
         <View
-          style={{ paddingTop: insets.top + 8, paddingBottom: insets.bottom + 8, flex: 1, paddingHorizontal: 16 }}
+          style={{
+            paddingTop: insets.top + 8,
+            paddingBottom: insets.bottom + 8,
+            flex: 1,
+            paddingHorizontal: 16,
+          }}
         >
           <View style={{ marginBottom: 12, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <View style={{ flex: 1, paddingRight: 8 }}>
@@ -282,109 +290,117 @@ export function ActiveWorkoutModal() {
             </View>
           </View>
 
-          <HealthProgressBar
-            label="Overall Progress"
-            meta={`${progressPercent}%`}
-            progress={progressPercent}
-          />
+          <View style={{ flex: 1, minHeight: 0 }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingBottom: 16 }}
+              keyboardShouldPersistTaps="handled"
+              nestedScrollEnabled
+            >
+              <HealthProgressBar
+                label="Overall Progress"
+                meta={`${progressPercent}%`}
+                progress={progressPercent}
+              />
 
-          <PremiumCard padding={12} style={{ marginTop: 12, marginBottom: 12 }}>
-              <MuscleMapHighlighter
-                highlight={muscleHighlight}
-                compact
-                layout="dual"
-                centerContent={
-                  <>
-                    <Text
-                      className="text-center text-base font-bold text-ethereal-ink"
-                      numberOfLines={3}
-                    >
-                      {currentExercise?.name}
-                    </Text>
-                    {currentExercise?.template ? (
-                      <Text className="mt-1 text-center text-xs text-ethereal-slate">
-                        {formatExerciseSubtitle(currentExercise.template)}
-                      </Text>
-                    ) : null}
-                    {isCardio ? (
-                      <Pressable
-                        onPress={() => setShowHrCard((value) => !value)}
-                        className="mt-2 flex-row items-center justify-center gap-1 active:opacity-80"
+              <PremiumCard padding={12} style={{ marginTop: 12, marginBottom: 12 }}>
+                <MuscleMapHighlighter
+                  highlight={muscleHighlight}
+                  compact
+                  layout="dual"
+                  centerContent={
+                    <>
+                      <Text
+                        className="text-center text-base font-bold text-ethereal-ink"
+                        numberOfLines={3}
                       >
-                        <Text className="text-xs font-semibold text-obsidian-primary">
-                          Heart rate zones {activeHrZones.join('–')}
+                        {currentExercise?.name}
+                      </Text>
+                      {currentExercise?.template ? (
+                        <Text className="mt-1 text-center text-xs text-ethereal-slate">
+                          {formatExerciseSubtitle(currentExercise.template)}
                         </Text>
-                        {showHrCard ? (
-                          <ChevronUp color={healthTheme.accent} size={14} />
-                        ) : (
-                          <ChevronDown color={healthTheme.accent} size={14} />
-                        )}
-                      </Pressable>
-                    ) : null}
-                  </>
-                }
-              />
-          </PremiumCard>
-
-          {isCardio && showHrCard ? (
-            <View style={{ marginBottom: 12 }}>
-              <HeartRateZonesCard profile={heartRateProfile} activeZones={activeHrZones} compact />
-            </View>
-          ) : null}
-
-          <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-            {currentExercise?.sets.map((set, setIndex) => (
-              <SetRow
-                key={set.id}
-                setIndex={setIndex}
-                weightKg={set.weightKg}
-                reps={set.reps}
-                completed={set.completed}
-                repsTarget={currentExercise.template?.repsTarget ?? '—'}
-                onToggle={() => handleToggle(currentExercise.id, set.id)}
-                onWeightDelta={(delta) => adjustSetWeight(currentExercise.id, set.id, delta)}
-                onRepsDelta={(delta) => adjustSetReps(currentExercise.id, set.id, delta)}
-              />
-            ))}
-
-            {nextExercise ? (
-              <PremiumCard padding={14}>
-                <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase', color: healthTheme.slate }}>
-                  Next Exercise
-                </Text>
-                <Text style={{ marginTop: 4, fontSize: 15, fontWeight: '700', color: healthTheme.ink }}>
-                  {nextExercise.name}
-                </Text>
+                      ) : null}
+                      {isCardio ? (
+                        <Pressable
+                          onPress={() => setShowHrCard((value) => !value)}
+                          className="mt-2 flex-row items-center justify-center gap-1 active:opacity-80"
+                        >
+                          <Text className="text-xs font-semibold text-obsidian-primary">
+                            Heart rate zones {activeHrZones.join('–')}
+                          </Text>
+                          {showHrCard ? (
+                            <ChevronUp color={healthTheme.accent} size={14} />
+                          ) : (
+                            <ChevronDown color={healthTheme.accent} size={14} />
+                          )}
+                        </Pressable>
+                      ) : null}
+                    </>
+                  }
+                />
               </PremiumCard>
-            ) : null}
 
-            {showExerciseList ? (
-              <PremiumCard padding={14} style={{ marginTop: 8 }}>
-                <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase', color: healthTheme.slate, marginBottom: 10 }}>
-                  All Exercises
-                </Text>
-                {session.exercises.map((exercise, index) => (
-                  <Pressable
-                    key={exercise.id}
-                    onPress={() => {
-                      selectExercise(index);
-                      setShowExerciseList(false);
-                    }}
-                    style={{
-                      marginBottom: 8,
-                      padding: 10,
-                      borderRadius: 12,
-                      backgroundColor: index === session.currentExerciseIndex ? healthTheme.accentSoft : 'transparent',
-                    }}
-                  >
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: healthTheme.ink }}>
-                      {index + 1}. {exercise.name}
-                    </Text>
-                  </Pressable>
-                ))}
-              </PremiumCard>
-            ) : null}
-          </ScrollView>
+              {isCardio && showHrCard ? (
+                <View style={{ marginBottom: 12 }}>
+                  <HeartRateZonesCard profile={heartRateProfile} activeZones={activeHrZones} compact />
+                </View>
+              ) : null}
+
+              {currentExercise?.sets.map((set, setIndex) => (
+                <SetRow
+                  key={set.id}
+                  setIndex={setIndex}
+                  weightKg={set.weightKg}
+                  reps={set.reps}
+                  completed={set.completed}
+                  repsTarget={currentExercise.template?.repsTarget ?? '—'}
+                  onToggle={() => handleToggle(currentExercise.id, set.id)}
+                  onWeightDelta={(delta) => adjustSetWeight(currentExercise.id, set.id, delta)}
+                  onRepsDelta={(delta) => adjustSetReps(currentExercise.id, set.id, delta)}
+                />
+              ))}
+
+              {nextExercise ? (
+                <PremiumCard padding={14}>
+                  <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase', color: healthTheme.slate }}>
+                    Next Exercise
+                  </Text>
+                  <Text style={{ marginTop: 4, fontSize: 15, fontWeight: '700', color: healthTheme.ink }}>
+                    {nextExercise.name}
+                  </Text>
+                </PremiumCard>
+              ) : null}
+
+              {showExerciseList ? (
+                <PremiumCard padding={14} style={{ marginTop: 8 }}>
+                  <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase', color: healthTheme.slate, marginBottom: 10 }}>
+                    All Exercises
+                  </Text>
+                  {session.exercises.map((exercise, index) => (
+                    <Pressable
+                      key={exercise.id}
+                      onPress={() => {
+                        selectExercise(index);
+                        setShowExerciseList(false);
+                      }}
+                      style={{
+                        marginBottom: 8,
+                        padding: 10,
+                        borderRadius: 12,
+                        backgroundColor: index === session.currentExerciseIndex ? healthTheme.accentSoft : 'transparent',
+                      }}
+                    >
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: healthTheme.ink }}>
+                        {index + 1}. {exercise.name}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </PremiumCard>
+              ) : null}
+            </ScrollView>
+          </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 }}>
             <Pressable

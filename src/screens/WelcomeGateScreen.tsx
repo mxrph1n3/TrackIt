@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import {
@@ -17,12 +16,13 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FocusModePillButton } from '../components/welcome/FocusModePillButton';
 import { WeeklyProgressChart } from '../components/welcome/WeeklyProgressChart';
+import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
 import { useGamification } from '../hooks/useGamification';
 import { useWelcomeWeeklyProgress } from '../hooks/useWelcomeWeeklyProgress';
+import { triggerHaptic } from '../lib/platform/haptics';
 import { getWelcomeGateImage } from '../lib/themeAssets';
 import { ETHEREAL_COLORS } from '../theme/etherealTokens';
 import { MOTION_DURATION, timingEntrance, timingExit, timingLoop } from '../theme/motion';
@@ -44,7 +44,7 @@ type WelcomeGateScreenProps = {
 
 export function WelcomeGateScreen({ onEnter }: WelcomeGateScreenProps) {
   const { theme, mode } = useTheme();
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const background = getWelcomeGateImage(mode);
   const promoInk = mode === 'obsidian' ? PROMO_INK_DARK : PROMO_INK_LIGHT;
@@ -84,7 +84,7 @@ export function WelcomeGateScreen({ onEnter }: WelcomeGateScreenProps) {
   };
 
   const handleEnter = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void triggerHaptic('medium');
 
     exitScale.value = withTiming(0.96, timingExit(MOTION_DURATION.medium));
     exitOpacity.value = withTiming(0, timingExit(MOTION_DURATION.medium), (done) => {

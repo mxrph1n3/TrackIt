@@ -1,0 +1,60 @@
+---
+description: React Native Web / Telegram Mini App compatibility when editing UI
+globs: src/**/*.{tsx,ts}
+alwaysApply: true
+---
+
+# Telegram Mini App (Web) compatibility
+
+We are adapting this Expo app for **Telegram Mini App** via **React Native Web**.
+
+## Before merging UI changes
+
+1. Prefer primitives that work on web: `View`, `Text`, `Pressable`, `ScrollView`, `Image`, `StyleSheet`.
+2. Avoid web-incompatible APIs without a guard: `BlurView`, native-only modules, `UIManager`, platform-specific native modules.
+3. Use **platform splitting** when native and web differ:
+
+```tsx
+import { Platform } from 'react-native';
+
+if (Platform.OS === 'web') {
+  // web / TMA path
+} else if (Platform.OS === 'ios') {
+  // iOS-only native
+} else {
+  // Android
+}
+```
+
+## Native libraries — web strategy
+
+| Library | Web approach |
+|---------|----------------|
+| `expo-blur` / `BlurView` | Skip on web; use semi-opaque `backgroundColor` (see `GlassPanel`, `PlannerPremiumCard`) |
+| `expo-haptics` | No-op on web (`Platform.OS !== 'web'`) |
+| `expo-notifications` | Already gated; use TMA/deep-link alternatives on web |
+| `expo-secure-store` | Use `supabaseAuthStorage` web branch |
+| `react-native-purchases` | TMA billing / Telegram Stars — separate web path |
+| `expo-apple-authentication` | Hide on web |
+| Reanimated | Prefer web-safe patterns; static fallbacks for animated SVG on Android already exist — extend to web if needed |
+
+## Patterns to follow
+
+- **Blur**: `Platform.OS === 'ios' ? <BlurView /> : null` + solid frosted background — treat **web like Android** (no blur).
+- **Haptics**: wrap in `if (Platform.OS !== 'web') void Haptics.…`.
+- **Safe area**: `react-native-safe-area-context` works on web; still test inside Telegram viewport.
+- **Navigation**: React Navigation works on web; test deep links with TMA `initData` / `WebApp` SDK separately.
+- **Shadows**: use `Platform.select({ web: { boxShadow }, ios: …, android: { elevation } })` when needed.
+
+## Do not
+
+- Import native-only modules at top level without a web fallback path.
+- Use `Dimensions`/`useWindowDimensions` assumptions that ignore Telegram chrome (header, bottom bar).
+- Add new dependencies with native code only — check `react-native-web` compatibility first.
+
+## Reference files
+
+- `src/components/GlassPanel.tsx` — blur guard pattern
+- `src/lib/supabaseAuthStorage.ts` — web storage
+- `src/lib/notifications/reminderService.ts` — web disable
+- `src/theme/screenLayout.ts` — layout tokens shared across platforms

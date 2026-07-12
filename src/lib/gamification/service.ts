@@ -64,10 +64,10 @@ export async function resolveGlobalRank(
   const [{ count: higherRankCount, error: rankError }, { count: totalUsers, error: totalError }] =
     await Promise.all([
       supabase
-        .from('profiles')
+        .from('leaderboard')
         .select('*', { count: 'exact', head: true })
         .or(`level.gt.${profile.level},and(level.eq.${profile.level},xp.gt.${profile.xp})`),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('leaderboard').select('*', { count: 'exact', head: true }),
     ]);
 
   if (rankError) {
@@ -98,10 +98,9 @@ export async function fetchGlobalLeaderboard(
   assertSupabaseConfigured();
 
   const { data, error } = await supabase
-    .from('profiles')
+    .from('leaderboard')
     .select('*')
-    .order('level', { ascending: false })
-    .order('xp', { ascending: false })
+    .order('rank_position', { ascending: true })
     .limit(TOP_LIMIT);
 
   if (error) {

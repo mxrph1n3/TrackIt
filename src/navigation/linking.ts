@@ -2,10 +2,26 @@ import type { LinkingOptions } from '@react-navigation/native';
 import { Linking } from 'react-native';
 
 import { handleTrackItDeepLink } from '../lib/navigation/deepLinkRouter';
+import { IS_WEB } from '../lib/platform/constants';
 import type { RootTabParamList } from './types';
 
+function getLinkingPrefixes(): string[] {
+  const prefixes = ['trackit2://'];
+
+  if (IS_WEB && typeof window !== 'undefined') {
+    prefixes.push(window.location.origin);
+  }
+
+  const configured = process.env.EXPO_PUBLIC_WEB_APP_URL?.replace(/\/$/, '');
+  if (configured && !prefixes.includes(configured)) {
+    prefixes.push(configured);
+  }
+
+  return prefixes;
+}
+
 export const linking: LinkingOptions<RootTabParamList> = {
-  prefixes: ['trackit2://'],
+  prefixes: getLinkingPrefixes(),
   config: {
     screens: {
       Dashboard: 'dashboard',

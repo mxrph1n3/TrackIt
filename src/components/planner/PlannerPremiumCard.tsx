@@ -2,6 +2,7 @@ import { BlurView } from 'expo-blur';
 import type { PropsWithChildren } from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { supportsNativeBlur } from '../../lib/platform/blur';
 import { useTheme } from '../../theme/ThemeContext';
 
 type PlannerPremiumCardProps = PropsWithChildren<{
@@ -32,7 +33,7 @@ export function PlannerPremiumCard({ children, style }: PlannerPremiumCardProps)
           },
         ]}
       >
-        {Platform.OS === 'ios' ? (
+        {supportsNativeBlur() ? (
           <BlurView intensity={theme.blurIntensity} tint={theme.blurTint} style={StyleSheet.absoluteFill} />
         ) : null}
         {children}
@@ -55,5 +56,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 1,
     overflow: 'hidden',
+    alignSelf: 'stretch',
+    width: '100%',
   },
 });

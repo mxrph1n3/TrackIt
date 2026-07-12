@@ -1,8 +1,8 @@
-import * as Haptics from 'expo-haptics';
 import { CalendarDays } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { BRAND } from '../../theme/designTokens';
 import { getThemedSurfaces } from '../../theme/themedSurfaces';
 import { useTheme } from '../../theme/ThemeContext';
@@ -255,7 +255,7 @@ export function TaskSchedulePicker({ value, onChange }: TaskSchedulePickerProps)
 
   const handleSelect = useCallback(
     (dayKey: string) => {
-      void Haptics.selectionAsync();
+      void triggerHaptic('selection');
       onChange(dayKey);
       scrollToDay(dayKey);
     },

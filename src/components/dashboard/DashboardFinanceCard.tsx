@@ -1,5 +1,4 @@
 import { BlurView } from 'expo-blur';
-import * as Haptics from 'expo-haptics';
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -21,6 +20,8 @@ import Animated, {
 
 import { formatMoney, formatSignedMoney } from '../../constants/financeCategories';
 import { useDashboardFinanceStyles } from '../../hooks/useDashboardFinanceStyles';
+import { supportsNativeBlur } from '../../lib/platform/blur';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import type { DashboardFinanceSnapshot } from '../../types/dashboard';
 import { useCreateHubStore } from '../../stores/useCreateHubStore';
 import { useProfileModuleStore } from '../../stores/useProfileModuleStore';
@@ -131,7 +132,9 @@ function EmptyFinanceCard({
 }) {
   return (
     <View style={styles.cardShell}>
-      <BlurView intensity={22} tint={blurTint} style={StyleSheet.absoluteFill} />
+      {supportsNativeBlur() ? (
+        <BlurView intensity={22} tint={blurTint} style={StyleSheet.absoluteFill} />
+      ) : null}
       <View style={styles.cardInner}>
         <FinanceHeader monthLabel={monthLabel} onOpenFinance={onOpenFinance} styles={styles} />
         <View style={styles.emptyBody}>
@@ -141,7 +144,7 @@ function EmptyFinanceCard({
           </Text>
           <Pressable
             onPress={() => {
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              void triggerHaptic('medium');
               onAddFirst();
             }}
             className="mt-4 active:opacity-90"
@@ -181,12 +184,12 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
   const handleOpenFinance = () => openFinance('finance');
 
   const handleOpenIncome = () => {
-    void Haptics.selectionAsync();
+    void triggerHaptic('selection');
     openHub('finance', { financePreset: 'income' });
   };
 
   const handleOpenExpense = () => {
-    void Haptics.selectionAsync();
+    void triggerHaptic('selection');
     openHub('finance', { financePreset: 'expense' });
   };
 
@@ -226,7 +229,9 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
 
   return (
     <View style={styles.cardShell}>
-      <BlurView intensity={24} tint={blurTint} style={StyleSheet.absoluteFill} />
+      {supportsNativeBlur() ? (
+        <BlurView intensity={24} tint={blurTint} style={StyleSheet.absoluteFill} />
+      ) : null}
       <View style={styles.cardInner}>
         <FinanceHeader monthLabel={finance.monthLabel} onOpenFinance={handleOpenFinance} styles={styles} />
 

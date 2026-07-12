@@ -2,6 +2,7 @@ import type { PropsWithChildren } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 
+import { useTelegramThemeSync } from '../hooks/useTelegramThemeSync';
 import { themeNativeWindVars } from './nativewindVars';
 import { ThemeProvider, useTheme } from './ThemeContext';
 
@@ -12,6 +13,7 @@ function ThemedStatusBar() {
 
 function ThemedAppShell({ children }: PropsWithChildren) {
   const { theme } = useTheme();
+  useTelegramThemeSync();
 
   return (
     <View

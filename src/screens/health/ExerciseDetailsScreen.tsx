@@ -1,9 +1,10 @@
 import { ScrollView, Text, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useHealthNavigation } from '../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
+import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBarStyles';
 import type { HealthStackParamList } from '../../navigation/healthTypes';
 import { useCurrentProgramDay } from '../../stores/useHealthStore';
 import { HealthScreenHeader } from '../../components/health/ui/HealthScreenHeader';
@@ -19,7 +20,8 @@ const INSTRUCTIONS = [
 ];
 
 export function ExerciseDetailsScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
+  const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const { pop } = useHealthNavigation();
   const route = useRoute<RouteProp<HealthStackParamList, 'ExerciseDetails'>>();
   const exerciseIndex = route.params?.exerciseIndex ?? null;
@@ -113,7 +115,7 @@ export function ExerciseDetailsScreen() {
     <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: scrollContentPaddingBottom + 16 }]}
       >
         <HealthScreenHeader title={exercise.name} subtitle="Exercise Details" onBack={pop} />
 

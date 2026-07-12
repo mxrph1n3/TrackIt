@@ -1,20 +1,22 @@
 import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HealthProgressBar } from '../../components/health/ui/HealthProgressBar';
 import { HealthScreenHeader } from '../../components/health/ui/HealthScreenHeader';
 import { PremiumCard } from '../../components/health/ui/PremiumCard';
 import { useAnalyticsHealth } from '../../hooks/useAnalyticsHealth';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useHealthNavigation } from '../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
+import { useTodayNutrition } from '../../hooks/useTodayNutrition';
+import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBarStyles';
 import { useHealthStore } from '../../stores/useHealthStore';
 
 export function DailyProgressScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
+  const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const { pop } = useHealthNavigation();
-  const dietPlan = useHealthStore((s) => s.dietPlan);
-  const consumed = useHealthStore((s) => s.consumedMacros);
+  const { dietPlan, consumedMacros: consumed } = useTodayNutrition();
   const bodyStats = useHealthStore((s) => s.bodyStats);
   const { data, isLoading } = useAnalyticsHealth();
   const healthTheme = useHealthTheme();
@@ -85,7 +87,7 @@ export function DailyProgressScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: scrollContentPaddingBottom + 16 }]}
         showsVerticalScrollIndicator={false}
       >
         <HealthScreenHeader title="Daily Progress" subtitle="Analytics & goals" onBack={pop} />

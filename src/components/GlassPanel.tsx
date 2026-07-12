@@ -2,6 +2,7 @@ import { BlurView } from 'expo-blur';
 import type { PropsWithChildren } from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { frostedOverlayColor, supportsNativeBlur } from '../lib/platform/blur';
 import { buildGlassShadowStyle, buildGlassStyle } from '../theme/obsidian';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -19,11 +20,12 @@ export function GlassPanel({
   intensity,
   borderRadius,
 }: GlassPanelProps) {
-  const { theme } = useTheme();
+  const { theme, isDark } = useTheme();
   const resolvedRadius = borderRadius ?? theme.cardRadius;
   const resolvedIntensity = intensity ?? theme.blurIntensity;
   const glassStyle = buildGlassStyle(theme);
   const shadowStyle = buildGlassShadowStyle(theme);
+  const overlayFill = supportsNativeBlur() ? theme.card : frostedOverlayColor(isDark);
 
   return (
     <View
@@ -35,17 +37,19 @@ export function GlassPanel({
       ]}
     >
       <View style={[styles.wrapper, { borderRadius: resolvedRadius }, glassStyle]}>
-        <BlurView
-          intensity={resolvedIntensity}
-          tint={theme.blurTint}
-          style={[StyleSheet.absoluteFill, { borderRadius: resolvedRadius }]}
-        />
+        {supportsNativeBlur() ? (
+          <BlurView
+            intensity={resolvedIntensity}
+            tint={theme.blurTint}
+            style={[StyleSheet.absoluteFill, { borderRadius: resolvedRadius }]}
+          />
+        ) : null}
         <View
           style={[
             styles.overlay,
             {
               borderRadius: resolvedRadius,
-              backgroundColor: theme.card,
+              backgroundColor: overlayFill,
               borderColor: theme.border,
             },
           ]}
@@ -59,6 +63,8 @@ export function GlassPanel({
 
 const styles = StyleSheet.create({
   shadowShell: {
+    alignSelf: 'stretch',
+    width: '100%',
     ...Platform.select({
       android: {
         backgroundColor: 'transparent',

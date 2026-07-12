@@ -11,6 +11,7 @@ import Animated, {
 import Svg, { Line } from 'react-native-svg';
 
 import type { RadialHubAction } from '../../constants/actionHubRadial';
+import { supportsNativeBlur } from '../../lib/platform/blur';
 import { premiumSpringConfig, timingEntrance, timingExit } from '../../theme/motion';
 import { ActionHubCenterCrystal } from './ActionHubCenterCrystal';
 import { ACTION_HUB } from './actionHubTheme';
@@ -122,7 +123,7 @@ function RadialOrb({
     <Animated.View style={[styles.orbAnchor, { left, top, width: ORB_ANCHOR_WIDTH }, animatedStyle]}>
       <Pressable onPress={onPress} style={styles.orbPressable}>
         <View style={styles.orbShell}>
-          {Platform.OS === 'ios' ? (
+          {supportsNativeBlur() ? (
             <BlurView intensity={hubTheme.isDark ? 32 : 24} tint={hubTheme.blurTint} style={StyleSheet.absoluteFill} />
           ) : null}
           <Icon color={action.accent} size={22} strokeWidth={2} />

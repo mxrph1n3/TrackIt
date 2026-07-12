@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useSchemaHealth } from '../../hooks/useSchemaHealth';
 import { BRAND } from '../../theme/designTokens';
 
@@ -9,7 +9,7 @@ type SchemaStatusBannerProps = {
 };
 
 export function SchemaStatusBanner({ enabled = true }: SchemaStatusBannerProps) {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { isChecking, isHealthy, message, refresh } = useSchemaHealth(enabled);
 
   if (isChecking || isHealthy || !message) {

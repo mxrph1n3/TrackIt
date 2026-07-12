@@ -1,7 +1,7 @@
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FinanceMiniForm } from '../quickActions/FinanceMiniForm';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useTheme } from '../../theme/ThemeContext';
 import type { TransactionType } from '../../types/finance';
 
@@ -19,7 +19,7 @@ export function FinanceTransactionSheet({
   onSuccess,
 }: FinanceTransactionSheetProps) {
   const { theme } = useTheme();
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>

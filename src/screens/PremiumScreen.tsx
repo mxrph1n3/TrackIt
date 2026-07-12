@@ -1,5 +1,4 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
 import { Check, Crown, Sparkles, X } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -10,7 +9,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GlassPanel } from '../components/GlassPanel';
 import { IsolatedScreenLayout } from '../components/layout/IsolatedScreenShell';
@@ -21,11 +19,19 @@ import {
   SUBSCRIPTION_DISPLAY_PRICING,
   SUBSCRIPTION_PRODUCT_IDS,
 } from '../constants/subscriptions';
+import {
+  getTmaStarsPrice,
+  TMA_STARS_BILLING_PERIOD_LABEL,
+  TMA_TRIAL_DAYS,
+} from '../constants/tmaBilling';
+import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
 import { PREMIUM_FEATURE_META } from '../lib/subscription/features';
-import { isRevenueCatReady } from '../stores/useSubscriptionStore';
+import { IS_WEB } from '../lib/platform/constants';
+import { triggerHaptic } from '../lib/platform/haptics';
+import { isTelegramMiniApp } from '../lib/telegram/telegramWebApp';
+import { isRevenueCatReady, selectIsPro, useSubscriptionStore } from '../stores/useSubscriptionStore';
 import { usePaywallStore } from '../stores/usePaywallStore';
 import { useProfileModuleStore } from '../stores/useProfileModuleStore';
-import { useSubscriptionStore } from '../stores/useSubscriptionStore';
 import { BRAND, RADIUS } from '../theme/designTokens';
 import { useTheme } from '../theme/ThemeContext';
 import type { PremiumFeatureId, SubscriptionProductId } from '../types/subscription';
@@ -44,12 +50,15 @@ export function PremiumScreen({
   feature = null,
   showHeader = true,
 }: PremiumScreenProps) {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const closeModule = useProfileModuleStore((s) => s.closeModule);
   const closePaywall = usePaywallStore((s) => s.closePaywall);
 
-  const isPro = useSubscriptionStore((s) => s.status.isPro || (__DEV__ && s.devProOverride));
+  const isPro = useSubscriptionStore(selectIsPro);
+  const tmaAccess = useSubscriptionStore((s) => s.tmaAccess);
+  const isTma = IS_WEB && isTelegramMiniApp();
+  const starsPrice = getTmaStarsPrice();
   const offerings = useSubscriptionStore((s) => s.offerings);
   const isPurchasing = useSubscriptionStore((s) => s.isPurchasing);
   const isLoading = useSubscriptionStore((s) => s.isLoading);
@@ -57,7 +66,7 @@ export function PremiumScreen({
   const purchase = useSubscriptionStore((s) => s.purchase);
   const restore = useSubscriptionStore((s) => s.restore);
   const clearError = useSubscriptionStore((s) => s.clearError);
-  const refresh = useSubscriptionStore((s) => s.refresh);
+  const purchaseWithStars = useSubscriptionStore((s) => s.purchaseWithStars);
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionProductId>(
     SUBSCRIPTION_PRODUCT_IDS.yearly,
@@ -80,20 +89,33 @@ export function PremiumScreen({
     offerings.yearly?.priceString ?? SUBSCRIPTION_DISPLAY_PRICING.yearly.price;
 
   const handlePurchase = useCallback(async () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void triggerHaptic('medium');
     clearError();
     const success = await purchase(selectedPlan);
     if (success) {
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void triggerHaptic('success');
       handleClose();
     }
   }, [clearError, handleClose, purchase, selectedPlan]);
 
+  const refresh = useSubscriptionStore((s) => s.refresh);
+
+  const handleStarsPurchase = useCallback(async () => {
+    void triggerHaptic('medium');
+    clearError();
+    const success = await purchaseWithStars();
+    if (success) {
+      void triggerHaptic('success');
+      handleClose();
+    }
+  }, [clearError, handleClose, purchaseWithStars]);
+
   const handleRestore = useCallback(async () => {
-    void Haptics.selectionAsync();
+    void triggerHaptic('selection');
     clearError();
     const restored = await restore();
     if (restored) {
+      void triggerHaptic('success');
       handleClose();
     }
   }, [clearError, handleClose, restore]);
@@ -310,7 +332,11 @@ export function PremiumScreen({
             <Crown color={BRAND.primary} size={40} />
             <Text style={styles.proActiveTitle}>TrackIt Pro is active</Text>
             <Text style={styles.proActiveBody}>
-              AI Coach, advanced analytics, cloud sync, and premium themes are unlocked.
+              {tmaAccess.isInTrial
+                ? `Trial active — ${tmaAccess.trialDaysRemaining} day(s) left with full access and reminders.`
+                : tmaAccess.hasStarsSubscription
+                  ? 'Monthly Telegram Stars subscription active. AI Coach, analytics, and reminders are unlocked.'
+                  : 'AI Coach, advanced analytics, cloud sync, and premium themes are unlocked.'}
             </Text>
             <Pressable onPress={() => void refresh()} style={styles.secondaryButton}>
               <Text style={styles.secondaryLabel}>Refresh subscription status</Text>
@@ -329,44 +355,98 @@ export function PremiumScreen({
               marginBottom: 10,
             }}
           >
-            Choose a plan
+            {IS_WEB ? 'Subscription' : 'Choose a plan'}
           </Text>
 
-          <Pressable
-            onPress={() => setSelectedPlan(SUBSCRIPTION_PRODUCT_IDS.monthly)}
-            style={[
-              styles.planCard,
-              selectedPlan === SUBSCRIPTION_PRODUCT_IDS.monthly && styles.planCardSelected,
-            ]}
-          >
-            <View style={styles.planRow}>
-              <Text style={styles.planLabel}>{SUBSCRIPTION_DISPLAY_PRICING.monthly.label}</Text>
-              <Text style={styles.planPrice}>
-                {monthlyPrice}/{SUBSCRIPTION_DISPLAY_PRICING.monthly.period}
-              </Text>
-            </View>
-            <Text style={styles.planMeta}>Flexible monthly billing</Text>
-          </Pressable>
+          {!IS_WEB ? (
+            <>
+              <Pressable
+                onPress={() => setSelectedPlan(SUBSCRIPTION_PRODUCT_IDS.monthly)}
+                style={[
+                  styles.planCard,
+                  selectedPlan === SUBSCRIPTION_PRODUCT_IDS.monthly && styles.planCardSelected,
+                ]}
+              >
+                <View style={styles.planRow}>
+                  <Text style={styles.planLabel}>{SUBSCRIPTION_DISPLAY_PRICING.monthly.label}</Text>
+                  <Text style={styles.planPrice}>
+                    {monthlyPrice}/{SUBSCRIPTION_DISPLAY_PRICING.monthly.period}
+                  </Text>
+                </View>
+                <Text style={styles.planMeta}>Flexible monthly billing</Text>
+              </Pressable>
 
-          <Pressable
-            onPress={() => setSelectedPlan(SUBSCRIPTION_PRODUCT_IDS.yearly)}
-            style={[
-              styles.planCard,
-              selectedPlan === SUBSCRIPTION_PRODUCT_IDS.yearly && styles.planCardSelected,
-            ]}
-          >
-            <View style={styles.planRow}>
-              <Text style={styles.planLabel}>{SUBSCRIPTION_DISPLAY_PRICING.yearly.label}</Text>
-              <Text style={styles.planPrice}>
-                {yearlyPrice}/{SUBSCRIPTION_DISPLAY_PRICING.yearly.period}
+              <Pressable
+                onPress={() => setSelectedPlan(SUBSCRIPTION_PRODUCT_IDS.yearly)}
+                style={[
+                  styles.planCard,
+                  selectedPlan === SUBSCRIPTION_PRODUCT_IDS.yearly && styles.planCardSelected,
+                ]}
+              >
+                <View style={styles.planRow}>
+                  <Text style={styles.planLabel}>{SUBSCRIPTION_DISPLAY_PRICING.yearly.label}</Text>
+                  <Text style={styles.planPrice}>
+                    {yearlyPrice}/{SUBSCRIPTION_DISPLAY_PRICING.yearly.period}
+                  </Text>
+                </View>
+                <View style={styles.savingsBadge}>
+                  <Text style={styles.savingsText}>
+                    {SUBSCRIPTION_DISPLAY_PRICING.yearly.savingsLabel}
+                  </Text>
+                </View>
+              </Pressable>
+            </>
+          ) : isTma ? (
+            <>
+              {tmaAccess.isInTrial ? (
+                <GlassPanel borderRadius={RADIUS.inset} style={{ marginBottom: 12 }}>
+                  <View style={{ padding: 16 }}>
+                    <Text style={styles.planLabel}>
+                      {TMA_TRIAL_DAYS}-day trial active
+                    </Text>
+                    <Text style={[styles.planMeta, { marginTop: 6 }]}>
+                      {tmaAccess.trialDaysRemaining} day(s) left — full Pro access and Telegram
+                      reminders included.
+                    </Text>
+                  </View>
+                </GlassPanel>
+              ) : (
+                <Text style={[styles.planMeta, { marginBottom: 12 }]}>
+                  Your {TMA_TRIAL_DAYS}-day trial has ended. Subscribe with Telegram Stars (billed
+                  monthly) to keep Pro features and smart reminders.
+                </Text>
+              )}
+
+              <Pressable
+                onPress={() => void handleStarsPurchase()}
+                disabled={isPurchasing || isLoading}
+                style={[styles.primaryButton, (isPurchasing || isLoading) && { opacity: 0.7 }]}
+              >
+                {isPurchasing ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.primaryButtonLabel}>
+                    {tmaAccess.isInTrial
+                      ? `Subscribe — ${starsPrice} Stars / ${TMA_STARS_BILLING_PERIOD_LABEL}`
+                      : `Unlock Pro — ${starsPrice} Stars / ${TMA_STARS_BILLING_PERIOD_LABEL}`}
+                  </Text>
+                )}
+              </Pressable>
+
+              <Pressable onPress={() => void refresh()} style={styles.secondaryButton}>
+                <Text style={styles.secondaryLabel}>Refresh access status</Text>
+              </Pressable>
+
+              <Text style={[styles.configNote, { marginTop: 8 }]}>
+                Billed monthly via Telegram Stars. Subscription renews automatically; cancel in
+                Telegram → Settings → Stars.
               </Text>
-            </View>
-            <View style={styles.savingsBadge}>
-              <Text style={styles.savingsText}>
-                {SUBSCRIPTION_DISPLAY_PRICING.yearly.savingsLabel}
-              </Text>
-            </View>
-          </Pressable>
+            </>
+          ) : (
+            <Text style={[styles.planMeta, { marginBottom: 12 }]}>
+              Subscribe on the iOS or Android app, then sync your Pro status here.
+            </Text>
+          )}
 
           <GlassPanel borderRadius={RADIUS.inset} style={{ marginTop: 8, marginBottom: 16 }}>
             <View style={{ padding: 16 }}>
@@ -391,29 +471,45 @@ export function PremiumScreen({
             </View>
           </GlassPanel>
 
-          <Pressable
-            onPress={() => void handlePurchase()}
-            disabled={isPurchasing || isLoading}
-            style={[styles.primaryButton, (isPurchasing || isLoading) && { opacity: 0.7 }]}
-          >
-            {isPurchasing ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.primaryButtonLabel}>
-                {FREE_TRIAL_DAYS > 0
-                  ? `Start ${FREE_TRIAL_DAYS}-day free trial`
-                  : 'Upgrade to Pro'}
-              </Text>
-            )}
-          </Pressable>
+          {!IS_WEB ? (
+            <Pressable
+              onPress={() => void handlePurchase()}
+              disabled={isPurchasing || isLoading}
+              style={[styles.primaryButton, (isPurchasing || isLoading) && { opacity: 0.7 }]}
+            >
+              {isPurchasing ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.primaryButtonLabel}>
+                  {FREE_TRIAL_DAYS > 0
+                    ? `Start ${FREE_TRIAL_DAYS}-day free trial`
+                    : 'Upgrade to Pro'}
+                </Text>
+              )}
+            </Pressable>
+          ) : isTma ? null : (
+            <Pressable
+              onPress={() => void handleRestore()}
+              disabled={isPurchasing || isLoading}
+              style={[styles.primaryButton, (isPurchasing || isLoading) && { opacity: 0.7 }]}
+            >
+              {isPurchasing ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.primaryButtonLabel}>Sync subscription</Text>
+              )}
+            </Pressable>
+          )}
 
-          <Pressable onPress={() => void handleRestore()} style={styles.secondaryButton}>
-            <Text style={styles.secondaryLabel}>Restore purchases</Text>
-          </Pressable>
+          {!IS_WEB ? (
+            <Pressable onPress={() => void handleRestore()} style={styles.secondaryButton}>
+              <Text style={styles.secondaryLabel}>Restore purchases</Text>
+            </Pressable>
+          ) : null}
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          {!isRevenueCatReady() ? (
+          {!isRevenueCatReady() && !IS_WEB ? (
             <Text style={styles.configNote}>
               Store billing is not configured in this build. Add EXPO_PUBLIC_REVENUECAT_APPLE_KEY
               and EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY, then create products trackit_pro_monthly and

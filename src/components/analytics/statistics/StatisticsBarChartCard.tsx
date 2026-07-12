@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedProps,
   useSharedValue,
@@ -126,6 +126,20 @@ export function StatisticsBarChartCard({
         {data.map((point, index) => {
           const barHeight = (point.value / max) * (CHART_HEIGHT - 28);
           const x = barGap + index * (barWidth + barGap);
+          if (Platform.OS !== 'ios') {
+            return (
+              <Rect
+                key={point.label}
+                x={x}
+                y={CHART_HEIGHT - 18 - barHeight}
+                width={barWidth}
+                height={barHeight}
+                rx={5}
+                fill={accent}
+                opacity={0.9}
+              />
+            );
+          }
           return (
             <AnimatedBar
               key={point.label}

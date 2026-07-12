@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { RecentActionEntry } from '../../constants/actionHubRadial';
+import { supportsNativeBlur } from '../../lib/platform/blur';
 import { RADIUS } from '../../theme/designTokens';
 import { useTheme } from '../../theme/ThemeContext';
 import { useActionHubTheme } from './useActionHubTheme';
@@ -100,7 +101,7 @@ export function ActionHubRecentActions({ items, onPressItem }: ActionHubRecentAc
   return (
     <View style={styles.shadow}>
       <View style={styles.card}>
-        {Platform.OS === 'ios' ? (
+        {supportsNativeBlur() ? (
           <BlurView intensity={hubTheme.isDark ? 36 : 22} tint={hubTheme.blurTint} style={StyleSheet.absoluteFill} />
         ) : null}
         <Text style={styles.header}>Recent Actions</Text>

@@ -1,5 +1,4 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
 import {
   Check,
   ChevronRight,
@@ -25,17 +24,20 @@ import { useHealthAssets } from '../../lib/healthAssets';
 import { getImageScrim } from '../../lib/themeAssets';
 import { navigateTab } from '../../navigation/navigationRef';
 import { useWaterDailyTotal } from '../../hooks/useWaterDailyTotal';
+import { useTodayNutrition } from '../../hooks/useTodayNutrition';
 import { useDashboardHealthStyles, type DashboardHealthStyles } from '../../hooks/useDashboardHealthStyles';
 import { useDashboardWorkoutSnapshot } from '../../hooks/useDashboardWorkoutSnapshot';
 import { insertWaterLog } from '../../lib/quickActions/service';
 import { formatNextWorkoutWhen } from '../../lib/health/workoutDashboard';
 import { countCompletedExercises } from '../../lib/health/workoutEngine';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { useCreateHubStore } from '../../stores/useCreateHubStore';
 import { useHealthStore } from '../../stores/useHealthStore';
 import { MEAL_SLOT_ORDER } from '../../constants/mealSlots';
 import { SLOT_LABELS } from '../../constants/meals';
 import { BRAND, SEMANTIC } from '../../theme/designTokens';
 import { timingProgress } from '../../theme/motion';
+import { getScreenHorizontalPadding } from '../../theme/screenLayout';
 import { useTheme } from '../../theme/ThemeContext';
 import type { MacroTotals, MealSlot } from '../../types/health';
 
@@ -371,14 +373,11 @@ function NutritionDashboardSection({
 }
 
 export function DashboardHealthCard() {
-  const consumed = useHealthStore((s) => s.consumedMacros);
-  const dietPlan = useHealthStore((s) => s.dietPlan);
+  const { consumedMacros: consumed, dietPlan, mealLog, quickMeals, waterTargetLiters } =
+    useTodayNutrition();
   const activeSession = useHealthStore((s) => s.activeSession);
   const openWorkoutGoalPicker = useHealthStore((s) => s.openWorkoutGoalPicker);
   const lastSession = useHealthStore((s) => s.lastSession);
-  const waterTargetLiters = useHealthStore((s) => s.waterTargetLiters);
-  const mealLog = useHealthStore((s) => s.mealLog);
-  const quickMeals = useHealthStore((s) => s.quickMeals);
   const openHub = useCreateHubStore((s) => s.open);
   const workoutSnapshot = useDashboardWorkoutSnapshot();
   const calorieTarget = dietPlan.calories;
@@ -462,12 +461,12 @@ export function DashboardHealthCard() {
   }, []);
 
   const handleStartWorkout = useCallback(() => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void triggerHaptic('medium');
     openWorkoutGoalPicker();
   }, [openWorkoutGoalPicker]);
 
   const handleContinueWorkout = useCallback(() => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void triggerHaptic('medium');
   }, []);
 
   const handleAddWater = useCallback(async () => {
@@ -476,7 +475,7 @@ export function DashboardHealthCard() {
     try {
       await insertWaterLog({ amountMl: GLASS_ML });
       addWaterOptimistic(GLASS_ML);
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void triggerHaptic('light');
     } catch {
       addWaterOptimistic(GLASS_ML);
     } finally {
@@ -490,7 +489,8 @@ export function DashboardHealthCard() {
   const { mode, theme } = useTheme();
   const { styles } = useDashboardHealthStyles();
   const { todayWidget } = useHealthAssets();
-  const panelHeight = Math.round((screenWidth - 32) * 0.5);
+  const horizontalPadding = getScreenHorizontalPadding();
+  const panelHeight = Math.round((screenWidth - horizontalPadding * 2) * 0.5);
   const imageScrim = getImageScrim(mode, 'horizontal');
   const plainPanelColors = [theme.cardFrosted, theme.cardFrosted] as const;
 

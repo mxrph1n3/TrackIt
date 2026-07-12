@@ -2,26 +2,28 @@ import { Plus } from 'lucide-react-native';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useMemo } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getMealById, getMealInstructions, SLOT_LABELS } from '../../constants/meals';
 import { resolveMealSlot } from '../../constants/mealSlots';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useHealthNavigation } from '../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
+import { useTodayNutrition } from '../../hooks/useTodayNutrition';
+import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBarStyles';
 import type { HealthStackParamList } from '../../navigation/healthTypes';
 import { HealthScreenHeader } from '../../components/health/ui/HealthScreenHeader';
 import { PremiumCard } from '../../components/health/ui/PremiumCard';
 import { useHealthStore } from '../../stores/useHealthStore';
 
 export function MealDetailsScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
+  const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const { pop } = useHealthNavigation();
   const route = useRoute<RouteProp<HealthStackParamList, 'MealDetails'>>();
   const mealSlot = route.params?.mealSlot;
   const previewMealId = route.params?.mealId;
-  const mealLog = useHealthStore((s) => s.mealLog);
-  const quickMeals = useHealthStore((s) => s.quickMeals);
+  const { mealLog, quickMeals } = useTodayNutrition();
   const swapMeal = useHealthStore((s) => s.swapMeal);
   const healthTheme = useHealthTheme();
 
@@ -142,7 +144,7 @@ export function MealDetailsScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: scrollContentPaddingBottom + 16 }]}
         showsVerticalScrollIndicator={false}
       >
         <HealthScreenHeader

@@ -12,14 +12,23 @@ import { reportSyncError } from '../lib/sync/reportSyncError';
 import { useGamificationStore } from '../stores/useGamificationStore';
 import type { ProfileRow } from '../types/database';
 import { useHealthStore } from '../stores/useHealthStore';
+import { toDayKey } from '../utils/plannerDates';
+import { useCalendarDayKey } from './useCalendarDayKey';
 
 export async function syncHealthNutritionState(
   userId: string,
   profile: ProfileRow | null,
+  dayKey = toDayKey(new Date()),
 ): Promise<void> {
+  const store = useHealthStore.getState();
+
+  if (store.nutritionDayKey !== dayKey) {
+    useHealthStore.getState().resetDailyNutrition(dayKey);
+  }
+
   const [nutrition, workoutCompleted, latestWeight, lifetimeStats] = await Promise.all([
-    fetchTodayNutrition(userId),
-    fetchTodayWorkoutCompleted(userId),
+    fetchTodayNutrition(userId, dayKey),
+    fetchTodayWorkoutCompleted(userId, dayKey),
     fetchLatestWeight(userId),
     fetchWorkoutLifetimeStats(userId),
   ]);
@@ -33,7 +42,7 @@ export async function syncHealthNutritionState(
   useHealthStore.getState().applyNutritionTargets(
     resolveNutritionTargets(profile, weightKg, workoutMinutes),
   );
-  useHealthStore.getState().hydrateNutrition(nutrition);
+  useHealthStore.getState().hydrateNutrition(nutrition, dayKey);
   useHealthStore.setState((state) => ({
     lifetimeStats: mergeLifetimeStats(state.lifetimeStats, lifetimeStats),
   }));
@@ -58,12 +67,30 @@ export async function syncHealthNutritionState(
         },
       });
     }
+  } else {
+    const state = useHealthStore.getState();
+    if (state.lastSession.relativeDay === 'Today') {
+      useHealthStore.setState({
+        lastSession: {
+          ...state.lastSession,
+          relativeDay: '—',
+        },
+      });
+    }
   }
 }
 
 export function useHealthNutritionSync() {
   const userId = useGamificationStore((state) => state.profile?.id);
   const profile = useGamificationStore((state) => state.profile);
+  const calendarDayKey = useCalendarDayKey();
+
+  useEffect(() => {
+    const state = useHealthStore.getState();
+    if (state.nutritionDayKey !== calendarDayKey) {
+      useHealthStore.getState().resetDailyNutrition(calendarDayKey);
+    }
+  }, [calendarDayKey]);
 
   useEffect(() => {
     if (!userId || !isSupabaseConfigured) {
@@ -72,7 +99,7 @@ export function useHealthNutritionSync() {
 
     const hydrate = async () => {
       try {
-        await syncHealthNutritionState(userId, profile);
+        await syncHealthNutritionState(userId, profile, calendarDayKey);
       } catch (error) {
         reportSyncError('Health', error, 'Could not load nutrition data.');
       }
@@ -122,7 +149,7 @@ export function useHealthNutritionSync() {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [profile, userId]);
+  }, [calendarDayKey, profile, userId]);
 }
 
 export function NutritionSyncBridge() {

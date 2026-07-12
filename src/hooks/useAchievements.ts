@@ -3,19 +3,17 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   collectAchievementXp,
   countUncollectedXp,
-  fetchAchievementMetrics,
   syncAchievements,
   type AchievementProgress,
 } from '../lib/achievements/service';
 import { reportSyncError, reportSyncSuccess } from '../lib/sync/reportSyncError';
-import { useProgression } from './useProgression';
-import { isSupabaseConfigured } from '../lib/supabase';
 import { useGamificationStore } from '../stores/useGamificationStore';
 import { useProfileStore } from '../stores/useProfileStore';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 export function useAchievements() {
   const userId = useGamificationStore((s) => s.profile?.id);
-  const { addXpAction } = useProgression();
+  const syncProfile = useGamificationStore((s) => s.syncProfile);
   const setUncollectedXp = useProfileStore((s) => s.setUncollectedXpRewards);
 
   const [achievements, setAchievements] = useState<AchievementProgress[]>([]);
@@ -33,8 +31,7 @@ export function useAchievements() {
     setIsLoading(true);
 
     try {
-      const metrics = await fetchAchievementMetrics(userId);
-      const synced = await syncAchievements(userId, metrics);
+      const synced = await syncAchievements(userId);
       setAchievements(synced);
       setUncollectedXp(countUncollectedXp(synced));
     } catch (error) {
@@ -60,15 +57,23 @@ export function useAchievements() {
       }
 
       try {
-        await collectAchievementXp(userId, achievementId);
-        await addXpAction(achievement.xpReward, `achievement_${achievementId}`);
+        const result = await collectAchievementXp(userId, achievementId);
+        if (result.leveledUp) {
+          useGamificationStore.setState({
+            levelUpCelebration: {
+              newLevel: result.newLevel,
+              actionName: `achievement_${achievementId}`,
+            },
+          });
+        }
+        await syncProfile();
         await refresh();
         reportSyncSuccess('Reward collected.');
       } catch (error) {
         reportSyncError('Achievements', error, 'Could not collect reward.');
       }
     },
-    [achievements, addXpAction, refresh, userId],
+    [achievements, refresh, syncProfile, userId],
   );
 
   const selected = achievements.find((item) => item.id === selectedId) ?? null;

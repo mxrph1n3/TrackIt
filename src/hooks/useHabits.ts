@@ -1,8 +1,8 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useProgression } from './useProgression';
+import { triggerHaptic } from '../lib/platform/haptics';
 import {
   createHabit,
   fetchHabitsWithWeek,
@@ -97,7 +97,7 @@ export function useHabits(): UseHabitsResult {
         await toggleHabitLog(userId, habitId, dayKey, nextCompleted);
 
         if (nextCompleted) {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          void triggerHaptic('medium');
           await awardHabitCompletion(userId, habitId);
           await syncProfile();
         }

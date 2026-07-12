@@ -2,14 +2,16 @@ import { useMemo, useState } from 'react';
 import { ChevronRight, Plus, Search } from 'lucide-react-native';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getMealLibrary } from '../../constants/meals';
 import { getMealInstructions } from '../../constants/mealRecipes';
 import { resolveMealSlot } from '../../constants/mealSlots';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useHealthNavigation } from '../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
+import { useTodayNutrition } from '../../hooks/useTodayNutrition';
+import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBarStyles';
 import type { HealthStackParamList } from '../../navigation/healthTypes';
 import { useHealthStore } from '../../stores/useHealthStore';
 import { HealthScreenHeader } from '../../components/health/ui/HealthScreenHeader';
@@ -18,14 +20,14 @@ import { PremiumCard } from '../../components/health/ui/PremiumCard';
 const CATEGORIES = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack'] as const;
 
 export function FoodSearchScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
+  const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const route = useRoute<RouteProp<HealthStackParamList, 'FoodSearch'>>();
   const { pop, push } = useHealthNavigation();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('All');
   const swapMeal = useHealthStore((s) => s.swapMeal);
-  const mealLog = useHealthStore((s) => s.mealLog);
-  const quickMeals = useHealthStore((s) => s.quickMeals);
+  const { mealLog, quickMeals } = useTodayNutrition();
   const healthTheme = useHealthTheme();
   const styles = useHealthStyles((t) => ({
     root: { flex: 1, backgroundColor: 'transparent' },
@@ -154,7 +156,7 @@ export function FoodSearchScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: scrollContentPaddingBottom + 16 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >

@@ -1,5 +1,4 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Droplets, Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -13,6 +12,7 @@ import Animated, {
 import { useWaterDailyTotal } from '../../../hooks/useWaterDailyTotal';
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
 import { insertWaterLog } from '../../../lib/quickActions/service';
+import { triggerHaptic } from '../../../lib/platform/haptics';
 import { useHealthStore } from '../../../stores/useHealthStore';
 import { useTheme } from '../../../theme/ThemeContext';
 import { MOTION_DURATION, pressInSpring, pressOutSpring, timingProgress } from '../../../theme/motion';
@@ -152,7 +152,7 @@ export function WaterTrackerCard() {
   const handleAddGlass = useCallback(async () => {
     if (isAdding || waterMl >= targetMl) return;
     setIsAdding(true);
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void triggerHaptic('light');
     try {
       await insertWaterLog({ amountMl: GLASS_ML });
       addWaterOptimistic(GLASS_ML);

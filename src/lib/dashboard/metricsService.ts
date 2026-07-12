@@ -80,9 +80,7 @@ export async function fetchDashboardMetricsRaw(
 
   const nutritionRow = nutritionResult.error ? null : (nutritionResult.data as DailyNutritionLogRow | null);
   const consumedCalories =
-    nutritionRow && Number(nutritionRow.calories_consumed) > 0
-      ? Number(nutritionRow.calories_consumed)
-      : fallback.consumedCalories;
+    nutritionRow != null ? Math.max(0, Number(nutritionRow.calories_consumed ?? 0)) : 0;
   const calorieTarget =
     nutritionRow && Number(nutritionRow.calorie_target) > 0
       ? Number(nutritionRow.calorie_target)

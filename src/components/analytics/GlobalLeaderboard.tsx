@@ -15,6 +15,7 @@ import {
 import { useLeaderboard } from '../../hooks/useLeaderboard';
 import { getDashboardTierTheme, type DashboardTierTheme } from '../../lib/dashboard/tierTheme';
 import { getXpProgress } from '../../lib/gamification/progression';
+import { supportsNativeBlur } from '../../lib/platform/blur';
 import { useTheme } from '../../theme/ThemeContext';
 import type { CurrentUserLeaderboard, LeaderboardEntry } from '../../types/database';
 import { TierBadge } from '../ui/TierBadge';
@@ -107,11 +108,13 @@ function LeaderboardGlassCard({
         },
       ]}
     >
-      <BlurView
-        intensity={theme.blurIntensity}
-        tint={theme.blurTint}
-        style={StyleSheet.absoluteFill}
-      />
+      {supportsNativeBlur() ? (
+        <BlurView
+          intensity={theme.blurIntensity}
+          tint={theme.blurTint}
+          style={StyleSheet.absoluteFill}
+        />
+      ) : null}
       <View
         style={{
           borderTopWidth: 1,

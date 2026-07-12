@@ -1,8 +1,8 @@
-import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useProgression } from '../../hooks/useProgression';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { finalizeQuickActionSuccess } from '../../lib/quickActions/finalize';
 import { insertWaterLog, toQuickActionErrorMessage } from '../../lib/quickActions/service';
 import { ObsidianTheme } from '../../theme/obsidian';
@@ -35,7 +35,7 @@ export function WaterMiniForm({ onSuccess, onBack }: WaterMiniFormProps) {
     setError(null);
 
     try {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void triggerHaptic('light');
       await insertWaterLog({ amountMl });
       await awardXp('FOOD_OR_WATER_LOG');
       await finalizeQuickActionSuccess(onSuccess);

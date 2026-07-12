@@ -1,12 +1,12 @@
-import * as Haptics from 'expo-haptics';
 import { Crown, X } from 'lucide-react-native';
 import { Modal, Pressable, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { WORKOUT_GOAL_OPTIONS } from '../../constants/workoutGoals';
 import { FREE_BUILTIN_PROGRAM_ID } from '../../constants/workoutFreeTier';
 import { getWorkoutTrack } from '../../constants/workoutPrograms';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useWorkoutProgramAccess } from '../../hooks/useWorkoutProgramAccess';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { useHealthStore } from '../../stores/useHealthStore';
 import type { WorkoutTrackId } from '../../types/workout';
 import { BRAND } from '../../theme/designTokens';
@@ -15,7 +15,7 @@ import { useTheme } from '../../theme/ThemeContext';
 import { GlassPanel } from '../GlassPanel';
 
 export function WorkoutGoalPickerModal() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
   const visible = useHealthStore((s) => s.isWorkoutGoalPickerOpen);
@@ -25,7 +25,7 @@ export function WorkoutGoalPickerModal() {
   const { trySelectBuiltinProgram, isProProgram } = useWorkoutProgramAccess();
 
   const handleSelect = (trackId: WorkoutTrackId) => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void triggerHaptic('medium');
     trySelectBuiltinProgram(trackId, () => beginWorkoutWithTrack(trackId));
   };
 

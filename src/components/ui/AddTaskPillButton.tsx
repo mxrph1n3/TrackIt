@@ -1,9 +1,9 @@
-import * as Haptics from 'expo-haptics';
 import { Plus } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { BRAND } from '../../theme/designTokens';
 import { pressInSpring, pressOutSpring } from '../../theme/motion';
 import { getThemedSurfaces } from '../../theme/themedSurfaces';
@@ -90,7 +90,7 @@ export function AddTaskPillButton({
   }));
 
   const handlePress = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void triggerHaptic('light');
     onPress();
   };
 

@@ -4,8 +4,10 @@ import { AppState, type AppStateStatus } from 'react-native';
 import { touchAppOpen } from '../lib/notifications/activityTracking';
 import { refreshTrackItNotifications } from '../lib/notifications/trackItNotificationService';
 import { notificationsSupportedInRuntime } from '../lib/notifications/reminderService';
+import { canSyncTmaAccess } from '../lib/subscription/tmaAccessService';
 import { useGamificationStore } from '../stores/useGamificationStore';
 import { useNotificationSettingsStore } from '../stores/useNotificationSettingsStore';
+import { selectCanUseNotifications, useSubscriptionStore } from '../stores/useSubscriptionStore';
 
 function scheduleNotifications(
   enabled: boolean,
@@ -24,14 +26,18 @@ export function useReminderNotifications() {
   const hardcoreMode = useNotificationSettingsStore((state) => state.hardcoreMode);
   const isReady = useNotificationSettingsStore((state) => state.isReady);
   const hydrate = useNotificationSettingsStore((state) => state.hydrate);
+  const canUseNotifications = useSubscriptionStore(selectCanUseNotifications);
   const appState = useRef<AppStateStatus>(AppState.currentState);
+
+  const notificationsAllowed =
+    notificationsSupportedInRuntime && (!canSyncTmaAccess() || canUseNotifications);
 
   useEffect(() => {
     void hydrate();
   }, [hydrate]);
 
   useEffect(() => {
-    if (!isReady || !notificationsSupportedInRuntime) {
+    if (!isReady || !notificationsSupportedInRuntime || !notificationsAllowed) {
       return;
     }
 
@@ -53,5 +59,5 @@ export function useReminderNotifications() {
     return () => {
       subscription.remove();
     };
-  }, [enabled, hardcoreMode, isReady, userId]);
+  }, [enabled, hardcoreMode, isReady, notificationsAllowed, userId]);
 }

@@ -5,6 +5,8 @@ import {
   SUBSCRIPTION_DISPLAY_PRICING,
   SUBSCRIPTION_PRODUCT_IDS,
 } from '../../constants/subscriptions';
+import { IS_WEB } from '../platform/constants';
+import { syncProStatusToServer } from './syncProStatus';
 import type {
   SubscriptionOfferings,
   SubscriptionPackage,
@@ -28,7 +30,12 @@ function getRevenueCatApiKey(): string | null {
 }
 
 export function isRevenueCatConfigured(): boolean {
-  return Boolean(getRevenueCatApiKey());
+  return !IS_WEB && Boolean(getRevenueCatApiKey());
+}
+
+/** Whether in-app store purchase UI should be shown (native RevenueCat only). */
+export function isNativeStoreBillingAvailable(): boolean {
+  return isRevenueCatConfigured();
 }
 
 async function loadPurchasesModule(): Promise<PurchasesModule | null> {
@@ -118,6 +125,10 @@ export async function syncSubscriptionUser(userId: string | null): Promise<void>
 }
 
 export async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
+  if (IS_WEB) {
+    return fetchWebSubscriptionStatus();
+  }
+
   const Purchases = await loadPurchasesModule();
   if (!Purchases || !isRevenueCatConfigured()) {
     return emptyStatus();
@@ -184,6 +195,12 @@ export async function fetchSubscriptionOfferings(): Promise<SubscriptionOffering
 export async function purchaseSubscriptionProduct(
   productId: SubscriptionProductId,
 ): Promise<SubscriptionStatus> {
+  if (IS_WEB) {
+    throw new Error(
+      'In-app billing is not available in Telegram Mini App yet. Subscribe on iOS or Android, then tap Sync subscription.',
+    );
+  }
+
   const Purchases = await loadPurchasesModule();
 
   if (!Purchases || !isRevenueCatConfigured()) {
@@ -222,6 +239,10 @@ export async function purchaseSubscriptionProduct(
 }
 
 export async function restoreSubscriptionPurchases(): Promise<SubscriptionStatus> {
+  if (IS_WEB) {
+    return fetchWebSubscriptionStatus();
+  }
+
   const Purchases = await loadPurchasesModule();
 
   if (!Purchases || !isRevenueCatConfigured()) {
@@ -230,4 +251,20 @@ export async function restoreSubscriptionPurchases(): Promise<SubscriptionStatus
 
   await Purchases.default.restorePurchases();
   return fetchSubscriptionStatus();
+}
+
+/** Web/TMA: resolve Pro from server-side RevenueCat sync (profiles.is_pro). */
+export async function fetchWebSubscriptionStatus(): Promise<SubscriptionStatus> {
+  const synced = await syncProStatusToServer();
+  if (!synced?.isPro) {
+    return emptyStatus();
+  }
+
+  return {
+    isPro: true,
+    expirationDate: synced.expiresAt ?? null,
+    willRenew: false,
+    productIdentifier: null,
+    isSandbox: false,
+  };
 }

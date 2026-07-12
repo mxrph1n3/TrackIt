@@ -14,11 +14,13 @@ export function useDashboardHealthStyles() {
       StyleSheet.create({
         cardShell: {
           marginBottom: 14,
+          alignSelf: 'stretch',
+          width: '100%',
           borderRadius: RADIUS.card,
           overflow: 'hidden',
           borderWidth: 1,
           borderColor: theme.border,
-          backgroundColor: 'transparent',
+          backgroundColor: Platform.OS === 'android' ? theme.cardFrosted : 'transparent',
           ...Platform.select({
             ios: {
               shadowColor: theme.shadowColor,
@@ -145,7 +147,7 @@ export function useDashboardHealthStyles() {
           textAlign: 'center',
         },
         nutritionPanel: {
-          paddingHorizontal: 18,
+          paddingHorizontal: 16,
           paddingTop: 16,
           paddingBottom: 18,
           borderTopWidth: 1,

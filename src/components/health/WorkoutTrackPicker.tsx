@@ -1,10 +1,10 @@
-import * as Haptics from 'expo-haptics';
 import { ChevronRight, Crown } from 'lucide-react-native';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { FREE_BUILTIN_PROGRAM_ID } from '../../constants/workoutFreeTier';
 import { getWorkoutTracks } from '../../constants/workoutPrograms';
 import { useWorkoutProgramAccess } from '../../hooks/useWorkoutProgramAccess';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import type { WorkoutTrackId } from '../../types/workout';
 import { GlassPanel } from '../GlassPanel';
 
@@ -31,7 +31,7 @@ export function WorkoutTrackPicker({ selectedTrackId, onSelect }: WorkoutTrackPi
             <Pressable
               key={track.id}
               onPress={() => {
-                void Haptics.selectionAsync();
+                void triggerHaptic('selection');
                 trySelectBuiltinProgram(track.id, () => onSelect(track.id));
               }}
               className="active:opacity-90"

@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { PaywallHost } from '../components/paywall/PaywallHost';
 import { FinanceTransactionHost } from '../components/finance/FinanceTransactionHost';
@@ -13,6 +13,7 @@ import { SchemaStatusBanner } from '../components/system/SchemaStatusBanner';
 import { ToastHost } from '../components/system/ToastHost';
 import { WorkoutSessionHost } from '../components/health/WorkoutSessionHost';
 import { ScreenAmbientBackground } from '../components/ui/ScreenAmbientBackground';
+import { TelegramBackButtonSync } from '../components/telegram/TelegramBackButtonSync';
 import { useCatalogSync } from '../hooks/useCatalogSync';
 import { useNotificationDeepLinks } from '../hooks/useNotificationDeepLinks';
 import { useReminderNotifications } from '../hooks/useReminderNotifications';
@@ -57,7 +58,8 @@ function TabNavigatorShell() {
       screenOptions={{
         headerShown: false,
         lazy: true,
-        freezeOnBlur: true,
+        freezeOnBlur: Platform.OS === 'ios',
+        ...(Platform.OS === 'web' ? { animation: 'fade' as const } : {}),
         sceneStyle: {
           backgroundColor: 'transparent',
         },
@@ -73,12 +75,17 @@ function TabNavigatorShell() {
 
 export function AppNavigator() {
   const { mode } = useTheme();
+  const [navigationReady, setNavigationReady] = useState(false);
   useCatalogSync();
   useNotificationDeepLinks();
   useReminderNotifications();
 
   return (
-    <NavigationContainer ref={navigationRef} linking={linking}>
+    <NavigationContainer
+      ref={navigationRef}
+      linking={linking}
+      onReady={() => setNavigationReady(true)}
+    >
       <View style={styles.shell}>
         <View style={styles.backgroundLayer} pointerEvents="none">
           <ScreenAmbientBackground mode={mode} />
@@ -95,6 +102,7 @@ export function AppNavigator() {
           <TaskCreationHost />
           <FinanceTransactionHost />
           <NutritionSyncBridge />
+          <TelegramBackButtonSync navigationReady={navigationReady} />
         </View>
       </View>
     </NavigationContainer>

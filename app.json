@@ -37,9 +37,12 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png",
+      "output": "single"
     },
     "plugins": [
+      "expo-secure-store",
       "expo-apple-authentication",
       "expo-web-browser",
       [

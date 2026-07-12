@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { fetchTodayTasks, toggleTaskCompletion } from '../lib/dashboard/service';
 import { syncHealthNutritionState } from './useHealthNutritionSync';
@@ -14,6 +14,7 @@ import { useDashboardStore } from '../stores/useDashboardStore';
 import { useGamificationStore } from '../stores/useGamificationStore';
 import { useHealthStore } from '../stores/useHealthStore';
 import { useTasksSyncStore } from '../stores/useTasksSyncStore';
+import { useTodayNutrition } from './useTodayNutrition';
 import { useDashboardFinance } from './useDashboardFinance';
 import { useDashboardMetrics } from './useDashboardMetrics';
 import { useProgression } from './useProgression';
@@ -62,14 +63,13 @@ export function useDashboardLiveData(): DashboardLiveData {
     profile?.username?.toUpperCase(),
   );
 
-  const healthConsumed = useHealthStore((s) => s.consumedMacros);
-  const dietPlan = useHealthStore((s) => s.dietPlan);
+  const { consumedMacros, dietPlan } = useTodayNutrition();
   const lastSession = useHealthStore((s) => s.lastSession);
 
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const pendingToggleIdsRef = useRef<Set<string>>(new Set());
 
-  const consumedMacros = healthConsumed;
   const workoutCompletedToday = lastSession.relativeDay === 'Today';
   const isFreshUser = level === 1 && xp === 0;
   const nutritionIsEmpty = consumedMacros.calories === 0;
@@ -78,6 +78,10 @@ export function useDashboardLiveData(): DashboardLiveData {
     focusStreakDays > 0 || Number(profile?.focus_hours ?? 0) > 0 || workoutCompletedToday;
 
   const refreshSchedule = useCallback(async () => {
+    if (pendingToggleIdsRef.current.size > 0) {
+      return;
+    }
+
     const userId = useGamificationStore.getState().profile?.id;
     if (!userId) {
       setSchedule([]);
@@ -182,10 +186,21 @@ export function useDashboardLiveData(): DashboardLiveData {
 
       setSchedule(nextSchedule);
       useDashboardStore.getState().setSchedule(nextSchedule);
+      pendingToggleIdsRef.current.add(id);
 
       try {
         await toggleTaskCompletion(id, nextCompleted);
+        useTasksSyncStore.getState().notifyTaskMutation();
+      } catch (error) {
+        reportSyncError('Dashboard', error, 'Could not update the task.');
+        setSchedule(schedule);
+        useDashboardStore.getState().setSchedule(schedule);
+        return;
+      } finally {
+        pendingToggleIdsRef.current.delete(id);
+      }
 
+      try {
         if (nextCompleted) {
           await recordMonetizedTaskIncome(id);
         } else {
@@ -193,12 +208,8 @@ export function useDashboardLiveData(): DashboardLiveData {
         }
 
         await Promise.all([refreshMetrics(), refreshFinance()]);
-        useTasksSyncStore.getState().notifyTaskMutation();
       } catch (error) {
-        reportSyncError('Dashboard', error, 'Could not update the task.');
-        setSchedule(schedule);
-        useDashboardStore.getState().setSchedule(schedule);
-        return;
+        reportSyncError('Dashboard', error, 'Task saved, but follow-up sync failed.');
       }
 
       if (nextCompleted) {

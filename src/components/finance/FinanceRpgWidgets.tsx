@@ -1,8 +1,8 @@
 import { ArrowDownRight, ArrowUpRight, Plus } from 'lucide-react-native';
-import * as Haptics from 'expo-haptics';
 import { Pressable, Text, View } from 'react-native';
 
 import { formatMoney } from '../../constants/financeCategories';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import type { FinanceOverview } from '../../types/finance';
 import { useTheme } from '../../theme/ThemeContext';
 import { GlassPanel } from '../GlassPanel';
@@ -52,12 +52,12 @@ type FinanceQuickControlBarProps = {
 
 export function FinanceQuickControlBar({ onIncome, onExpense }: FinanceQuickControlBarProps) {
   const openIncome = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void triggerHaptic('medium');
     onIncome();
   };
 
   const openExpense = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void triggerHaptic('medium');
     onExpense();
   };
 

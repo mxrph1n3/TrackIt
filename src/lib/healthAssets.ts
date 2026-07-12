@@ -34,8 +34,11 @@ export const TODAY_WIDGET_BG: ImageSourcePropType = getTodayWidgetImage('etherea
 export const NUTRITION_WIDGET_BG: ImageSourcePropType = getNutritionWidgetImage('ethereal');
 
 function resolveAspectRatio(source: ImageSourcePropType): number {
-  const asset = Image.resolveAssetSource(source);
-  if (!asset.width || !asset.height) return 16 / 9;
+  const asset =
+    typeof Image.resolveAssetSource === 'function'
+      ? Image.resolveAssetSource(source)
+      : null;
+  if (!asset?.width || !asset.height) return 16 / 9;
   return asset.width / asset.height;
 }
 

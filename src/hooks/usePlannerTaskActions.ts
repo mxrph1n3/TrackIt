@@ -38,23 +38,6 @@ export function usePlannerTaskActions({
     await checkDailyStreakBonus(completedCount, todayTasks.length);
   }, [checkDailyStreakBonus, profile?.id]);
 
-  const syncParentCompletion = useCallback(
-    async (taskId: string, shouldComplete: boolean, currentlyCompleted: boolean) => {
-      if (currentlyCompleted === shouldComplete) {
-        return;
-      }
-
-      await toggleTaskCompletion(taskId, shouldComplete);
-      if (shouldComplete) {
-        await recordMonetizedTaskIncome(taskId);
-        await awardXp('TASK_COMPLETE');
-      } else {
-        await reverseMonetizedTaskIncome(taskId);
-      }
-    },
-    [awardXp],
-  );
-
   const toggleTask = useCallback(
     async (taskId: string) => {
       const item = tasks.find((task) => task.id === taskId);
@@ -85,27 +68,41 @@ export function usePlannerTaskActions({
 
         if (hasSubtasks && userId) {
           await setSubtasksCompletionForTask(userId, taskId, nextCompleted);
-          if (nextCompleted) {
-            const newlyCompletedCount = item.subtasks!.filter((subtask) => !subtask.completed).length;
-            for (let index = 0; index < newlyCompletedCount; index += 1) {
-              await awardXp('SUBTASK_COMPLETE');
-            }
-          }
         }
 
-        await syncParentCompletion(taskId, nextCompleted, item.completed);
-
-        if (nextCompleted) {
-          await maybeAwardDailyStreak();
-        }
-
+        await toggleTaskCompletion(taskId, nextCompleted);
         await onAfterToggle?.();
       } catch (error) {
         reportSyncError('Planner', error, 'Could not update the task.');
         setTasks(previousTasks);
+        return;
+      }
+
+      try {
+        if (hasSubtasks && nextCompleted) {
+          const newlyCompletedCount = item.subtasks!.filter((subtask) => !subtask.completed).length;
+          for (let index = 0; index < newlyCompletedCount; index += 1) {
+            await awardXp('SUBTASK_COMPLETE');
+          }
+        }
+
+        if (nextCompleted !== item.completed) {
+          if (nextCompleted) {
+            await recordMonetizedTaskIncome(taskId);
+            await awardXp('TASK_COMPLETE');
+          } else {
+            await reverseMonetizedTaskIncome(taskId);
+          }
+        }
+
+        if (nextCompleted) {
+          await maybeAwardDailyStreak();
+        }
+      } catch (error) {
+        reportSyncError('Planner', error, 'Task saved, but rewards could not be applied.');
       }
     },
-    [awardXp, maybeAwardDailyStreak, onAfterToggle, profile?.id, syncParentCompletion, setTasks, tasks],
+    [awardXp, maybeAwardDailyStreak, onAfterToggle, profile?.id, setTasks, tasks],
   );
 
   const toggleSubtask = useCallback(
@@ -137,22 +134,38 @@ export function usePlannerTaskActions({
 
       try {
         await toggleSubtaskCompletion(subtaskId, nextCompleted);
-        if (nextCompleted) {
-          await awardXp('SUBTASK_COMPLETE');
+        if (shouldCompleteParent !== task.completed) {
+          await toggleTaskCompletion(taskId, shouldCompleteParent);
         }
-        await syncParentCompletion(taskId, shouldCompleteParent, task.completed);
-
-        if (nextCompleted || shouldCompleteParent) {
-          await maybeAwardDailyStreak();
-        }
-
         await onAfterToggle?.();
       } catch (error) {
         reportSyncError('Planner', error, 'Could not update the subtask.');
         setTasks(previousTasks);
+        return;
+      }
+
+      try {
+        if (nextCompleted) {
+          await awardXp('SUBTASK_COMPLETE');
+        }
+
+        if (shouldCompleteParent !== task.completed) {
+          if (shouldCompleteParent) {
+            await recordMonetizedTaskIncome(taskId);
+            await awardXp('TASK_COMPLETE');
+          } else {
+            await reverseMonetizedTaskIncome(taskId);
+          }
+        }
+
+        if (nextCompleted || shouldCompleteParent) {
+          await maybeAwardDailyStreak();
+        }
+      } catch (error) {
+        reportSyncError('Planner', error, 'Subtask saved, but rewards could not be applied.');
       }
     },
-    [awardXp, maybeAwardDailyStreak, onAfterToggle, syncParentCompletion, setTasks, tasks],
+    [awardXp, maybeAwardDailyStreak, onAfterToggle, setTasks, tasks],
   );
 
   return { toggleTask, toggleSubtask };

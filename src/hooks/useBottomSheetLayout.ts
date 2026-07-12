@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppSafeAreaInsets } from './useAppSafeAreaInsets';
 import { useFloatingTabBarStyles } from '../navigation/hooks/useFloatingTabBarStyles';
 
 /** Footer padding when a modal sheet covers the full screen bottom. */
 export function useBottomSheetLayout() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
 
   return useMemo(

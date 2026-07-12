@@ -30,6 +30,7 @@ import {
   sessionDurationMinutes,
 } from '../lib/health/workoutEngine';
 import { getMealById } from '../constants/meals';
+import { toDayKey } from '../utils/plannerDates';
 import { useGamificationStore } from './useGamificationStore';
 import type {
   ActiveWorkoutSession,
@@ -82,6 +83,16 @@ function sumMacrosFromLog(mealLog: DailyMealLog, quickMeals: QuickMealLog = {}):
   return base;
 }
 
+function emptyNutritionFields(calorieTarget: number) {
+  const consumedMacros = sumMacrosFromLog(EMPTY_MEAL_LOG);
+  return {
+    mealLog: { ...EMPTY_MEAL_LOG },
+    quickMeals: {} as QuickMealLog,
+    consumedMacros,
+    remainingCalories: calorieTarget,
+  };
+}
+
 function resolveCurrentDay(trackId: WorkoutTrackId, weekNumber: number, dayIndex: number) {
   const days = listDaysForWeek(trackId, weekNumber);
   const safeIndex = ((dayIndex % days.length) + days.length) % days.length;
@@ -111,6 +122,7 @@ type HealthState = {
   consumedMacros: MacroTotals;
   remainingCalories: number;
   waterTargetLiters: number;
+  nutritionDayKey: string | null;
   swapTarget: { slot: MealSlot; mealId: string } | null;
   rpgStrengthXp: number;
   rpgEnduranceXp: number;
@@ -137,7 +149,8 @@ type HealthState = {
   togglePause: () => void;
   swapMeal: (slot: MealSlot, newMealId: string) => void;
   logQuickMeal: (slot: MealSlot, name: string, calories: number) => void;
-  hydrateNutrition: (snapshot: NutritionDaySnapshot) => void;
+  resetDailyNutrition: (dayKey: string) => void;
+  hydrateNutrition: (snapshot: NutritionDaySnapshot, dayKey?: string) => void;
   applyNutritionTargets: (targets: NutritionTargets) => void;
   openSwapPicker: (slot: MealSlot, mealId: string) => void;
   closeSwapPicker: () => void;
@@ -215,6 +228,7 @@ export const useHealthStore = create<HealthState>((set, get) => {
     consumedMacros: sumMacrosFromLog(EMPTY_MEAL_LOG),
     remainingCalories: DEFAULT_DIET_PLAN.calories,
     waterTargetLiters: DEFAULT_WATER_TARGET_L,
+    nutritionDayKey: null,
     swapTarget: null,
     rpgStrengthXp: 1240,
     rpgEnduranceXp: 890,
@@ -617,6 +631,7 @@ export const useHealthStore = create<HealthState>((set, get) => {
           caloriesConsumed: consumedMacros.calories,
         };
         return {
+          nutritionDayKey: toDayKey(new Date()),
           mealLog,
           quickMeals,
           consumedMacros,
@@ -649,6 +664,7 @@ export const useHealthStore = create<HealthState>((set, get) => {
           caloriesConsumed: consumedMacros.calories,
         };
         return {
+          nutritionDayKey: toDayKey(new Date()),
           quickMeals,
           consumedMacros,
           remainingCalories: state.dietPlan.calories - consumedMacros.calories,
@@ -663,34 +679,31 @@ export const useHealthStore = create<HealthState>((set, get) => {
       }
     },
 
-    hydrateNutrition: (snapshot) => {
-      set((state) => {
-        const hasServerMeals =
-          Object.values(snapshot.mealLog).some(Boolean) ||
-          Object.keys(snapshot.quickMeals).length > 0;
-        const hasLocalMeals =
-          Object.values(state.mealLog).some(Boolean) ||
-          Object.keys(state.quickMeals).length > 0;
+    resetDailyNutrition: (dayKey) => {
+      set((state) => ({
+        nutritionDayKey: dayKey,
+        ...emptyNutritionFields(state.dietPlan.calories),
+      }));
+    },
 
-        const mealLog = hasServerMeals || !hasLocalMeals ? snapshot.mealLog : state.mealLog;
-        const quickMeals =
-          hasServerMeals || !hasLocalMeals ? snapshot.quickMeals : state.quickMeals;
-        const consumedFromSlots = sumMacrosFromLog(mealLog, quickMeals);
+    hydrateNutrition: (snapshot, dayKey = toDayKey(new Date())) => {
+      set((state) => {
+        const calorieTarget = state.dietPlan.calories;
+        const consumedFromSlots = sumMacrosFromLog(snapshot.mealLog, snapshot.quickMeals);
         const consumedMacros =
           consumedFromSlots.calories > 0
             ? consumedFromSlots
             : {
                 calories: snapshot.caloriesConsumed,
-                protein: state.consumedMacros.protein,
-                fat: state.consumedMacros.fat,
-                carbs: state.consumedMacros.carbs,
+                protein: 0,
+                fat: 0,
+                carbs: 0,
               };
 
-        const calorieTarget = state.dietPlan.calories;
-
         return {
-          mealLog,
-          quickMeals,
+          nutritionDayKey: dayKey,
+          mealLog: snapshot.mealLog,
+          quickMeals: snapshot.quickMeals,
           consumedMacros,
           remainingCalories: calorieTarget - consumedMacros.calories,
         };

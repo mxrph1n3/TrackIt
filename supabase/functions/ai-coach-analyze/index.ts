@@ -30,9 +30,14 @@ Analytical, direct, stoic. Gamify: tasks = quests, budget = Shield HP, savings g
 * **Quest 3 (Focus):**`;
 
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const DEFAULT_USER_PROMPT =
+  "Analyze my current TrackIt state from the JSON payload. Give today's battle plan.";
+const MAX_PROMPT_LENGTH = 500;
+const DAILY_AI_COACH_LIMIT = 20;
+const REVENUECAT_ENTITLEMENT = 'pro';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': Deno.env.get('ALLOWED_ORIGIN') ?? 'https://trackit.app',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -40,6 +45,101 @@ type CoachRequestBody = {
   payload: Record<string, unknown>;
   prompt?: string;
 };
+
+function sanitizePrompt(raw: string | undefined): string {
+  const trimmed = (raw ?? '').trim().replace(/[\u0000-\u001F\u007F]/g, ' ');
+  if (!trimmed) {
+    return DEFAULT_USER_PROMPT;
+  }
+  return trimmed.slice(0, MAX_PROMPT_LENGTH);
+}
+
+async function verifyProAccess(userId: string, authHeader: string): Promise<boolean> {
+  const rcSecret = Deno.env.get('REVENUECAT_SECRET_KEY');
+  if (rcSecret) {
+    try {
+      const response = await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(userId)}`, {
+        headers: {
+          Authorization: `Bearer ${rcSecret}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const json = await response.json();
+        const entitlement = json?.subscriber?.entitlements?.[REVENUECAT_ENTITLEMENT];
+        const expires = entitlement?.expires_date;
+        const isActive =
+          entitlement?.is_active === true ||
+          (typeof expires === 'string' && new Date(expires).getTime() > Date.now());
+
+        const serviceClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        );
+
+        await serviceClient
+          .from('profiles')
+          .update({
+            is_pro: isActive,
+            pro_expires_at: typeof expires === 'string' ? expires : null,
+          })
+          .eq('id', userId);
+
+        return isActive;
+      }
+    } catch (error) {
+      console.error('[ai-coach-analyze] RevenueCat verify failed:', error);
+    }
+  }
+
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    { global: { headers: { Authorization: authHeader } } },
+  );
+
+  const { data, error } = await supabase.rpc('user_has_premium_access', { p_user_id: userId });
+  if (error) {
+    console.error('[ai-coach-analyze] Pro check failed:', error.message);
+    return false;
+  }
+
+  return Boolean(data);
+}
+
+async function recordUsage(userId: string): Promise<boolean> {
+  const serviceClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+  );
+
+  const dayStart = new Date();
+  dayStart.setUTCHours(0, 0, 0, 0);
+
+  const { count, error: countError } = await serviceClient
+    .from('ai_coach_usage')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('created_at', dayStart.toISOString());
+
+  if (countError) {
+    console.error('[ai-coach-analyze] Usage count failed:', countError.message);
+    return false;
+  }
+
+  if ((count ?? 0) >= DAILY_AI_COACH_LIMIT) {
+    return false;
+  }
+
+  const { error: insertError } = await serviceClient.from('ai_coach_usage').insert({ user_id: userId });
+  if (insertError) {
+    console.error('[ai-coach-analyze] Usage insert failed:', insertError.message);
+    return false;
+  }
+
+  return true;
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -76,6 +176,24 @@ Deno.serve(async (req) => {
       });
     }
 
+    const userId = userData.user.id;
+    const isPro = await verifyProAccess(userId, authHeader);
+
+    if (!isPro) {
+      return new Response(JSON.stringify({ error: 'TrackIt Pro required for AI Coach.' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const allowed = await recordUsage(userId);
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: 'Daily AI Coach limit reached. Try again tomorrow.' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const geminiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiKey) {
       return new Response(JSON.stringify({ error: 'GEMINI_API_KEY is not configured on the server' }), {
@@ -85,11 +203,13 @@ Deno.serve(async (req) => {
     }
 
     const body = (await req.json()) as CoachRequestBody;
-    const userPrompt =
-      body.prompt?.trim() ||
-      "Analyze my current TrackIt state from the JSON payload. Give today's battle plan.";
+    const userPrompt = sanitizePrompt(body.prompt);
+    const payload =
+      body.payload && typeof body.payload === 'object' && !Array.isArray(body.payload)
+        ? body.payload
+        : {};
 
-    const userMessage = `${userPrompt}\n\nUSER_PAYLOAD_JSON:\n${JSON.stringify(body.payload ?? {}, null, 2)}`;
+    const userMessage = `${userPrompt}\n\nUSER_PAYLOAD_JSON:\n${JSON.stringify(payload, null, 2)}`;
 
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`,

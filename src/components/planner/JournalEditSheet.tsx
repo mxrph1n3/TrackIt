@@ -8,8 +8,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
 import { BRAND } from '../../theme/designTokens';
 
@@ -26,7 +25,7 @@ export function JournalEditSheet({
   onClose,
   onSave,
 }: JournalEditSheetProps) {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme } = usePlannerTheme();
   const [body, setBody] = useState(initialBody);
   const [isSaving, setIsSaving] = useState(false);

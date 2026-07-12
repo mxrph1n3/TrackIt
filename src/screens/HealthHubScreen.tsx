@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Platform, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
 
 import { HealthTabSwitcher } from '../components/health/HealthTabSwitcher';
 import { HealthDateRibbon } from '../components/health/ui/HealthDateRibbon';
@@ -13,6 +13,7 @@ import { useFloatingTabBarStyles } from '../navigation/hooks/useFloatingTabBarSt
 import { useSideDrawerStore } from '../stores/useSideDrawerStore';
 import { useHealthHubNavigationStore } from '../stores/useHealthHubNavigationStore';
 import { useHealthStore } from '../stores/useHealthStore';
+import { getScreenHorizontalPadding } from '../theme/screenLayout';
 import type { HealthTabId } from '../types/health';
 
 function buildWeekDays(selectedIndex: number) {
@@ -40,7 +41,7 @@ function buildWeekDays(selectedIndex: number) {
 }
 
 export function HealthHubScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const openDrawer = useSideDrawerStore((s) => s.open);
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const { push } = useHealthNavigation();
@@ -52,6 +53,9 @@ export function HealthHubScreen() {
     root: {
       flex: 1,
       backgroundColor: 'transparent',
+    },
+    scroll: {
+      flex: 1,
     },
     nutritionHint: {
       marginTop: -12,
@@ -97,6 +101,7 @@ export function HealthHubScreen() {
 
   const weekDays = useMemo(() => buildWeekDays(selectedDayIndex), [selectedDayIndex]);
   const selectedDayIsToday = weekDays[selectedDayIndex]?.isToday ?? true;
+  const horizontalPadding = getScreenHorizontalPadding();
 
   const handleTabChange = useCallback((tab: HealthTabId) => {
     setActiveTab(tab);
@@ -112,11 +117,13 @@ export function HealthHubScreen() {
     <View style={styles.root}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={styles.scroll}
         contentContainerStyle={{
           paddingTop: insets.top + 12,
           paddingBottom: scrollContentPaddingBottom,
-          paddingHorizontal: 20,
+          paddingHorizontal: horizontalPadding,
         }}
+        nestedScrollEnabled
       >
         <HealthTabSwitcher
           activeTab={activeTab}
@@ -152,13 +159,23 @@ export function HealthHubScreen() {
         ) : null}
 
         {activeTab === 'workouts' ? (
-          <Animated.View
-            key="workouts-tab"
-            entering={FadeInDown.duration(260)}
-            exiting={FadeOutUp.duration(180)}
-          >
-            <WorkoutsTabPanel />
-          </Animated.View>
+          Platform.OS !== 'ios' ? (
+            <View key="workouts-tab">
+              <WorkoutsTabPanel />
+            </View>
+          ) : (
+            <Animated.View
+              key="workouts-tab"
+              entering={FadeInDown.duration(260)}
+              exiting={FadeOutUp.duration(180)}
+            >
+              <WorkoutsTabPanel />
+            </Animated.View>
+          )
+        ) : Platform.OS !== 'ios' ? (
+          <View key="nutrition-tab">
+            <NutritionTabPanel />
+          </View>
         ) : (
           <Animated.View
             key="nutrition-tab"

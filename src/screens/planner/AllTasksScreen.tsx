@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useMemo } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 
 import { ScheduleCheckbox } from '../../components/dashboard/ScheduleCheckbox';
 import { PlannerPremiumCard } from '../../components/planner/PlannerPremiumCard';
@@ -21,7 +21,7 @@ const FILTERS: Array<{ id: TaskListFilter; label: string }> = [
 ];
 
 export function AllTasksScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();

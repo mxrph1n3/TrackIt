@@ -1,10 +1,10 @@
-import * as Haptics from 'expo-haptics';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
+import { triggerHaptic } from '../../../lib/platform/haptics';
 import { HEALTH_ELEVATION } from './healthTheme';
 import { pressInSpring, pressOutSpring } from '../../../theme/motion';
 
@@ -74,7 +74,7 @@ export function HealthPrimaryButton({
   }));
 
   const handlePress = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void triggerHaptic('medium');
     onPress();
   };
 

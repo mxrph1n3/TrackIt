@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Platform, StyleSheet, type ViewStyle } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ETHEREAL_COLORS } from '../../theme/etherealTokens';
 import { ACTION_HUB } from '../../components/actionHub/actionHubTheme';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { TabBarLayout, fabAnchorTop, tabBarScrollPadding } from '../../theme/obsidian';
 import { useTheme } from '../../theme/ThemeContext';
 
@@ -12,7 +12,7 @@ const INACTIVE_SLATE = ETHEREAL_COLORS.textSecondary;
 
 /** Bottom padding for full-screen profile modules (no floating tab bar). */
 export function useIsolatedScreenInsets() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
 
   return useMemo(
     () => ({
@@ -23,7 +23,7 @@ export function useIsolatedScreenInsets() {
 }
 
 export function useFloatingTabBarStyles() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme } = useTheme();
   const { scrollPaddingBottom: isolatedScrollPaddingBottom } = useIsolatedScreenInsets();
 
@@ -41,6 +41,12 @@ export function useFloatingTabBarStyles() {
         overflow: 'visible' as const,
         zIndex: 100,
         elevation: 100,
+        ...Platform.select({
+          web: {
+            boxShadow: '0 -4px 24px rgba(15, 12, 30, 0.08)',
+          },
+          default: {},
+        }),
       } satisfies ViewStyle,
       shell: {
         position: 'relative' as const,

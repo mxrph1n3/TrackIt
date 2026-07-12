@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useState } from 'react';
 import { Check, ChevronRight, Clock } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
@@ -8,7 +7,8 @@ import { getMealById, SLOT_LABELS } from '../../../constants/meals';
 import { useHealthNavigation } from '../../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
-import { useHealthStore } from '../../../stores/useHealthStore';
+import { useTodayNutrition } from '../../../hooks/useTodayNutrition';
+import { triggerHaptic } from '../../../lib/platform/haptics';
 import type { DailyMealLog, MealSlot, QuickMealLog } from '../../../types/health';
 import { PremiumCard } from '../ui/PremiumCard';
 
@@ -131,8 +131,7 @@ function isSlotLogged(slot: MealSlot, mealLog: DailyMealLog, quickMeals: QuickMe
 }
 
 export function MealsTimeline() {
-  const mealLog = useHealthStore((s) => s.mealLog);
-  const quickMeals = useHealthStore((s) => s.quickMeals);
+  const { mealLog, quickMeals } = useTodayNutrition();
   const { push } = useHealthNavigation();
   const healthTheme = useHealthTheme();
   const styles = useMealsTimelineStyles();
@@ -159,7 +158,7 @@ export function MealsTimeline() {
           <Pressable
             key={slot}
             onPress={() => {
-              void Haptics.selectionAsync();
+              void triggerHaptic('selection');
               if (meal) {
                 push('MealDetails', { mealSlot: slot });
               } else {
@@ -198,8 +197,7 @@ export function MealsTimeline() {
 }
 
 export function NextMealCard() {
-  const mealLog = useHealthStore((s) => s.mealLog);
-  const quickMeals = useHealthStore((s) => s.quickMeals);
+  const { mealLog, quickMeals } = useTodayNutrition();
   const { push } = useHealthNavigation();
   const [now, setNow] = useState(() => new Date());
   const styles = useMealsTimelineStyles();

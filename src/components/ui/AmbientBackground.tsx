@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 
+import { supportsNativeBlur } from '../../lib/platform/blur';
 import { useTheme } from '../../theme/ThemeContext';
 import { timingLoop } from '../../theme/motion';
 
@@ -181,7 +182,7 @@ function NeonBlob({ spec, blurTint }: NeonBlobProps) {
         <Circle cx={radius} cy={radius} r={radius} fill={`url(#${gradientId})`} />
       </Svg>
 
-      {Platform.OS === 'ios' ? (
+      {supportsNativeBlur() ? (
         <BlurView
           intensity={Math.min(100, Math.round(BLOB_BLUR_RADIUS * 0.45))}
           tint={blurTint}

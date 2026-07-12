@@ -4,10 +4,12 @@ import { fetchWaterTotalForDay } from '../lib/quickActions/service';
 import { subscribePostgresChanges } from '../lib/realtime/postgresSubscription';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { reportSyncError } from '../lib/sync/reportSyncError';
+import { toDayKey } from '../utils/plannerDates';
 import { useGamificationStore } from './useGamificationStore';
 
 type WaterSyncState = {
   waterMl: number;
+  waterDayKey: string | null;
   isLoading: boolean;
   subscribedUserId: string | null;
   unsubscribeRealtime: (() => void) | null;
@@ -18,6 +20,7 @@ type WaterSyncState = {
 
 export const useWaterSyncStore = create<WaterSyncState>((set, get) => ({
   waterMl: 0,
+  waterDayKey: null,
   isLoading: false,
   subscribedUserId: null,
   unsubscribeRealtime: null,
@@ -52,17 +55,21 @@ export const useWaterSyncStore = create<WaterSyncState>((set, get) => ({
 
   refresh: async (userId: string) => {
     if (!isSupabaseConfigured) {
-      set({ waterMl: 0, isLoading: false });
+      set({ waterMl: 0, waterDayKey: null, isLoading: false });
       return;
     }
 
+    const dayKey = toDayKey(new Date());
+    const previousDayKey = get().waterDayKey;
+
     set((current) => ({
-      isLoading: current.waterMl > 0 ? current.isLoading : true,
+      isLoading: current.waterMl > 0 && previousDayKey === dayKey ? current.isLoading : true,
+      ...(previousDayKey != null && previousDayKey !== dayKey ? { waterMl: 0 } : {}),
     }));
 
     try {
-      const total = await fetchWaterTotalForDay(userId);
-      set({ waterMl: total, isLoading: false });
+      const total = await fetchWaterTotalForDay(userId, dayKey);
+      set({ waterMl: total, waterDayKey: dayKey, isLoading: false });
     } catch (error) {
       reportSyncError('Health', error, 'Could not load water logs.');
       set({ isLoading: false });

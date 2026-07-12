@@ -7,13 +7,13 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   normalizeUsernameInput,
   USERNAME_MAX_LENGTH,
   validateUsername,
 } from '../../lib/profile/usernameValidation';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { getThemedSurfaces } from '../../theme/themedSurfaces';
 import { useTheme } from '../../theme/ThemeContext';
 import { DismissibleOverlay } from '../ui/DismissibleOverlay';
@@ -36,7 +36,7 @@ export function UsernameEditModal({
   onClose,
   onSave,
 }: UsernameEditModalProps) {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
   const [draft, setDraft] = useState(currentUsername);

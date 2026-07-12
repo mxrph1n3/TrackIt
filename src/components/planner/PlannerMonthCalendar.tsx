@@ -1,9 +1,9 @@
-import * as Haptics from 'expo-haptics';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { BRAND } from '../../theme/designTokens';
 import type { PlannerMonthDay } from '../../types/planner';
 import { PlannerPremiumCard } from './PlannerPremiumCard';
@@ -112,7 +112,7 @@ export function PlannerMonthCalendar({
         <View style={styles.header}>
           <Pressable
             onPress={() => {
-              void Haptics.selectionAsync();
+              void triggerHaptic('selection');
               onPreviousMonth();
             }}
             hitSlop={10}
@@ -124,7 +124,7 @@ export function PlannerMonthCalendar({
           <Text style={styles.monthLabel}>{monthLabel}</Text>
           <Pressable
             onPress={() => {
-              void Haptics.selectionAsync();
+              void triggerHaptic('selection');
               onNextMonth();
             }}
             hitSlop={10}
@@ -151,7 +151,7 @@ export function PlannerMonthCalendar({
               <Pressable
                 key={day.key}
                 onPress={() => {
-                  void Haptics.selectionAsync();
+                  void triggerHaptic('selection');
                   onSelectDay(day.key);
                 }}
                 style={styles.cell}

@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   useAnimatedStyle,
@@ -13,6 +12,7 @@ import {
   saveFocusTimerSnapshot,
 } from '../lib/focus/focusTimerStorage';
 import { recordFocusSession } from '../lib/focus/service';
+import { triggerHaptic } from '../lib/platform/haptics';
 import { reportSyncError } from '../lib/sync/reportSyncError';
 import { useProgression } from './useProgression';
 import {
@@ -111,7 +111,7 @@ export function useFocusTimer() {
     setStatus('completed');
     stopBreathing();
 
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    await triggerHaptic('success');
 
     if (!userId) {
       return;

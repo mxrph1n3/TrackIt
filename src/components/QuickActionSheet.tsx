@@ -1,5 +1,4 @@
 import { BlurView } from 'expo-blur';
-import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -18,7 +17,10 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
+import { supportsNativeBlur } from '../lib/platform/blur';
+import { SUPPORTS_LAYOUT_ANIMATIONS } from '../lib/platform/constants';
+import { triggerHaptic } from '../lib/platform/haptics';
 
 import {
   ACTION_HUB_RADIAL_ACTIONS,
@@ -188,7 +190,7 @@ export function QuickActionSheet({
   onInitialActionConsumed,
   onActionSelect,
 }: QuickActionSheetProps) {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const hubTheme = useActionHubTheme();
   const { text, surfaces } = useThemedStyles();
@@ -286,7 +288,7 @@ export function QuickActionSheet({
 
   const openForm = useCallback(
     (actionId: QuickActionId, seed: FormSeed = {}, radialKey?: string) => {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void triggerHaptic('light');
       if (FORM_ACTION_IDS.has(actionId)) {
         setFormSeed(seed);
         setActiveForm(actionId);
@@ -304,7 +306,7 @@ export function QuickActionSheet({
 
   const handleRadialAction = useCallback(
     (action: RadialHubAction) => {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void triggerHaptic('light');
 
       if (action.kind === 'ai-input') {
         quickInputRef.current?.focus();
@@ -374,7 +376,7 @@ export function QuickActionSheet({
         void recordTemplate('task', parsed.title, { title: parsed.title });
         setQuickInput('');
         handleCloseSheet();
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        await triggerHaptic('success');
         return;
       }
 
@@ -391,7 +393,7 @@ export function QuickActionSheet({
         );
         setQuickInput('');
         handleCloseSheet();
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        await triggerHaptic('success');
         return;
       }
 
@@ -414,7 +416,7 @@ export function QuickActionSheet({
 
   const handleRecentPress = useCallback(
     (entry: RecentActionEntry) => {
-      void Haptics.selectionAsync();
+      void triggerHaptic('selection');
       const template = templates.find((item) => item.id === entry.id);
       const payload = template?.payload ?? {};
 
@@ -466,8 +468,14 @@ export function QuickActionSheet({
     <View style={styles.portal} pointerEvents="box-none">
       <View style={styles.overlay}>
         <Pressable style={StyleSheet.absoluteFill} onPress={handleCloseSheet} accessibilityLabel="Close Action Hub">
-          <Animated.View entering={overlayEnter} exiting={overlayExit} style={StyleSheet.absoluteFill}>
-            <BlurView intensity={theme.sheetBlurIntensity} tint={theme.blurTint} style={StyleSheet.absoluteFill} />
+          <Animated.View
+            entering={SUPPORTS_LAYOUT_ANIMATIONS ? overlayEnter : undefined}
+            exiting={SUPPORTS_LAYOUT_ANIMATIONS ? overlayExit : undefined}
+            style={StyleSheet.absoluteFill}
+          >
+            {supportsNativeBlur() ? (
+              <BlurView intensity={theme.sheetBlurIntensity} tint={theme.blurTint} style={StyleSheet.absoluteFill} />
+            ) : null}
             <View style={[styles.scrim, { backgroundColor: scrimColor }]} />
           </Animated.View>
         </Pressable>
@@ -552,7 +560,7 @@ export function QuickActionSheet({
               <View style={styles.bottomZone}>
                 <Text style={[styles.sectionLabel, { color: hubTheme.sectionLabel }]}>AI Quick Input</Text>
                 <View style={[styles.quickInputShell, { borderColor: hubTheme.glassEdge, backgroundColor: hubTheme.panelBg }]}>
-                  {Platform.OS === 'ios' ? (
+                  {supportsNativeBlur() ? (
                     <BlurView intensity={hubTheme.isDark ? 36 : 18} tint={hubTheme.blurTint} style={StyleSheet.absoluteFill} />
                   ) : null}
                   <TextInput

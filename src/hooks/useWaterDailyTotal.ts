@@ -3,9 +3,11 @@ import { useCallback, useEffect } from 'react';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { useGamificationStore } from '../stores/useGamificationStore';
 import { useWaterSyncStore } from '../stores/useWaterSyncStore';
+import { useCalendarDayKey } from './useCalendarDayKey';
 
 export function useWaterDailyTotal() {
   const userId = useGamificationStore((state) => state.profile?.id);
+  const calendarDayKey = useCalendarDayKey();
   const waterMl = useWaterSyncStore((state) => state.waterMl);
   const isLoading = useWaterSyncStore((state) => state.isLoading);
   const refreshStore = useWaterSyncStore((state) => state.refresh);
@@ -28,7 +30,7 @@ export function useWaterDailyTotal() {
 
     ensureSubscribed(userId);
     void refresh();
-  }, [ensureSubscribed, refresh, userId]);
+  }, [calendarDayKey, ensureSubscribed, refresh, userId]);
 
   return {
     waterMl,

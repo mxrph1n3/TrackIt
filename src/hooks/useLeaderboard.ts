@@ -19,19 +19,16 @@ type UseLeaderboardResult = LeaderboardState & {
 
 async function fetchTopUsers(): Promise<LeaderboardEntry[]> {
   const { data, error } = await supabase
-    .from('profiles')
+    .from('leaderboard')
     .select('*')
-    .order('level', { ascending: false })
-    .order('xp', { ascending: false })
+    .order('rank_position', { ascending: true })
     .limit(TOP_LIMIT);
 
   if (error) {
     throw error;
   }
 
-  return (data ?? []).map((row, index) =>
-    mapLeaderboardEntry(row as Record<string, unknown>, index + 1),
-  );
+  return (data ?? []).map((row) => mapLeaderboardEntry(row as Record<string, unknown>));
 }
 
 async function resolveRankPosition(profile: {
@@ -41,10 +38,10 @@ async function resolveRankPosition(profile: {
   const [{ count: higherRankCount, error: rankError }, { count: totalUsers, error: totalError }] =
     await Promise.all([
       supabase
-        .from('profiles')
+        .from('leaderboard')
         .select('*', { count: 'exact', head: true })
         .or(`level.gt.${profile.level},and(level.eq.${profile.level},xp.gt.${profile.xp})`),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('leaderboard').select('*', { count: 'exact', head: true }),
     ]);
 
   if (rankError) {

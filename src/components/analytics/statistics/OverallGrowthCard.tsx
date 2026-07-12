@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedProps,
   useSharedValue,
@@ -77,6 +77,8 @@ export function OverallGrowthCard({
     opacity: progress.value * 0.35,
   }));
 
+  const useStaticChart = Platform.OS !== 'ios';
+
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -131,18 +133,33 @@ export function OverallGrowthCard({
           </LinearGradient>
         </Defs>
 
-        <AnimatedPath d={areaPath} fill="url(#growthFill)" animatedProps={animatedFillProps} />
-
-        <AnimatedPath
-          d={linePath}
-          fill="none"
-          stroke={BRAND.primary}
-          strokeWidth={2.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeDasharray={pathLength}
-          animatedProps={animatedProps}
-        />
+        {useStaticChart ? (
+          <>
+            <Path d={areaPath} fill="url(#growthFill)" opacity={0.35} />
+            <Path
+              d={linePath}
+              fill="none"
+              stroke={BRAND.primary}
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </>
+        ) : (
+          <>
+            <AnimatedPath d={areaPath} fill="url(#growthFill)" animatedProps={animatedFillProps} />
+            <AnimatedPath
+              d={linePath}
+              fill="none"
+              stroke={BRAND.primary}
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray={pathLength}
+              animatedProps={animatedProps}
+            />
+          </>
+        )}
 
         {points.map((point, index) => {
           const day = series[index];

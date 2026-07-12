@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import { RefreshControl, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FinanceTipsCard } from '../components/finance/FinanceTipsCard';
 import { BalanceHeroWidget } from '../components/finance/BalanceHeroWidget';
@@ -23,6 +22,7 @@ import {
   IsolatedScrollView,
 } from '../components/layout/IsolatedScreenShell';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
+import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
 import { useFinanceLiveData } from '../hooks/useFinanceLiveData';
 import { useProgression } from '../hooks/useProgression';
 import { reportSyncError, reportSyncSuccess } from '../lib/sync/reportSyncError';
@@ -32,7 +32,7 @@ import { useTheme } from '../theme/ThemeContext';
 
 export function FinanceScreen() {
   const { theme } = useTheme();
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const closeModule = useProfileModuleStore((s) => s.closeModule);
   const { profileStats } = useProgression();
   const { data, refresh } = useFinanceLiveData();

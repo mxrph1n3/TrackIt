@@ -1,10 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
 import { CreditCard } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
 
 import { formatMoneyCompact } from '../../constants/financeCategories';
 import { navigateTab } from '../../navigation/navigationRef';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { useProfileModuleStore } from '../../stores/useProfileModuleStore';
 import { useTheme } from '../../theme/ThemeContext';
 import type { FinanceOverview } from '../../types/finance';
@@ -27,7 +27,7 @@ export function ZenithPrimeCard({ overview, cardholder }: ZenithPrimeCardProps) 
   const openModule = useProfileModuleStore((s) => s.openModule);
 
   const handleAction = (id: (typeof QUICK_ACTIONS)[number]['id']) => {
-    void Haptics.selectionAsync();
+    void triggerHaptic('selection');
     switch (id) {
       case 'habits':
         openModule('habits');

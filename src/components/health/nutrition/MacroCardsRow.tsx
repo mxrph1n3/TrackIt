@@ -8,7 +8,7 @@ import Animated, {
 
 import { useHealthStyles } from '../../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
-import { useHealthStore } from '../../../stores/useHealthStore';
+import { useTodayNutrition } from '../../../hooks/useTodayNutrition';
 import { timingProgress } from '../../../theme/motion';
 import { PremiumCard } from '../ui/PremiumCard';
 
@@ -78,8 +78,7 @@ function MacroTile({ label, current, target, color }: MacroTileProps) {
 }
 
 export function MacroCardsRow() {
-  const dietPlan = useHealthStore((s) => s.dietPlan);
-  const consumed = useHealthStore((s) => s.consumedMacros);
+  const { dietPlan, consumedMacros: consumed } = useTodayNutrition();
   const healthTheme = useHealthTheme();
   const styles = useHealthStyles(() => ({
     row: {

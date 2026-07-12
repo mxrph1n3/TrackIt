@@ -4,7 +4,7 @@ import Svg, { Circle } from 'react-native-svg';
 
 import { useHealthStyles } from '../../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
-import { useHealthStore } from '../../../stores/useHealthStore';
+import { useTodayNutrition } from '../../../hooks/useTodayNutrition';
 import { PremiumCard } from '../ui/PremiumCard';
 
 const MEAL_TARGET = 5;
@@ -15,9 +15,7 @@ function clampPercent(value: number, target: number): number {
 }
 
 export function NutritionScoreCard() {
-  const dietPlan = useHealthStore((s) => s.dietPlan);
-  const consumed = useHealthStore((s) => s.consumedMacros);
-  const mealLog = useHealthStore((s) => s.mealLog);
+  const { dietPlan, consumedMacros: consumed, mealLog } = useTodayNutrition();
   const healthTheme = useHealthTheme();
   const styles = useHealthStyles((t) => ({
     row: {

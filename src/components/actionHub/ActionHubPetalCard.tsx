@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { premiumSpringConfig, timingEntrance, timingExit } from '../../theme/motion';
+import { supportsNativeBlur } from '../../lib/platform/blur';
 import { ACTION_HUB } from './actionHubTheme';
 import { useActionHubTheme } from './useActionHubTheme';
 
@@ -123,7 +124,7 @@ export function ActionHubPetalCard({
         }}
         style={({ pressed }) => [styles.shell, pressed && styles.shellPressed]}
       >
-        {Platform.OS === 'ios' ? (
+        {supportsNativeBlur() ? (
           <BlurView intensity={hubTheme.isDark ? 36 : 28} tint={hubTheme.blurTint} style={StyleSheet.absoluteFill} />
         ) : null}
         <View style={styles.inner}>

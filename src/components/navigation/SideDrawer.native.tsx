@@ -10,8 +10,9 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
+import { supportsNativeBlur } from '../../lib/platform/blur';
 import { getActiveTabRoute } from '../../navigation/navigationRef';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { useSideDrawerStore } from '../../stores/useSideDrawerStore';
@@ -29,12 +30,11 @@ const TAB_ROUTE_TO_MODULE: Partial<Record<string, ProfileModuleId>> = {
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(SCREEN_WIDTH * 0.88, 340);
-/** Above floating tab bar (zIndex 100) so bottom menu items stay tappable. */
 const DRAWER_Z_INDEX = 200;
 const DRAWER_SCROLL_BOTTOM_PADDING = 72;
 
 export function SideDrawer() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme } = useTheme();
   const isOpen = useSideDrawerStore((s) => s.isOpen);
   const close = useSideDrawerStore((s) => s.close);
@@ -128,21 +128,20 @@ export function SideDrawer() {
     return null;
   }
 
+  const panelBackground = supportsNativeBlur() ? theme.drawerPanel : theme.background;
+
   return (
     <View pointerEvents="box-none" style={[StyleSheet.absoluteFill, styles.drawerRoot]}>
       <Animated.View pointerEvents="none" style={[styles.backdrop, backdropStyle]}>
-        <BlurView intensity={25} tint={theme.blurTint} style={StyleSheet.absoluteFill} />
+        {supportsNativeBlur() ? (
+          <BlurView intensity={25} tint={theme.blurTint} style={StyleSheet.absoluteFill} />
+        ) : null}
         <View style={[styles.backdropTint, { backgroundColor: theme.drawerBackdrop }]} />
       </Animated.View>
 
       <Animated.View pointerEvents="box-none" style={[StyleSheet.absoluteFill, backdropStyle]}>
         <Pressable
-          style={[
-            styles.dismissRegion,
-            {
-              left: DRAWER_WIDTH,
-            },
-          ]}
+          style={[styles.dismissRegion, { left: DRAWER_WIDTH }]}
           accessibilityRole="button"
           accessibilityLabel="Close profile menu"
           onPress={requestClose}
@@ -163,15 +162,17 @@ export function SideDrawer() {
           panelStyle,
         ]}
       >
-        <BlurView
-          pointerEvents="none"
-          intensity={30}
-          tint={theme.blurTint}
-          style={StyleSheet.absoluteFill}
-        />
+        {supportsNativeBlur() ? (
+          <BlurView
+            pointerEvents="none"
+            intensity={30}
+            tint={theme.blurTint}
+            style={StyleSheet.absoluteFill}
+          />
+        ) : null}
         <View
           pointerEvents="none"
-          style={[styles.panelTint, { backgroundColor: theme.drawerPanel }]}
+          style={[styles.panelTint, { backgroundColor: panelBackground }]}
         />
 
         <GestureDetector gesture={panGesture}>

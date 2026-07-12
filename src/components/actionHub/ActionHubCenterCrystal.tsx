@@ -1,8 +1,10 @@
 import { BlurView } from 'expo-blur';
-import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
+
+import { supportsNativeBlur } from '../../lib/platform/blur';
+import { triggerHaptic } from '../../lib/platform/haptics';
 
 import { CrystalEmblemIcon } from '../ui/CrystalEmblemIcon';
 import { ACTION_HUB } from './actionHubTheme';
@@ -57,7 +59,7 @@ export function ActionHubCenterCrystal({ onPress, size = DEFAULT_SIZE }: ActionH
   );
 
   const handlePress = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void triggerHaptic('light');
     onPress();
   };
 
@@ -68,7 +70,7 @@ export function ActionHubCenterCrystal({ onPress, size = DEFAULT_SIZE }: ActionH
       accessibilityRole="button"
       accessibilityLabel="Close Action Hub"
     >
-      {Platform.OS === 'ios' ? (
+      {supportsNativeBlur() ? (
         <BlurView intensity={hubTheme.isDark ? 36 : 32} tint={hubTheme.blurTint} style={StyleSheet.absoluteFill} />
       ) : null}
 

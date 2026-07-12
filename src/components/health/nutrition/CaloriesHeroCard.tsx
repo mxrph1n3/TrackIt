@@ -9,7 +9,7 @@ import Animated, {
 
 import { useHealthNavigation } from '../../../hooks/useHealthNavigation';
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
-import { useHealthStore } from '../../../stores/useHealthStore';
+import { useTodayNutrition } from '../../../hooks/useTodayNutrition';
 import { MOTION_DURATION, timingProgress } from '../../../theme/motion';
 import { PremiumCard } from '../ui/PremiumCard';
 
@@ -17,8 +17,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export function CaloriesHeroCard() {
   const healthTheme = useHealthTheme();
-  const dietPlan = useHealthStore((s) => s.dietPlan);
-  const consumed = useHealthStore((s) => s.consumedMacros);
+  const { dietPlan, consumedMacros: consumed } = useTodayNutrition();
   const { push } = useHealthNavigation();
 
   const percent = Math.min(100, Math.round((consumed.calories / dietPlan.calories) * 100));

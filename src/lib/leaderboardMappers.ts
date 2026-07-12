@@ -50,6 +50,12 @@ function mapProfileRow(row: Record<string, unknown>): ProfileRow {
         ? row.diet_goal
         : null,
     goal_pace_kg: row.goal_pace_kg == null ? null : Number(row.goal_pace_kg),
+    is_pro: row.is_pro === true,
+    pro_expires_at: row.pro_expires_at == null ? null : String(row.pro_expires_at),
+    tma_trial_started_at:
+      row.tma_trial_started_at == null ? null : String(row.tma_trial_started_at),
+    telegram_user_id: row.telegram_user_id == null ? null : Number(row.telegram_user_id),
+    telegram_reminders_enabled: row.telegram_reminders_enabled === true,
     updated_at: String(row.updated_at),
   };
 }

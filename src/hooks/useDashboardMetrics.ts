@@ -15,6 +15,7 @@ import { useGamificationStore } from '../stores/useGamificationStore';
 import { useHealthStore } from '../stores/useHealthStore';
 import { useMetricsSyncStore } from '../stores/useMetricsSyncStore';
 import type { DashboardProgress } from '../types/dashboard';
+import { useCalendarDayKey } from './useCalendarDayKey';
 
 export type UseDashboardMetricsResult = {
   progress: DashboardProgress;
@@ -26,6 +27,8 @@ export type UseDashboardMetricsResult = {
 
 export function useDashboardMetrics(): UseDashboardMetricsResult {
   const userId = useGamificationStore((s) => s.profile?.id);
+  const calendarDayKey = useCalendarDayKey();
+  const nutritionDayKey = useHealthStore((s) => s.nutritionDayKey);
   const consumedCalories = useHealthStore((s) => s.consumedMacros.calories);
   const calorieTarget = useHealthStore((s) => s.dietPlan.calories);
   const workoutCompletedToday = useHealthStore((s) => s.lastSession.relativeDay === 'Today');
@@ -35,10 +38,13 @@ export function useDashboardMetrics(): UseDashboardMetricsResult {
   const [isLive, setIsLive] = useState(false);
 
   const refresh = useCallback(async () => {
+    const todayCalories =
+      nutritionDayKey === calendarDayKey ? consumedCalories : 0;
+
     if (!userId || !isSupabaseConfigured) {
       setRawMetrics({
         ...EMPTY_DASHBOARD_METRICS_RAW,
-        consumedCalories,
+        consumedCalories: todayCalories,
         calorieTarget: calorieTarget || DEFAULT_CALORIE_TARGET,
         workoutCompletedToday,
       });
@@ -51,7 +57,7 @@ export function useDashboardMetrics(): UseDashboardMetricsResult {
 
     try {
       const fetched = await fetchDashboardMetricsRaw(userId, {
-        consumedCalories,
+        consumedCalories: todayCalories,
         calorieTarget: calorieTarget || DEFAULT_CALORIE_TARGET,
         workoutCompletedToday,
       });
@@ -61,7 +67,7 @@ export function useDashboardMetrics(): UseDashboardMetricsResult {
       console.warn('[DashboardMetrics] Using zero-state metrics:', error);
       setRawMetrics({
         ...EMPTY_DASHBOARD_METRICS_RAW,
-        consumedCalories,
+        consumedCalories: todayCalories,
         calorieTarget: calorieTarget || DEFAULT_CALORIE_TARGET,
         workoutCompletedToday,
       });
@@ -69,14 +75,14 @@ export function useDashboardMetrics(): UseDashboardMetricsResult {
     } finally {
       setIsLoading(false);
     }
-  }, [calorieTarget, consumedCalories, isLive, userId, workoutCompletedToday]);
+  }, [calorieTarget, calendarDayKey, consumedCalories, isLive, nutritionDayKey, userId, workoutCompletedToday]);
 
   const refreshRef = useRef(refresh);
   refreshRef.current = refresh;
 
   useEffect(() => {
     void refresh();
-  }, [refresh]);
+  }, [calendarDayKey, refresh]);
 
   useEffect(() => {
     if (!userId || !isSupabaseConfigured) {

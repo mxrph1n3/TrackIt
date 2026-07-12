@@ -1,11 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
 import { Brain, RefreshCw, Sparkles } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useFeatureGate } from '../../hooks/useFeatureGate';
 import { useAiCoach } from '../../hooks/useAiCoach';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { PremiumBadge } from '../paywall/PremiumBadge';
 import { BRAND, RADIUS } from '../../theme/designTokens';
 import { getThemedSurfaces } from '../../theme/themedSurfaces';
@@ -112,7 +112,7 @@ export function AiCoachCard({ autoLoad: _autoLoad = false }: AiCoachCardProps) {
 
   const handleAnalyze = () => {
     requirePro(() => {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void triggerHaptic('light');
       void analyze();
     });
   };

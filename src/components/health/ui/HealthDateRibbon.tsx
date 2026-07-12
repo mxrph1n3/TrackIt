@@ -1,7 +1,7 @@
-import * as Haptics from 'expo-haptics';
 import { Pressable, ScrollView, Text } from 'react-native';
 
 import { useHealthStyles } from '../../../hooks/useHealthStyles';
+import { triggerHaptic } from '../../../lib/platform/haptics';
 
 export type DateRibbonDay = {
   key: string;
@@ -65,7 +65,7 @@ export function HealthDateRibbon({ days, onSelect }: HealthDateRibbonProps) {
           <Pressable
             key={day.key}
             onPress={() => {
-              void Haptics.selectionAsync();
+              void triggerHaptic('selection');
               onSelect(index);
             }}
             style={[styles.chip, active && styles.chipActive]}

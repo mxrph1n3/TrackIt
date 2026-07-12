@@ -1,44 +1,15 @@
-import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import * as WebBrowser from 'expo-web-browser';
-import { makeRedirectUri } from 'expo-auth-session';
 
-import { AUTH_SCHEME, AUTH_CALLBACK_PATH } from './deepLinking';
 import { isSupabaseConfigured, supabase } from '../supabase';
+import { createSessionFromUrl, getAuthRedirectUri } from './oauth.shared';
 
 WebBrowser.maybeCompleteAuthSession();
 
-export function getAuthRedirectUri() {
-  return makeRedirectUri({
-    scheme: AUTH_SCHEME,
-    path: AUTH_CALLBACK_PATH,
-  });
+export async function completeOAuthSessionFromCurrentUrl() {
+  return null;
 }
 
-async function createSessionFromUrl(url: string) {
-  const { params, errorCode } = QueryParams.getQueryParams(url);
-
-  if (errorCode) {
-    throw new Error(errorCode);
-  }
-
-  const accessToken = params.access_token;
-  const refreshToken = params.refresh_token;
-
-  if (!accessToken) {
-    throw new Error('OAuth callback did not include an access token.');
-  }
-
-  const { data, error } = await supabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  return data.session;
-}
+export { getAuthRedirectUri, createSessionFromUrl } from './oauth.shared';
 
 export async function signInWithGoogleOAuth() {
   if (!isSupabaseConfigured) {

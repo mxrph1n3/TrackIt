@@ -8,8 +8,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { fetchOpenTasksForSubtask } from '../../lib/planner/subtaskService';
 import { useGamificationStore } from '../../stores/useGamificationStore';
 import { BRAND } from '../../theme/designTokens';
@@ -28,7 +27,7 @@ export function SubtaskCreationSheet({
   onSubmit,
   preferredTaskId,
 }: SubtaskCreationSheetProps) {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { styles, theme } = usePlannerSheetStyles();
   const userId = useGamificationStore((state) => state.profile?.id);
   const [title, setTitle] = useState('');

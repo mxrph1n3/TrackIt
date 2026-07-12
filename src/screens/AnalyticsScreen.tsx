@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
 
 import { FinanceDonutChart, FinanceInsightCard } from '../components/analytics/FinancePanel';
 import { HealthDualLineChart } from '../components/analytics/HealthPanel';
@@ -13,6 +13,7 @@ import { useFloatingTabBarStyles } from '../navigation/hooks/useFloatingTabBarSt
 import { LeaderboardScreen } from './analytics/LeaderboardScreen';
 import { useAnalyticsNavigationStore } from '../stores/useAnalyticsNavigationStore';
 import { useSideDrawerStore } from '../stores/useSideDrawerStore';
+import { getScreenHorizontalPadding } from '../theme/screenLayout';
 import type { AnalyticsTabId } from '../types/analytics';
 
 function AnalyticsScrollTab({ activeTab }: { activeTab: Exclude<AnalyticsTabId, 'overview'> }) {
@@ -39,12 +40,13 @@ function AnalyticsScrollTab({ activeTab }: { activeTab: Exclude<AnalyticsTabId, 
 }
 
 export function AnalyticsScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const openDrawer = useSideDrawerStore((s) => s.open);
   const screen = useAnalyticsNavigationStore((s) => s.screen);
   const [activeTab, setActiveTab] = useState<AnalyticsTabId>('overview');
   const bottomInset = scrollContentPaddingBottom;
+  const horizontalPadding = getScreenHorizontalPadding();
 
   const requirePremium = usePremiumAction();
 
@@ -66,11 +68,12 @@ export function AnalyticsScreen() {
   return (
     <View style={[styles.screen, styles.screenTransparent]}>
       <ScrollView
+        style={styles.scroll}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingTop: insets.top + 8,
           paddingBottom: bottomInset,
-          paddingHorizontal: 16,
+          paddingHorizontal: horizontalPadding,
         }}
       >
         <StatisticsOverviewHeader onMenuPress={openDrawer} />
@@ -85,6 +88,9 @@ export function AnalyticsScreen() {
 
 const styles = StyleSheet.create({
   screen: {
+    flex: 1,
+  },
+  scroll: {
     flex: 1,
   },
   screenTransparent: {

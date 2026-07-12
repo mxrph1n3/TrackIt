@@ -4,9 +4,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
+import { useTodayNutrition } from '../../hooks/useTodayNutrition';
 import { useWaterDailyTotal } from '../../hooks/useWaterDailyTotal';
 import { navigateTab } from '../../navigation/navigationRef';
-import { useHealthStore } from '../../stores/useHealthStore';
 import { BRAND, SEMANTIC } from '../../theme/designTokens';
 import { PlannerPremiumCard } from './PlannerPremiumCard';
 import { PlannerSectionHeader } from './PlannerSectionHeader';
@@ -19,12 +19,11 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export function PlannerNutritionModule() {
   const { styles: plannerStyles, theme, surfaces } = usePlannerTheme();
-  const consumed = useHealthStore((s) => s.consumedMacros);
-  const calorieTarget = useHealthStore((s) => s.dietPlan.calories);
-  const proteinTarget = useHealthStore((s) => s.dietPlan.protein_target);
-  const fatTarget = useHealthStore((s) => s.dietPlan.fat_target);
-  const carbsTarget = useHealthStore((s) => s.dietPlan.carb_target);
-  const waterTargetLiters = useHealthStore((s) => s.waterTargetLiters);
+  const { consumedMacros: consumed, dietPlan, waterTargetLiters } = useTodayNutrition();
+  const calorieTarget = dietPlan.calories;
+  const proteinTarget = dietPlan.protein_target;
+  const fatTarget = dietPlan.fat_target;
+  const carbsTarget = dietPlan.carb_target;
   const { waterMl } = useWaterDailyTotal();
 
   const styles = useMemo(

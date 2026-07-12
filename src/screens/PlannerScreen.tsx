@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
 
 import { JournalEditSheet } from '../components/planner/JournalEditSheet';
 import { PlannerFinanceModule } from '../components/planner/PlannerFinanceModule';
@@ -21,11 +21,12 @@ import { usePlannerNavigationStore } from '../stores/usePlannerNavigationStore';
 import { usePlannerStore } from '../stores/usePlannerStore';
 import { useSideDrawerStore } from '../stores/useSideDrawerStore';
 import { BRAND } from '../theme/designTokens';
+import { getScreenHorizontalPadding } from '../theme/screenLayout';
 import { useTheme } from '../theme/ThemeContext';
 import { AllTasksScreen } from './planner/AllTasksScreen';
 
 export function PlannerScreen() {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme } = useTheme();
   const { styles: plannerStyles } = usePlannerTheme();
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
@@ -85,6 +86,15 @@ export function PlannerScreen() {
   }, [consumePendingTaskSeed, openTaskSheet, pendingTaskSeed]);
 
   const journalInitialBody = journalIsEmpty ? '' : agenda.journal.body;
+  const horizontalPadding = getScreenHorizontalPadding();
+  const PlannerContent = Platform.OS !== 'ios' ? View : Animated.View;
+  const plannerContentProps =
+    Platform.OS !== 'ios'
+      ? {}
+      : {
+          entering: FadeInDown.duration(280),
+          exiting: FadeOutUp.duration(180),
+        };
 
   if (screen === 'allTasks') {
     return <AllTasksScreen />;
@@ -93,6 +103,7 @@ export function PlannerScreen() {
   return (
     <View style={plannerStyles.screenRoot}>
       <ScrollView
+        style={styles.scroll}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -105,7 +116,7 @@ export function PlannerScreen() {
         contentContainerStyle={{
           paddingTop: insets.top + 8,
           paddingBottom: scrollContentPaddingBottom,
-          paddingHorizontal: 20,
+          paddingHorizontal: horizontalPadding,
         }}
       >
         <PlannerScreenHeader
@@ -129,11 +140,7 @@ export function PlannerScreen() {
             <ActivityIndicator color={BRAND.primary} />
           </View>
         ) : (
-          <Animated.View
-            key={`planner-${selectedDayKey}`}
-            entering={FadeInDown.duration(280)}
-            exiting={FadeOutUp.duration(180)}
-          >
+          <PlannerContent key={`planner-${selectedDayKey}`} {...plannerContentProps}>
             <PlannerTodayFocusCard
               agenda={agenda}
               isJournalEmpty={journalIsEmpty}
@@ -161,7 +168,7 @@ export function PlannerScreen() {
               days={timelineDays}
               onViewAll={openAllTasks}
             />
-          </Animated.View>
+          </PlannerContent>
         )}
       </ScrollView>
 
@@ -176,6 +183,9 @@ export function PlannerScreen() {
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+  },
   loading: {
     alignItems: 'center',
     paddingVertical: 32,

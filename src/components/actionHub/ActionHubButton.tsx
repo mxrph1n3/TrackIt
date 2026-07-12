@@ -1,5 +1,4 @@
 import { BlurView } from 'expo-blur';
-import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
@@ -16,6 +15,8 @@ import Svg, { Circle } from 'react-native-svg';
 import { premiumSpringConfig, MOTION_DURATION, timingEntrance, timingLoop } from '../../theme/motion';
 import { TabBarLayout } from '../../theme/obsidian';
 import { useTheme } from '../../theme/ThemeContext';
+import { supportsNativeBlur } from '../../lib/platform/blur';
+import { triggerHaptic } from '../../lib/platform/haptics';
 import { CrystalEmblemIcon } from '../ui/CrystalEmblemIcon';
 import { ACTION_HUB } from './actionHubTheme';
 import { useActionHubCrystalState } from './useActionHubCrystalState';
@@ -67,7 +68,7 @@ export function ActionHubButton({
   }, [glow, isOpen]);
 
   const handlePress = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void triggerHaptic('light');
     onToggle();
   };
 
@@ -135,7 +136,7 @@ export function ActionHubButton({
             },
           ]}
         >
-          {Platform.OS === 'ios' ? (
+          {supportsNativeBlur() ? (
             <BlurView intensity={isDark ? 36 : 32} tint={theme.blurTint} style={StyleSheet.absoluteFill} />
           ) : null}
 

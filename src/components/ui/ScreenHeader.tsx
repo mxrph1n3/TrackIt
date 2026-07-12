@@ -1,7 +1,7 @@
 import { ChevronLeft } from 'lucide-react-native';
 import type { PropsWithChildren } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 
 import { useTheme } from '../../theme/ThemeContext';
 
@@ -12,7 +12,7 @@ type ScreenHeaderProps = PropsWithChildren<{
 }>;
 
 export function ScreenHeader({ title, subtitle, onBack, children }: ScreenHeaderProps) {
-  const insets = useSafeAreaInsets();
+  const insets = useAppSafeAreaInsets();
   const { theme } = useTheme();
 
   return (

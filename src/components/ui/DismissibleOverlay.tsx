@@ -3,6 +3,8 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { supportsNativeBlur } from '../../lib/platform/blur';
+import { SUPPORTS_LAYOUT_ANIMATIONS } from '../../lib/platform/constants';
 import { useTheme } from '../../theme/ThemeContext';
 import { overlayEnter, overlayExit } from '../../theme/motion';
 
@@ -59,7 +61,7 @@ function OverlayLayers({
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
       >
-        {resolvedBlur > 0 ? (
+        {supportsNativeBlur() && resolvedBlur > 0 ? (
           <BlurView intensity={resolvedBlur} tint={resolvedTint} style={StyleSheet.absoluteFill} />
         ) : null}
         <View style={[StyleSheet.absoluteFill, { backgroundColor: resolvedScrim }]} />
@@ -121,6 +123,8 @@ export function DismissibleOverlay({
     />
   );
 
+  const useLayoutAnimations = animated && SUPPORTS_LAYOUT_ANIMATIONS;
+
   return (
     <Modal
       visible={visible}
@@ -129,7 +133,7 @@ export function DismissibleOverlay({
       statusBarTranslucent
       onRequestClose={onDismiss}
     >
-      {animated ? (
+      {useLayoutAnimations ? (
         <Animated.View
           entering={overlayEnter}
           exiting={overlayExit}

@@ -5,6 +5,11 @@ import { GlassPanel } from '../components/GlassPanel';
 import { IsolatedScreenLayout } from '../components/layout/IsolatedScreenShell';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { useGamification } from '../hooks/useGamification';
+import { TMA_TRIAL_DAYS } from '../constants/tmaBilling';
+import { IS_WEB } from '../lib/platform/constants';
+import { notificationsSupportedInRuntime } from '../lib/platform/services';
+import { setTelegramRemindersEnabled } from '../lib/subscription/tmaAccessService';
+import { isTelegramMiniApp } from '../lib/telegram/telegramWebApp';
 import {
   ACTIVITY_LEVELS,
   resolveNutritionTargets,
@@ -16,7 +21,7 @@ import { reportSyncError, reportSyncSuccess } from '../lib/sync/reportSyncError'
 import { useProfileModuleStore } from '../stores/useProfileModuleStore';
 import { useFeatureGate } from '../hooks/useFeatureGate';
 import { usePaywallStore } from '../stores/usePaywallStore';
-import { useSubscriptionStore } from '../stores/useSubscriptionStore';
+import { useSubscriptionStore, selectCanUseNotifications } from '../stores/useSubscriptionStore';
 import { useNotificationSettingsStore } from '../stores/useNotificationSettingsStore';
 import { useTheme } from '../theme/ThemeContext';
 import type { AppThemeMode } from '../theme/themes';
@@ -228,6 +233,38 @@ export function SettingsScreen() {
   const setNotificationsEnabled = useNotificationSettingsStore((s) => s.setEnabled);
   const setHardcoreMode = useNotificationSettingsStore((s) => s.setHardcoreMode);
 
+  const isTma = IS_WEB && isTelegramMiniApp();
+  const canUseNotifications = useSubscriptionStore(selectCanUseNotifications);
+  const tmaAccess = useSubscriptionStore((s) => s.tmaAccess);
+  const [telegramReminders, setTelegramReminders] = useState(tmaAccess.telegramRemindersEnabled);
+  const [isSavingTelegramReminders, setIsSavingTelegramReminders] = useState(false);
+
+  useEffect(() => {
+    setTelegramReminders(tmaAccess.telegramRemindersEnabled);
+  }, [tmaAccess.telegramRemindersEnabled]);
+
+  const handleTelegramRemindersToggle = useCallback(
+    async (enabled: boolean) => {
+      if (!canUseNotifications) {
+        openPaywall();
+        return;
+      }
+
+      setTelegramReminders(enabled);
+      setIsSavingTelegramReminders(true);
+      try {
+        await setTelegramRemindersEnabled(enabled);
+        void useSubscriptionStore.getState().syncTma();
+      } catch (error) {
+        setTelegramReminders(!enabled);
+        reportSyncError('Could not update Telegram reminders.', error);
+      } finally {
+        setIsSavingTelegramReminders(false);
+      }
+    },
+    [canUseNotifications, openPaywall],
+  );
+
   return (
     <IsolatedScreenLayout header={<ScreenHeader title="SETTINGS" subtitle="System Config" onBack={closeModule} />}>
       <GlassPanel borderRadius={24} style={{ marginBottom: 16 }}>
@@ -389,50 +426,92 @@ export function SettingsScreen() {
       <GlassPanel borderRadius={24} style={{ marginBottom: 16 }}>
         <View className="p-5">
           <Text className="text-[10px] font-bold uppercase tracking-[2px]" style={{ color: theme.textMuted }}>
-            Push Notifications
+            {isTma ? 'Telegram Reminders' : 'Push Notifications'}
           </Text>
-          <View className="mt-4 flex-row items-center justify-between">
-            <View className="flex-1 pr-4">
-              <Text className="text-base font-bold" style={{ color: theme.textPrimary }}>
-                Smart reminders
+          {isTma ? (
+            <>
+              <Text className="mt-2 text-sm" style={{ color: theme.textSecondary }}>
+                {canUseNotifications
+                  ? tmaAccess.isInTrial
+                    ? `Included in your ${TMA_TRIAL_DAYS}-day trial. After trial, Pro via Telegram Stars keeps reminders.`
+                    : 'Bot messages on the TrackIt schedule — morning, midday, progress, and evening.'
+                  : `Trial ended. Subscribe with Telegram Stars to restore smart reminders and Pro access.`}
               </Text>
-              <Text className="mt-1 text-sm" style={{ color: theme.textSecondary }}>
-                Motivation, tasks, workouts, and end-of-day summaries on the TrackIt schedule.
+              <View className="mt-4 flex-row items-center justify-between">
+                <View className="flex-1 pr-4">
+                  <Text className="text-base font-bold" style={{ color: theme.textPrimary }}>
+                    Smart reminders
+                  </Text>
+                  <Text className="mt-1 text-sm" style={{ color: theme.textSecondary }}>
+                    Motivation, tasks, workouts, and end-of-day summaries via Telegram bot.
+                  </Text>
+                </View>
+                <Switch
+                  value={telegramReminders}
+                  onValueChange={(value) => void handleTelegramRemindersToggle(value)}
+                  disabled={!canUseNotifications || isSavingTelegramReminders}
+                  trackColor={{ false: `${theme.primary}33`, true: theme.primary }}
+                  thumbColor="#FFFFFF"
+                />
+              </View>
+              <Text className="mt-4 text-xs leading-5" style={{ color: theme.textMuted }}>
+                08:00 · morning · 12:00 · midday · 16:00 · progress · 19:00 · close the day · 21:00 ·
+                summary · 22:00 · final nudge
               </Text>
-            </View>
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={setNotificationsEnabled}
-              trackColor={{ false: `${theme.primary}33`, true: theme.primary }}
-              thumbColor="#FFFFFF"
-            />
-          </View>
+            </>
+          ) : (
+            <>
+              {!notificationsSupportedInRuntime ? (
+                <Text className="mt-2 text-sm" style={{ color: theme.textSecondary }}>
+                  Push reminders are not available in Telegram Mini App or web builds. Use the native
+                  iOS or Android app for scheduled notifications.
+                </Text>
+              ) : null}
+              <View className="mt-4 flex-row items-center justify-between">
+                <View className="flex-1 pr-4">
+                  <Text className="text-base font-bold" style={{ color: theme.textPrimary }}>
+                    Smart reminders
+                  </Text>
+                  <Text className="mt-1 text-sm" style={{ color: theme.textSecondary }}>
+                    Motivation, tasks, workouts, and end-of-day summaries on the TrackIt schedule.
+                  </Text>
+                </View>
+                <Switch
+                  value={notificationsEnabled}
+                  onValueChange={setNotificationsEnabled}
+                  disabled={!notificationsSupportedInRuntime}
+                  trackColor={{ false: `${theme.primary}33`, true: theme.primary }}
+                  thumbColor="#FFFFFF"
+                />
+              </View>
 
-          <View
-            className="mt-4 flex-row items-center justify-between"
-            style={{ opacity: notificationsEnabled ? 1 : 0.45 }}
-          >
-            <View className="flex-1 pr-4">
-              <Text className="text-base font-bold" style={{ color: theme.textPrimary }}>
-                Hardcore
-              </Text>
-              <Text className="mt-1 text-sm" style={{ color: theme.textSecondary }}>
-                Tough motivation with no compromises. For those who want pressure.
-              </Text>
-            </View>
-            <Switch
-              value={hardcoreMode}
-              onValueChange={setHardcoreMode}
-              disabled={!notificationsEnabled}
-              trackColor={{ false: `${theme.primary}33`, true: theme.primary }}
-              thumbColor="#FFFFFF"
-            />
-          </View>
+              <View
+                className="mt-4 flex-row items-center justify-between"
+                style={{ opacity: notificationsEnabled && notificationsSupportedInRuntime ? 1 : 0.45 }}
+              >
+                <View className="flex-1 pr-4">
+                  <Text className="text-base font-bold" style={{ color: theme.textPrimary }}>
+                    Hardcore
+                  </Text>
+                  <Text className="mt-1 text-sm" style={{ color: theme.textSecondary }}>
+                    Tough motivation with no compromises. For those who want pressure.
+                  </Text>
+                </View>
+                <Switch
+                  value={hardcoreMode}
+                  onValueChange={setHardcoreMode}
+                  disabled={!notificationsEnabled || !notificationsSupportedInRuntime}
+                  trackColor={{ false: `${theme.primary}33`, true: theme.primary }}
+                  thumbColor="#FFFFFF"
+                />
+              </View>
 
-          <Text className="mt-4 text-xs leading-5" style={{ color: theme.textMuted }}>
-            08:00 · morning · 12:00 · midday · 16:00 · progress · 19:00 · close the day · 21:00 · summary ·
-            22:00 · final nudge
-          </Text>
+              <Text className="mt-4 text-xs leading-5" style={{ color: theme.textMuted }}>
+                08:00 · morning · 12:00 · midday · 16:00 · progress · 19:00 · close the day · 21:00 ·
+                summary · 22:00 · final nudge
+              </Text>
+            </>
+          )}
         </View>
       </GlassPanel>
 
