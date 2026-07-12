@@ -19,6 +19,8 @@ export type ProfileRow = {
   tma_trial_started_at?: string | null;
   telegram_user_id?: number | null;
   telegram_reminders_enabled?: boolean;
+  timezone?: string;
+  last_active_at?: string | null;
   updated_at: string;
 };
 

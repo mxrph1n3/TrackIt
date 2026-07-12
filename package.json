@@ -62,6 +62,8 @@
     "assets:dark": "python3 scripts/generate-dark-theme-assets.py",
     "assets:icons": "python3 scripts/generate-app-icons.py --v4",
     "assets:icons:hub": "python3 scripts/generate-app-icons.py --hub",
+    "setup:telegram-bot": "node scripts/setup-telegram-bot.mjs",
+    "deploy:telegram": "bash scripts/deploy-telegram-functions.sh",
     "test": "CI=true jest --forceExit",
     "test:watch": "jest --watch"
   },

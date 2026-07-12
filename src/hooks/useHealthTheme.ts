@@ -1,7 +1,7 @@
-import { getHealthTheme, type HealthThemeTokens } from '../components/health/ui/healthTheme';
-import { useTheme } from '../theme/ThemeContext';
+import type { HealthThemeTokens } from '../components/health/ui/healthTheme';
+import { getHealthTheme } from '../components/health/ui/healthTheme';
+import { useHealthIsDark } from './useHealthIsDark';
 
 export function useHealthTheme(): HealthThemeTokens {
-  const { isDark } = useTheme();
-  return getHealthTheme(isDark);
+  return getHealthTheme(useHealthIsDark());
 }

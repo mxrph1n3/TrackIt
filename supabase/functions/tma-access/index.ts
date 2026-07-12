@@ -9,7 +9,21 @@ import {
 
 type RequestBody = {
   initData?: string;
+  timezone?: string;
 };
+
+function resolveTimezone(body: RequestBody): string {
+  const candidate = body.timezone?.trim();
+  if (!candidate || candidate.length > 64) {
+    return 'UTC';
+  }
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: candidate });
+    return candidate;
+  } catch {
+    return 'UTC';
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -85,6 +99,8 @@ Deno.serve(async (req) => {
 
     const updates: Record<string, unknown> = {
       telegram_user_id: telegramUser.id,
+      timezone: resolveTimezone(body),
+      last_active_at: new Date().toISOString(),
     };
 
     if (!profile.tma_trial_started_at) {

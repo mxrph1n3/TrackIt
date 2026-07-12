@@ -6,14 +6,12 @@ import {
 } from '@musclemap/core';
 import { getBodyDiagram, type BodyDiagram, type BodyView } from '@musclemap/assets';
 import { useMemo } from 'react';
-import Svg, { G, Path } from 'react-native-svg';
+import Svg, { G, Path, Rect } from 'react-native-svg';
 
-import { useTheme } from '../../theme/ThemeContext';
-import {
-  TRACKIT_MUSCLE_BASE_DARK,
-  TRACKIT_MUSCLE_BASE_LIGHT,
-  TRACKIT_MUSCLE_COLOR,
-} from '../../lib/health/muscleMapAdapter';
+import { useHealthIsDark } from '../../hooks/useHealthIsDark';
+import { useHealthTheme } from '../../hooks/useHealthTheme';
+import { TRACKIT_MUSCLE_COLOR } from '../../lib/health/muscleMapAdapter';
+import { OBSIDIAN_BODY_MAP } from './ui/healthTheme';
 
 type ExpandedMuscle = {
   key: string;
@@ -24,6 +22,7 @@ type ExpandedMuscle = {
 };
 
 type BodyFigurePalette = {
+  canvas: string;
   outlineTop: string;
   outlineBottom: string;
   muscleRest: string;
@@ -31,21 +30,27 @@ type BodyFigurePalette = {
   muscleBase: string;
 };
 
-const LIGHT_PALETTE: BodyFigurePalette = {
-  outlineTop: '#E8EDF5',
-  outlineBottom: '#CBD5E1',
-  muscleRest: 'rgba(148, 163, 184, 0.28)',
-  stroke: 'rgba(26, 21, 44, 0.12)',
-  muscleBase: TRACKIT_MUSCLE_BASE_LIGHT,
-};
+function buildPalette(isDark: boolean, canvas: string): BodyFigurePalette {
+  if (isDark) {
+    return {
+      canvas: OBSIDIAN_BODY_MAP.canvas,
+      outlineTop: OBSIDIAN_BODY_MAP.silhouette,
+      outlineBottom: OBSIDIAN_BODY_MAP.silhouetteDeep,
+      muscleRest: OBSIDIAN_BODY_MAP.muscleIdle,
+      stroke: OBSIDIAN_BODY_MAP.muscleStroke,
+      muscleBase: OBSIDIAN_BODY_MAP.muscleBase,
+    };
+  }
 
-const DARK_PALETTE: BodyFigurePalette = {
-  outlineTop: '#151320',
-  outlineBottom: '#0D0B14',
-  muscleRest: 'rgba(255, 255, 255, 0.1)',
-  stroke: 'rgba(255, 255, 255, 0.08)',
-  muscleBase: TRACKIT_MUSCLE_BASE_DARK,
-};
+  return {
+    canvas,
+    outlineTop: '#E8EDF5',
+    outlineBottom: '#CBD5E1',
+    muscleRest: 'rgba(148, 163, 184, 0.28)',
+    stroke: 'rgba(26, 21, 44, 0.12)',
+    muscleBase: '#CBD5E1',
+  };
+}
 
 function expandMuscle(
   path: BodyDiagram['muscles'][number],
@@ -85,8 +90,12 @@ type MuscleMapBodyFigureProps = {
 };
 
 export function MuscleMapBodyFigure({ view, values, width }: MuscleMapBodyFigureProps) {
-  const { isDark } = useTheme();
-  const palette = isDark ? DARK_PALETTE : LIGHT_PALETTE;
+  const isDark = useHealthIsDark();
+  const healthTheme = useHealthTheme();
+  const palette = useMemo(
+    () => buildPalette(isDark, healthTheme.canvas),
+    [healthTheme.canvas, isDark],
+  );
   const diagram = useMemo(() => getBodyDiagram('MALE', view), [view]);
   const visibleGroups = useMemo(
     () => new Set(getVisibleMuscleGroups(view, 'FULL_BODY')),
@@ -102,7 +111,19 @@ export function MuscleMapBodyFigure({ view, values, width }: MuscleMapBodyFigure
   const height = width * (vbH / vbW);
 
   return (
-    <Svg width={width} height={height} viewBox={diagram.viewBox}>
+    <View style={{ backgroundColor: palette.canvas, alignItems: 'center' }}>
+      <Svg
+        width={width}
+        height={height}
+        viewBox={diagram.viewBox}
+      >
+      <Rect
+        x={0}
+        y={0}
+        width={vbW}
+        height={vbH}
+        fill={palette.canvas}
+      />
       <G>
         {diagram.outline.map((part) => (
           <G key={part.id}>
@@ -144,5 +165,6 @@ export function MuscleMapBodyFigure({ view, values, width }: MuscleMapBodyFigure
         })}
       </G>
     </Svg>
+    </View>
   );
 }

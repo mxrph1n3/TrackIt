@@ -34,7 +34,7 @@ export function MealDetailsScreen() {
   const instructions = meal ? getMealInstructions(meal.meal_id) : [];
 
   const styles = useHealthStyles((t) => ({
-    root: { flex: 1, backgroundColor: 'transparent' },
+    root: { flex: 1, backgroundColor: t.background },
     content: { paddingHorizontal: 20 },
     empty: { color: t.slate, textAlign: 'center', marginTop: 24 },
     mealName: {

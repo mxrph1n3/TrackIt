@@ -1,12 +1,12 @@
-import type { ReactNode } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
-import { Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import type { BodyView as MuscleDiagramView } from '@musclemap/assets';
 
 import { highlightToMuscleMapValues } from '../../lib/health/muscleMapAdapter';
 import { mergeMuscleHighlights } from '../../lib/health/muscleMap';
+import { useHealthIsDark } from '../../hooks/useHealthIsDark';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
-import { useTheme } from '../../theme/ThemeContext';
 import type { MuscleHighlight, MuscleId } from '../../types/workout';
 import { MuscleMapBodyFigure } from './MuscleMapBodyFigure';
 
@@ -30,8 +30,63 @@ export function MuscleMapHighlighter({
 }: MuscleMapHighlighterProps) {
   const [view, setView] = useState<MuscleDiagramView>('FRONT');
   const { width: screenWidth } = useWindowDimensions();
-  const { isDark } = useTheme();
+  const isDark = useHealthIsDark();
   const healthTheme = useHealthTheme();
+
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        canvas: {
+          backgroundColor: healthTheme.canvas,
+        },
+        dualCanvas: {
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        row: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        figureSlot: {
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        figureSlotLeft: {
+          marginRight: -DUAL_CENTER_PULL,
+          zIndex: 1,
+        },
+        figureSlotRight: {
+          marginLeft: -DUAL_CENTER_PULL,
+          zIndex: 1,
+        },
+        centerSlot: {
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 4,
+          maxWidth: '40%',
+          zIndex: 2,
+        },
+        toggleRow: {
+          flexDirection: 'row',
+          gap: 8,
+          marginBottom: 8,
+        },
+        toggleBtn: {
+          borderRadius: 999,
+          paddingHorizontal: 12,
+          paddingVertical: 4,
+        },
+        toggleLabel: {
+          fontSize: 10,
+          fontWeight: '700',
+          letterSpacing: 1,
+          textTransform: 'uppercase',
+        },
+      }),
+    [healthTheme.canvas],
+  );
 
   const dualFigureWidth = Math.min(
     DUAL_FIGURE_MAX_WIDTH,
@@ -46,28 +101,16 @@ export function MuscleMapHighlighter({
 
     return (
       <View
-        className="w-full items-center justify-center"
-        style={{ minHeight: figureHeight + 8, backgroundColor: healthTheme.background }}
+        style={[styles.dualCanvas, styles.canvas, { minHeight: figureHeight + 8 }]}
       >
-        <View className="flex-row items-center justify-center">
-          <View
-            className="items-center justify-center"
-            style={{ marginRight: -DUAL_CENTER_PULL, zIndex: 1 }}
-          >
+        <View style={styles.row}>
+          <View style={[styles.figureSlot, styles.figureSlotLeft]}>
             <MuscleMapBodyFigure view="FRONT" values={values} width={figureWidth} />
           </View>
 
-          <View
-            className="items-center justify-center px-1"
-            style={{ maxWidth: '40%', zIndex: 2 }}
-          >
-            {centerContent}
-          </View>
+          <View style={styles.centerSlot}>{centerContent}</View>
 
-          <View
-            className="items-center justify-center"
-            style={{ marginLeft: -DUAL_CENTER_PULL, zIndex: 1 }}
-          >
+          <View style={[styles.figureSlot, styles.figureSlotRight]}>
             <MuscleMapBodyFigure view="BACK" values={values} width={figureWidth} />
           </View>
         </View>
@@ -76,33 +119,36 @@ export function MuscleMapHighlighter({
   }
 
   return (
-    <View className="items-center" style={{ backgroundColor: healthTheme.background }}>
-      <View className="mb-2 flex-row gap-2">
-        {(['FRONT', 'BACK'] as MuscleDiagramView[]).map((side) => (
-          <Pressable
-            key={side}
-            onPress={() => setView(side)}
-            style={{
-              borderRadius: 999,
-              paddingHorizontal: 12,
-              paddingVertical: 4,
-              backgroundColor:
-                view === side ? `${healthTheme.accent}33` : isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 10,
-                fontWeight: '700',
-                letterSpacing: 1,
-                textTransform: 'uppercase',
-                color: view === side ? healthTheme.accent : healthTheme.slate,
-              }}
+    <View style={[styles.canvas, { alignItems: 'center' }]}>
+      <View style={styles.toggleRow}>
+        {(['FRONT', 'BACK'] as MuscleDiagramView[]).map((side) => {
+          const isActive = view === side;
+          return (
+            <Pressable
+              key={side}
+              onPress={() => setView(side)}
+              style={[
+                styles.toggleBtn,
+                {
+                  backgroundColor: isActive
+                    ? `${healthTheme.accent}33`
+                    : isDark
+                      ? 'rgba(255,255,255,0.06)'
+                      : 'rgba(0,0,0,0.04)',
+                },
+              ]}
             >
-              {side === 'FRONT' ? 'Front' : 'Back'}
-            </Text>
-          </Pressable>
-        ))}
+              <Text
+                style={[
+                  styles.toggleLabel,
+                  { color: isActive ? healthTheme.accent : healthTheme.slate },
+                ]}
+              >
+                {side === 'FRONT' ? 'Front' : 'Back'}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <MuscleMapBodyFigure view={view} values={values} width={figureWidth} />

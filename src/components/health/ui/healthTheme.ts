@@ -1,6 +1,8 @@
 /** Premium health module visual tokens — bright luxury aesthetic. */
 export const HEALTH_THEME = {
   background: '#F7F8FC',
+  /** Muscle map / flush panels — matches screen canvas. */
+  canvas: '#F7F8FC',
   card: '#FFFFFF',
   cardBorder: 'rgba(119, 93, 216, 0.08)',
   accent: '#7C5CFC',
@@ -23,8 +25,19 @@ export const HEALTH_THEME = {
   },
 } as const;
 
+/** Muscle-map figure tokens — no light greys in obsidian. */
+export const OBSIDIAN_BODY_MAP = {
+  canvas: '#07070A',
+  silhouette: '#121018',
+  silhouetteDeep: '#0A090F',
+  muscleIdle: '#1A1726',
+  muscleStroke: 'rgba(119, 93, 216, 0.14)',
+  muscleBase: '#2A2240',
+} as const;
+
 export const OBSIDIAN_HEALTH_THEME = {
-  background: '#07070A',
+  background: OBSIDIAN_BODY_MAP.canvas,
+  canvas: OBSIDIAN_BODY_MAP.canvas,
   card: 'rgba(15, 15, 25, 0.92)',
   cardBorder: 'rgba(119, 93, 216, 0.22)',
   accent: '#9580E8',
@@ -40,6 +53,7 @@ export const OBSIDIAN_HEALTH_THEME = {
 
 export type HealthThemeTokens = {
   background: string;
+  canvas: string;
   card: string;
   cardBorder: string;
   accent: string;

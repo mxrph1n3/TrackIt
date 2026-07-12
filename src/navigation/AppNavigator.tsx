@@ -22,8 +22,10 @@ import { DashboardScreen } from '../screens/DashboardScreen';
 import { PlannerScreen } from '../screens/PlannerScreen';
 import { useHealthHubNavigationStore } from '../stores/useHealthHubNavigationStore';
 import { useTheme } from '../theme/ThemeContext';
+import { isEffectiveDarkMode, resolveWebSceneBackground } from '../theme/resolveWebBackground';
 import { FloatingTabBar } from './components/FloatingTabBar';
 import { HealthStackNavigator } from './HealthStackNavigator';
+import { useAppNavigationTheme } from './navigationTheme';
 import { linking } from './linking';
 import { navigationRef, navigateHealthScreen } from './navigationRef';
 import type { RootTabParamList } from './types';
@@ -51,7 +53,7 @@ function HealthPendingRouteBridge() {
   return null;
 }
 
-function TabNavigatorShell() {
+function TabNavigatorShell({ sceneBackground }: { sceneBackground: string }) {
   return (
     <Tab.Navigator
       tabBar={(props) => <FloatingTabBar {...props} />}
@@ -61,7 +63,7 @@ function TabNavigatorShell() {
         freezeOnBlur: Platform.OS === 'ios',
         ...(Platform.OS === 'web' ? { animation: 'fade' as const } : {}),
         sceneStyle: {
-          backgroundColor: 'transparent',
+          backgroundColor: sceneBackground,
         },
       }}
     >
@@ -74,7 +76,10 @@ function TabNavigatorShell() {
 }
 
 export function AppNavigator() {
-  const { mode } = useTheme();
+  const { theme, mode } = useTheme();
+  const navigationTheme = useAppNavigationTheme();
+  const sceneBackground = resolveWebSceneBackground(theme.background, mode);
+  const ambientMode = isEffectiveDarkMode(mode) ? 'obsidian' : mode;
   const [navigationReady, setNavigationReady] = useState(false);
   useCatalogSync();
   useNotificationDeepLinks();
@@ -84,14 +89,15 @@ export function AppNavigator() {
     <NavigationContainer
       ref={navigationRef}
       linking={linking}
+      theme={navigationTheme}
       onReady={() => setNavigationReady(true)}
     >
       <View style={styles.shell}>
         <View style={styles.backgroundLayer} pointerEvents="none">
-          <ScreenAmbientBackground mode={mode} />
+          <ScreenAmbientBackground mode={ambientMode} />
         </View>
         <View style={styles.contentLayer}>
-          <TabNavigatorShell />
+          <TabNavigatorShell sceneBackground={sceneBackground} />
           <HealthPendingRouteBridge />
           <SchemaStatusBanner />
           <ToastHost />
@@ -120,5 +126,6 @@ const styles = StyleSheet.create({
   contentLayer: {
     flex: 1,
     zIndex: 1,
+    backgroundColor: 'transparent',
   },
 });

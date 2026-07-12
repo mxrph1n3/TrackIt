@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
-import { corsHeaders, TMA_STARS_SUBSCRIPTION_PERIOD_SECONDS, validateTelegramInitData } from '../_shared/tmaAccess.ts';
+import { corsHeaders, validateTelegramInitData } from '../_shared/tmaAccess.ts';
+import { buildStarsInvoiceBody, buildStarsInvoicePayload } from '../_shared/starsInvoice.ts';
 
 type RequestBody = {
   initData?: string;
@@ -61,22 +62,14 @@ Deno.serve(async (req) => {
       });
     }
 
-    const payload = JSON.stringify({ user_id: userData.user.id, kind: 'pro_monthly' });
+    const payload = buildStarsInvoicePayload(userData.user.id);
 
     const invoiceResponse = await fetch(
       `https://api.telegram.org/bot${botToken}/createInvoiceLink`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: 'TrackIt Pro',
-          description:
-            'Monthly subscription — AI Coach, analytics, Telegram reminders, and premium themes. Renews every month via Telegram Stars.',
-          payload,
-          currency: 'XTR',
-          subscription_period: TMA_STARS_SUBSCRIPTION_PERIOD_SECONDS,
-          prices: [{ label: 'TrackIt Pro (monthly)', amount: starsPrice }],
-        }),
+        body: JSON.stringify(buildStarsInvoiceBody(payload, starsPrice)),
       },
     );
 

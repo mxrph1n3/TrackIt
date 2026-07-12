@@ -1,5 +1,5 @@
 import { ChevronRight, Dumbbell } from 'lucide-react-native';
-import { Image, ScrollView, Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useHealthAssets } from '../../lib/healthAssets';
@@ -10,6 +10,7 @@ import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBa
 import { useCurrentProgramDay, useHealthStore, useTodayWorkoutPreview } from '../../stores/useHealthStore';
 import { HealthPrimaryButton } from '../../components/health/ui/HealthPrimaryButton';
 import { HealthScreenHeader } from '../../components/health/ui/HealthScreenHeader';
+import { HealthScrollView, HealthScreenRoot } from '../../components/health/ui/HealthScreenScaffold';
 import { PremiumCard } from '../../components/health/ui/PremiumCard';
 
 export function WorkoutDetailsScreen() {
@@ -25,7 +26,7 @@ export function WorkoutDetailsScreen() {
   const styles = useHealthStyles((t) => ({
     root: {
       flex: 1,
-      backgroundColor: 'transparent',
+      backgroundColor: t.background,
     },
     scroll: {
       flex: 1,
@@ -132,10 +133,8 @@ export function WorkoutDetailsScreen() {
   }));
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
-      <ScrollView
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
+    <HealthScreenRoot style={{ paddingTop: insets.top + 8 }}>
+      <HealthScrollView
         contentContainerStyle={[
           styles.content,
           { paddingBottom: scrollContentPaddingBottom + stickyFooterHeight + 12 },
@@ -186,11 +185,11 @@ export function WorkoutDetailsScreen() {
             </View>
           </PremiumCard>
         ))}
-      </ScrollView>
+      </HealthScrollView>
 
       <View style={[styles.sticky, { paddingBottom: scrollContentPaddingBottom }]}>
         <HealthPrimaryButton label="Start Workout" onPress={() => openWorkoutGoalPicker()} />
       </View>
-    </View>
+    </HealthScreenRoot>
   );
 }

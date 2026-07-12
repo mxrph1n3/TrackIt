@@ -10,6 +10,7 @@ import {
   subscribeTelegramChrome,
 } from '../lib/telegram/telegramWebApp';
 import { useTheme } from '../theme/ThemeContext';
+import { syncWebDocumentTheme } from '../theme/syncWebDocumentTheme';
 import { THEME_STORAGE_KEY, type AppThemeMode } from '../theme/themes';
 
 function schemeToMode(scheme: 'light' | 'dark'): AppThemeMode {
@@ -23,7 +24,7 @@ async function hasStoredThemePreference(): Promise<boolean> {
 
 /** Syncs obsidian/ethereal with Telegram colorScheme when the user has no saved theme. */
 export function useTelegramThemeSync() {
-  const { isReady, setMode } = useTheme();
+  const { isReady, setMode, mode, theme } = useTheme();
 
   useEffect(() => {
     if (!IS_WEB || !isReady) {
@@ -36,6 +37,7 @@ export function useTelegramThemeSync() {
     }
 
     applyTelegramThemeToDocument();
+    syncWebDocumentTheme(theme.background, mode);
 
     void (async () => {
       if (await hasStoredThemePreference()) {
@@ -49,6 +51,7 @@ export function useTelegramThemeSync() {
 
     return subscribeTelegramChrome(() => {
       applyTelegramThemeToDocument();
+      syncWebDocumentTheme(theme.background, mode);
       void (async () => {
         if (await hasStoredThemePreference()) {
           return;
@@ -59,5 +62,5 @@ export function useTelegramThemeSync() {
         }
       })();
     });
-  }, [isReady, setMode]);
+  }, [isReady, mode, setMode, theme.background]);
 }

@@ -244,10 +244,12 @@ export function ActiveWorkoutModal() {
 
   return (
     <Modal visible animationType="slide" presentationStyle="fullScreen">
-      <View style={{ flex: 1, backgroundColor: healthTheme.background }}>
-        {supportsNativeBlur() ? (
+      <View style={{ flex: 1, backgroundColor: healthTheme.canvas }}>
+        {!supportsNativeBlur() ? (
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: healthTheme.canvas }]} />
+        ) : (
           <BlurView intensity={24} tint={blurTint} style={StyleSheet.absoluteFill} />
-        ) : null}
+        )}
 
         <View
           style={{
@@ -293,8 +295,8 @@ export function ActiveWorkoutModal() {
           <View style={{ flex: 1, minHeight: 0 }}>
             <ScrollView
               showsVerticalScrollIndicator={false}
-              style={{ flex: 1 }}
-              contentContainerStyle={{ paddingBottom: 16 }}
+              style={{ flex: 1, backgroundColor: healthTheme.canvas }}
+              contentContainerStyle={{ paddingBottom: 16, backgroundColor: healthTheme.canvas }}
               keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
             >
@@ -304,7 +306,7 @@ export function ActiveWorkoutModal() {
                 progress={progressPercent}
               />
 
-              <PremiumCard padding={12} style={{ marginTop: 12, marginBottom: 12 }}>
+              <PremiumCard padding={12} tone="canvas" style={{ marginTop: 12, marginBottom: 12 }}>
                 <MuscleMapHighlighter
                   highlight={muscleHighlight}
                   compact

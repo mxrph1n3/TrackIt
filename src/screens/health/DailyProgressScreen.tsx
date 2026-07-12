@@ -21,7 +21,7 @@ export function DailyProgressScreen() {
   const { data, isLoading } = useAnalyticsHealth();
   const healthTheme = useHealthTheme();
   const styles = useHealthStyles((t) => ({
-    root: { flex: 1, backgroundColor: 'transparent' },
+    root: { flex: 1, backgroundColor: t.background },
     content: { paddingHorizontal: 20 },
     kicker: {
       fontSize: 11,

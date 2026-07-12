@@ -7,7 +7,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover, shrink-to-fit=no"
     />
-    <meta name="theme-color" content="#F3F5FA" />
+    <meta name="theme-color" content="#07070A" />
     <title>TrackIt</title>
     <style>
       html,
@@ -17,7 +17,13 @@
         height: 100%;
         margin: 0;
         padding: 0;
-        background: var(--tg-theme-bg-color, #f3f5fa);
+        background-color: #07070a;
+        background-image:
+          linear-gradient(to bottom right, rgba(119, 93, 216, 0.12) 0%, rgba(7, 7, 10, 0) 45%),
+          linear-gradient(180deg, #12121c 0%, #07070a 50%, #07070a 100%);
+        background-size: 100% 280px, 100% 100%;
+        background-repeat: no-repeat, no-repeat;
+        background-position: top left, top center;
       }
 
       body {
@@ -30,6 +36,51 @@
     </style>
   </head>
   <body>
+    <script>
+      (function () {
+        var DARK_BG =
+          'background-color:#07070A;background-image:linear-gradient(to bottom right, rgba(119, 93, 216, 0.12) 0%, rgba(7, 7, 10, 0) 45%),linear-gradient(180deg, #12121C 0%, #07070A 50%, #07070A 100%);background-size:100% 280px,100% 100%;background-repeat:no-repeat,no-repeat;background-position:top left,top center';
+        var LIGHT_BG =
+          'background-color:#F3F5FA;background-image:linear-gradient(to bottom right, rgba(226, 217, 255, 0.22) 0%, rgba(255,255,255,0) 45%),linear-gradient(180deg, #FFFFFF 0%, #F7F8FC 50%, #F3F5FA 100%);background-size:100% 280px,100% 100%;background-repeat:no-repeat,no-repeat;background-position:top left,top center';
+
+        function paint(cssBackground) {
+          var nodes = [document.documentElement, document.body, document.getElementById('root')];
+          var parts = cssBackground.split(';').filter(Boolean);
+          nodes.forEach(function (node) {
+            if (!node) return;
+            parts.forEach(function (part) {
+              var i = part.indexOf(':');
+              if (i === -1) return;
+              var key = part.slice(0, i).trim();
+              var value = part.slice(i + 1).trim();
+              node.style.setProperty(key, value, 'important');
+            });
+          });
+        }
+
+        function syncFromTelegram() {
+          var tg = window.Telegram && window.Telegram.WebApp;
+          if (!tg) {
+            paint(DARK_BG);
+            return;
+          }
+
+          try {
+            tg.ready();
+          } catch (e) {}
+
+          var scheme = tg.colorScheme || 'light';
+          document.documentElement.dataset.telegramTheme = scheme;
+          paint(scheme === 'dark' ? DARK_BG : LIGHT_BG);
+
+          if (typeof tg.onEvent === 'function') {
+            tg.onEvent('themeChanged', syncFromTelegram);
+          }
+        }
+
+        syncFromTelegram();
+      })();
+    </script>
     <div id="root"></div>
   </body>
 </html>

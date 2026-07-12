@@ -1,4 +1,4 @@
-import { ScrollView, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
@@ -8,6 +8,7 @@ import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBa
 import type { HealthStackParamList } from '../../navigation/healthTypes';
 import { useCurrentProgramDay } from '../../stores/useHealthStore';
 import { HealthScreenHeader } from '../../components/health/ui/HealthScreenHeader';
+import { HealthScrollView, HealthScreenRoot } from '../../components/health/ui/HealthScreenScaffold';
 import { PremiumCard } from '../../components/health/ui/PremiumCard';
 import { MuscleMapHighlighter } from '../../components/health/MuscleMapHighlighter';
 
@@ -28,10 +29,6 @@ export function ExerciseDetailsScreen() {
   const programDay = useCurrentProgramDay();
   const exercise = exerciseIndex != null ? programDay?.exercises[exerciseIndex] : null;
   const styles = useHealthStyles((t) => ({
-    root: {
-      flex: 1,
-      backgroundColor: 'transparent',
-    },
     content: {
       paddingHorizontal: 20,
     },
@@ -104,22 +101,21 @@ export function ExerciseDetailsScreen() {
 
   if (!exercise) {
     return (
-      <View style={[styles.root, { paddingTop: insets.top + 8, paddingHorizontal: 20 }]}>
+      <HealthScreenRoot style={{ paddingTop: insets.top + 8, paddingHorizontal: 20 }}>
         <HealthScreenHeader title="Exercise" onBack={pop} />
         <Text style={styles.empty}>Exercise not found.</Text>
-      </View>
+      </HealthScreenRoot>
     );
   }
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
+    <HealthScreenRoot style={{ paddingTop: insets.top + 8 }}>
+      <HealthScrollView
         contentContainerStyle={[styles.content, { paddingBottom: scrollContentPaddingBottom + 16 }]}
       >
         <HealthScreenHeader title={exercise.name} subtitle="Exercise Details" onBack={pop} />
 
-        <PremiumCard padding={12}>
+        <PremiumCard padding={12} tone="canvas">
           <MuscleMapHighlighter
             highlight={{
               primary: exercise.primaryMuscles,
@@ -166,8 +162,8 @@ export function ExerciseDetailsScreen() {
           <Text style={styles.tipKicker}>Breathing</Text>
           <Text style={styles.tipBody}>Exhale on exertion. Inhale during the eccentric phase.</Text>
         </PremiumCard>
-      </ScrollView>
-    </View>
+      </HealthScrollView>
+    </HealthScreenRoot>
   );
 }
 

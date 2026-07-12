@@ -30,7 +30,7 @@ export function FoodSearchScreen() {
   const { mealLog, quickMeals } = useTodayNutrition();
   const healthTheme = useHealthTheme();
   const styles = useHealthStyles((t) => ({
-    root: { flex: 1, backgroundColor: 'transparent' },
+    root: { flex: 1, backgroundColor: t.background },
     content: { paddingHorizontal: 20 },
     searchWrap: {
       flexDirection: 'row',

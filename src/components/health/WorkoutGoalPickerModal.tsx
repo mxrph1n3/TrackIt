@@ -1,6 +1,7 @@
 import { Crown, X } from 'lucide-react-native';
 import { Modal, Pressable, Text, View } from 'react-native';
 
+import { useHealthTheme } from '../../hooks/useHealthTheme';
 import { WORKOUT_GOAL_OPTIONS } from '../../constants/workoutGoals';
 import { FREE_BUILTIN_PROGRAM_ID } from '../../constants/workoutFreeTier';
 import { getWorkoutTrack } from '../../constants/workoutPrograms';
@@ -17,6 +18,7 @@ import { GlassPanel } from '../GlassPanel';
 export function WorkoutGoalPickerModal() {
   const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
+  const healthTheme = useHealthTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
   const visible = useHealthStore((s) => s.isWorkoutGoalPickerOpen);
   const selectedTrackId = useHealthStore((s) => s.selectedTrackId);
@@ -35,7 +37,7 @@ export function WorkoutGoalPickerModal() {
 
   return (
     <Modal visible animationType="slide" presentationStyle="pageSheet" transparent={false}>
-      <View className="flex-1 bg-ethereal-base">
+      <View style={{ flex: 1, backgroundColor: healthTheme.background }}>
         <View
           style={{
             paddingTop: insets.top + 12,

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Platform, ScrollView, Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
 import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
 
@@ -9,6 +9,7 @@ import { NutritionTabPanel } from '../components/health/NutritionTabPanel';
 import { WorkoutsTabPanel } from '../components/health/WorkoutsTabPanel';
 import { useHealthNavigation } from '../hooks/useHealthNavigation';
 import { useHealthStyles } from '../hooks/useHealthStyles';
+import { HealthScrollView, HealthScreenRoot } from '../components/health/ui/HealthScreenScaffold';
 import { useFloatingTabBarStyles } from '../navigation/hooks/useFloatingTabBarStyles';
 import { useSideDrawerStore } from '../stores/useSideDrawerStore';
 import { useHealthHubNavigationStore } from '../stores/useHealthHubNavigationStore';
@@ -50,13 +51,6 @@ export function HealthHubScreen() {
   const selectedDayIndex = useHealthStore((s) => s.selectedDayIndex);
   const selectDay = useHealthStore((s) => s.selectDay);
   const styles = useHealthStyles((t) => ({
-    root: {
-      flex: 1,
-      backgroundColor: 'transparent',
-    },
-    scroll: {
-      flex: 1,
-    },
     nutritionHint: {
       marginTop: -12,
       marginBottom: 16,
@@ -114,10 +108,8 @@ export function HealthHubScreen() {
   }, [activeTab, push]);
 
   return (
-    <View style={styles.root}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        style={styles.scroll}
+    <HealthScreenRoot>
+      <HealthScrollView
         contentContainerStyle={{
           paddingTop: insets.top + 12,
           paddingBottom: scrollContentPaddingBottom,
@@ -185,7 +177,7 @@ export function HealthHubScreen() {
             <NutritionTabPanel />
           </Animated.View>
         )}
-      </ScrollView>
-    </View>
+      </HealthScrollView>
+    </HealthScreenRoot>
   );
 }

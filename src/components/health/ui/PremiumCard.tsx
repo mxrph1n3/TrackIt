@@ -13,28 +13,33 @@ type PremiumCardProps = PropsWithChildren<{
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
   padding?: number;
+  /** Use screen canvas color instead of elevated card surface (e.g. muscle map). */
+  tone?: 'card' | 'canvas';
 }>;
 
-export function PremiumCard({ children, style, onPress, padding = 20 }: PremiumCardProps) {
+export function PremiumCard({ children, style, onPress, padding = 20, tone = 'card' }: PremiumCardProps) {
   const healthTheme = useHealthTheme();
   const scale = useSharedValue(1);
+
+  const isCanvas = tone === 'canvas';
+  const surfaceColor = isCanvas ? healthTheme.canvas : healthTheme.card;
 
   const styles = useMemo(
     () =>
       StyleSheet.create({
         shadow: {
-          ...HEALTH_ELEVATION.card,
+          ...(isCanvas ? {} : HEALTH_ELEVATION.card),
           marginBottom: 16,
         },
         card: {
-          backgroundColor: healthTheme.card,
+          backgroundColor: surfaceColor,
           borderRadius: healthTheme.radius.card,
-          borderWidth: 1,
+          borderWidth: isCanvas ? 0 : 1,
           borderColor: healthTheme.cardBorder,
           overflow: 'hidden',
         },
       }),
-    [healthTheme],
+    [healthTheme, isCanvas, surfaceColor],
   );
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -48,7 +53,11 @@ export function PremiumCard({ children, style, onPress, padding = 20 }: PremiumC
   );
 
   if (!onPress) {
-    return <View style={[styles.shadow, style]}>{content}</View>;
+    return (
+      <View style={[styles.shadow, isCanvas && { backgroundColor: surfaceColor }, style]}>
+        {content}
+      </View>
+    );
   }
 
   return (
@@ -60,7 +69,12 @@ export function PremiumCard({ children, style, onPress, padding = 20 }: PremiumC
       onPressOut={() => {
         scale.value = withSpring(1, pressOutSpring);
       }}
-      style={[styles.shadow, animatedStyle, style]}
+      style={[
+        styles.shadow,
+        isCanvas && { backgroundColor: surfaceColor },
+        animatedStyle,
+        style,
+      ]}
     >
       {content}
     </AnimatedPressable>

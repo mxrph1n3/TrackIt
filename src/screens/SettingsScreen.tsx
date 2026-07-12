@@ -8,7 +8,7 @@ import { useGamification } from '../hooks/useGamification';
 import { TMA_TRIAL_DAYS } from '../constants/tmaBilling';
 import { IS_WEB } from '../lib/platform/constants';
 import { notificationsSupportedInRuntime } from '../lib/platform/services';
-import { setTelegramRemindersEnabled } from '../lib/subscription/tmaAccessService';
+import { notifyTelegramRemindersEnabled, setTelegramRemindersEnabled } from '../lib/subscription/tmaAccessService';
 import { isTelegramMiniApp } from '../lib/telegram/telegramWebApp';
 import {
   ACTIVITY_LEVELS,
@@ -254,6 +254,9 @@ export function SettingsScreen() {
       setIsSavingTelegramReminders(true);
       try {
         await setTelegramRemindersEnabled(enabled);
+        if (enabled) {
+          void notifyTelegramRemindersEnabled(true);
+        }
         void useSubscriptionStore.getState().syncTma();
       } catch (error) {
         setTelegramReminders(!enabled);

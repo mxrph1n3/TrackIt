@@ -1,3 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Matches ScreenAmbientBackground obsidian gradient on host layers. */
+html[data-effective-dark='true'],
+html[data-effective-dark='true'] body,
+html[data-effective-dark='true'] #root,
+html[data-theme='obsidian'],
+html[data-theme='obsidian'] body,
+html[data-theme='obsidian'] #root,
+html[data-telegram-theme='dark'],
+html[data-telegram-theme='dark'] body,
+html[data-telegram-theme='dark'] #root {
+  background-color: #07070a !important;
+  background-image:
+    linear-gradient(to bottom right, rgba(119, 93, 216, 0.12) 0%, rgba(7, 7, 10, 0) 45%),
+    linear-gradient(180deg, #12121c 0%, #07070a 50%, #07070a 100%) !important;
+  background-size: 100% 280px, 100% 100% !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-position: top left, top center !important;
+}
+
+/* RN Web root wrapper — transparent so host gradient shows (same as Dashboard). */
+html[data-effective-dark='true'] #root > div,
+html[data-theme='obsidian'] #root > div,
+html[data-telegram-theme='dark'] #root > div {
+  background-color: transparent;
+  background-image: none;
+}
+
+/* RN Web ScrollView — transparent in dark mode so ambient gradient bleeds through. */
+html[data-effective-dark='true'] [data-testid='health-scroll'],
+html[data-theme='obsidian'] [data-testid='health-scroll'],
+html[data-telegram-theme='dark'] [data-testid='health-scroll'] {
+  background-color: transparent !important;
+  background-image: none !important;
+}

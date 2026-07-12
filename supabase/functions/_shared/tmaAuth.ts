@@ -83,7 +83,9 @@ async function createSessionFromEmail(email: string): Promise<TelegramAuthSessio
   };
 }
 
-async function ensureTelegramAuthUser(
+export type TelegramChatUser = TelegramUser;
+
+export async function ensureTelegramAuthUser(
   telegramUser: TelegramUser,
 ): Promise<{ userId: string; email: string; password: string }> {
   const service = getServiceClient();
@@ -146,7 +148,7 @@ async function ensureTelegramAuthUser(
   return { userId, email, password };
 }
 
-async function syncTelegramProfile(userId: string, telegramUser: TelegramUser): Promise<void> {
+export async function syncTelegramProfile(userId: string, telegramUser: TelegramUser): Promise<void> {
   const service = getServiceClient();
   const { data: profile } = await service
     .from('profiles')
@@ -166,6 +168,15 @@ async function syncTelegramProfile(userId: string, telegramUser: TelegramUser): 
   if (error) {
     throw error;
   }
+}
+
+/** Ensures Supabase user + profile exist for a Telegram chat user (bot / webhook). */
+export async function ensureTelegramUserAccount(
+  telegramUser: TelegramUser,
+): Promise<{ userId: string }> {
+  const authUser = await ensureTelegramAuthUser(telegramUser);
+  await syncTelegramProfile(authUser.userId, telegramUser);
+  return { userId: authUser.userId };
 }
 
 export async function signInWithTelegramInitData(initData: string): Promise<TelegramAuthSession> {

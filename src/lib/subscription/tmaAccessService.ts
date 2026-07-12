@@ -23,8 +23,10 @@ export async function syncTmaAccess(): Promise<TmaAccessStatus> {
     return EMPTY_TMA_ACCESS;
   }
 
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   const { data, error } = await supabase.functions.invoke<TmaAccessStatus>('tma-access', {
-    body: { initData },
+    body: { initData, timezone },
   });
 
   if (error || !data) {
@@ -67,5 +69,24 @@ export async function setTelegramRemindersEnabled(enabled: boolean): Promise<voi
 
   if (error) {
     throw error;
+  }
+}
+
+export async function notifyTelegramRemindersEnabled(enabled: boolean): Promise<void> {
+  if (!enabled || !canSyncTmaAccess()) {
+    return;
+  }
+
+  const initData = getInitData();
+  if (!initData) {
+    return;
+  }
+
+  const { error } = await supabase.functions.invoke('telegram-reminder-welcome', {
+    body: { initData },
+  });
+
+  if (error) {
+    console.warn('[TMA] Reminder welcome message failed:', error.message);
   }
 }
