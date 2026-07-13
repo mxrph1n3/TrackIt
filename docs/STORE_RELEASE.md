@@ -30,7 +30,7 @@ No code. Block everything else until these exist.
 - [ ] [RevenueCat](https://www.revenuecat.com/) project created
 - [ ] [Expo](https://expo.dev) account + `eas login`
 - [ ] Supabase production: all migrations applied
-- [ ] Support email decided (currently `support@trackit.app` in legal pages)
+- [ ] Support email decided (currently `mxrphin3work@gmail.com` in legal pages)
 
 ---
 

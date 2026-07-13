@@ -6,7 +6,7 @@ This build has **no in-app purchases and no subscriptions**.
 **Bundle / package:** `com.trackit`  
 **Privacy:** https://track-it-umber-psi.vercel.app/privacy  
 **Terms:** https://track-it-umber-psi.vercel.app/terms  
-**Support:** support@trackit.app
+**Support:** mxrphin3work@gmail.com
 
 > Before submit: redeploy the web host from `free-app` so Privacy/Terms match this free build (no subscription claims).
 

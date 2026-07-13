@@ -24,7 +24,7 @@ import { isAppleSignInAvailable } from '../lib/auth/apple';
 import { validateAuthForm, type AuthFieldErrors } from '../lib/auth/validation';
 import { useAuth } from '../hooks/useAuth';
 import { MIN_ACCOUNT_AGE } from '../constants/disclaimers';
-import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
+import { PRIVACY_POLICY_URL, SUPPORT_EMAIL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import { supportsNativeBlur } from '../lib/platform/blur';
 import { triggerHaptic } from '../lib/platform/haptics';
 import { useTheme } from '../theme/ThemeContext';
@@ -262,6 +262,10 @@ export function AuthScreen() {
             <Text style={[styles.legalDivider, { color: theme.textMuted }]}>·</Text>
             <Pressable onPress={() => void Linking.openURL(TERMS_OF_SERVICE_URL)}>
               <Text style={[styles.legalLink, { color: theme.textMuted }]}>Terms of Service</Text>
+            </Pressable>
+            <Text style={[styles.legalDivider, { color: theme.textMuted }]}>·</Text>
+            <Pressable onPress={() => void Linking.openURL(`mailto:${SUPPORT_EMAIL}`)}>
+              <Text style={[styles.legalLink, { color: theme.textMuted }]}>Support</Text>
             </Pressable>
           </View>
         </ScrollView>
