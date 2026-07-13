@@ -2,7 +2,7 @@
 
 Use when filling App Store Connect and Google Play Console.
 
-**Bundle / package:** `com.zenith.trackit`  
+**Bundle / package:** `com.trackit`  
 **Privacy:** https://track-it-umber-psi.vercel.app/privacy  
 **Terms:** https://track-it-umber-psi.vercel.app/terms  
 **Support:** support@trackit.app

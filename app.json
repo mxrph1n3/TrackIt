@@ -9,7 +9,7 @@
     "scheme": "trackit2",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.zenith.trackit",
+      "bundleIdentifier": "com.trackit",
       "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -24,7 +24,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.zenith.trackit",
+      "package": "com.trackit",
       "intentFilters": [
         {
           "action": "VIEW",
@@ -82,8 +82,7 @@
             }
           }
         }
-      ],
-      "expo-splash-screen"
+      ]
     ],
     "extra": {
       "eas": {

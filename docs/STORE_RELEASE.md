@@ -68,7 +68,7 @@ No code. Block everything else until these exist.
 ### Phase 3 — Store consoles & billing (you, manual)
 
 **App Store Connect:**
-- [ ] Create app `com.zenith.trackit`
+- [ ] Create app `com.trackit`
 - [ ] Subscriptions: `trackit_pro_monthly`, `trackit_pro_yearly`, 7-day trial
 - [ ] Privacy Policy URL, screenshots, description, support URL
 - [ ] Privacy Nutrition Labels questionnaire
@@ -323,7 +323,7 @@ flowchart LR
 | `version` | `1.0.0` | Bump per release |
 | `ios.buildNumber` | Not in app.json | Add or use EAS `autoIncrement` |
 | `android.versionCode` | Not in app.json | Add or use EAS `autoIncrement` |
-| Bundle ID | `com.zenith.trackit` | ✅ Consistent |
+| Bundle ID | `com.trackit` | ✅ Consistent |
 | Splash screen | Missing from config | Add `expo-splash-screen` plugin |
 | Notification permission string | Missing | Add `NSUserNotificationsUsageDescription` via plugin |
 | `ITSAppUsesNonExemptEncryption` | Missing | Set `false` if only HTTPS (standard) |
@@ -506,7 +506,7 @@ Same categories as Apple. Mark:
 
 ### 6.1 App Store Connect
 
-1. Create app record → bundle ID `com.zenith.trackit`
+1. Create app record → bundle ID `com.trackit`
 2. Upload build via EAS Submit or Transporter
 3. Fill metadata, screenshots, privacy URL
 4. Configure subscriptions (match product IDs)
@@ -523,7 +523,7 @@ Same categories as Apple. Mark:
 
 ### 6.2 Google Play Console
 
-1. Create app → package `com.zenith.trackit`
+1. Create app → package `com.trackit`
 2. Upload AAB via EAS Submit
 3. Store listing + Data Safety + content rating questionnaire
 4. Configure subscriptions (match product IDs)
