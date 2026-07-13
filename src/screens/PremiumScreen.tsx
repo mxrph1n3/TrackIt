@@ -3,6 +3,8 @@ import { Check, Crown, Sparkles, X } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Linking,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,6 +21,7 @@ import {
   SUBSCRIPTION_DISPLAY_PRICING,
   SUBSCRIPTION_PRODUCT_IDS,
 } from '../constants/subscriptions';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import {
   getTmaStarsPrice,
   TMA_STARS_BILLING_PERIOD_LABEL,
@@ -288,6 +291,24 @@ export function PremiumScreen({
           borderColor: theme.borderSubtle,
           zIndex: 10,
         },
+        legalRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          marginTop: 18,
+          marginBottom: 4,
+        },
+        legalLink: {
+          fontSize: 12,
+          fontWeight: '600',
+          color: theme.textSecondary,
+          textDecorationLine: 'underline',
+        },
+        legalDivider: {
+          fontSize: 12,
+          color: theme.textMuted,
+        },
       }),
     [insets.top, theme],
   );
@@ -474,8 +495,11 @@ export function PremiumScreen({
           {!IS_WEB ? (
             <Pressable
               onPress={() => void handlePurchase()}
-              disabled={isPurchasing || isLoading}
-              style={[styles.primaryButton, (isPurchasing || isLoading) && { opacity: 0.7 }]}
+              disabled={isPurchasing || isLoading || !isRevenueCatReady()}
+              style={[
+                styles.primaryButton,
+                (isPurchasing || isLoading || !isRevenueCatReady()) && { opacity: 0.7 },
+              ]}
             >
               {isPurchasing ? (
                 <ActivityIndicator color="#FFFFFF" />
@@ -516,8 +540,32 @@ export function PremiumScreen({
               trackit_pro_yearly in App Store Connect and Google Play Console.
             </Text>
           ) : null}
+
+          {!IS_WEB ? (
+            <Text style={styles.configNote}>
+              {FREE_TRIAL_DAYS > 0
+                ? `After the ${FREE_TRIAL_DAYS}-day free trial, payment is charged to your ${Platform.OS === 'ios' ? 'Apple ID' : 'Google Play'} account at ${selectedPlan === SUBSCRIPTION_PRODUCT_IDS.yearly ? `${yearlyPrice}/year` : `${monthlyPrice}/month`}. `
+                : ''}
+              The subscription renews automatically unless cancelled at least 24 hours before the
+              end of the current period. Manage or cancel anytime in{' '}
+              {Platform.OS === 'ios'
+                ? 'Settings → Apple ID → Subscriptions'
+                : 'Google Play → Subscriptions'}
+              .
+            </Text>
+          ) : null}
         </>
       )}
+
+      <View style={styles.legalRow}>
+        <Pressable onPress={() => void Linking.openURL(PRIVACY_POLICY_URL)}>
+          <Text style={styles.legalLink}>Privacy Policy</Text>
+        </Pressable>
+        <Text style={styles.legalDivider}>·</Text>
+        <Pressable onPress={() => void Linking.openURL(TERMS_OF_SERVICE_URL)}>
+          <Text style={styles.legalLink}>Terms of Service</Text>
+        </Pressable>
+      </View>
     </>
   );
 

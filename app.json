@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TrackIt",
-    "slug": "trackit-app",
+    "slug": "sadism",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon-light.png",
@@ -10,7 +10,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.zenith.trackit",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +35,10 @@
               "pathPrefix": "/callback"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -64,6 +70,11 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "458381c2-cf7a-4a3d-a053-3a82eeeb187d"
+      }
+    }
   }
 }

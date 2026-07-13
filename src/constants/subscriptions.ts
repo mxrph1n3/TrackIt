@@ -30,9 +30,7 @@ export const PREMIUM_BENEFITS = [
   'Smart nutrition planning',
   'Finance insights & forecasts',
   'Advanced analytics',
-  'Cloud sync',
-  'Automatic backups',
-  'PDF / Excel export',
+  'Cloud sync across devices',
   'Premium themes',
 ] as const;
 

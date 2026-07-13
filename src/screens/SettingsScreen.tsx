@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Linking, Platform, Pressable, Switch, Text, TextInput, View } from 'react-native';
 
 import { GlassPanel } from '../components/GlassPanel';
 import { IsolatedScreenLayout } from '../components/layout/IsolatedScreenShell';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
+import { useAuth } from '../hooks/useAuth';
 import { useGamification } from '../hooks/useGamification';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
+import { HEALTH_DISCLAIMER } from '../constants/disclaimers';
 import { TMA_TRIAL_DAYS } from '../constants/tmaBilling';
+import { deleteAccount } from '../lib/account/accountService';
 import { IS_WEB } from '../lib/platform/constants';
 import { notificationsSupportedInRuntime } from '../lib/platform/services';
 import { notifyTelegramRemindersEnabled, setTelegramRemindersEnabled } from '../lib/subscription/tmaAccessService';
@@ -38,6 +42,20 @@ const GENDERS = [
   { id: 'female' as const, label: 'Female' },
   { id: 'other' as const, label: 'Other' },
 ];
+
+/** Cross-platform confirm — Alert.alert is a no-op on react-native-web. */
+function confirmDestructive(title: string, message: string, confirmLabel: string): Promise<boolean> {
+  if (Platform.OS === 'web') {
+    return Promise.resolve(window.confirm(`${title}\n\n${message}`));
+  }
+
+  return new Promise((resolve) => {
+    Alert.alert(title, message, [
+      { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+      { text: confirmLabel, style: 'destructive', onPress: () => resolve(true) },
+    ]);
+  });
+}
 
 function ChipRow<T extends string>({
   options,
@@ -85,7 +103,41 @@ export function SettingsScreen() {
   const devProOverride = useSubscriptionStore((s) => s.devProOverride);
   const setDevProOverride = useSubscriptionStore((s) => s.setDevProOverride);
   const { profile, updateUsername, isUpdatingUsername, syncProfile } = useGamification();
+  const { signOut } = useAuth();
   const bodyWeight = useHealthStore((s) => s.bodyStats.weightKg);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const handleSignOut = useCallback(async () => {
+    const confirmed = await confirmDestructive(
+      'Sign out',
+      'You can sign back in anytime. Your data stays safe in the cloud.',
+      'Sign out',
+    );
+    if (confirmed) {
+      await signOut();
+    }
+  }, [signOut]);
+
+  const handleDeleteAccount = useCallback(async () => {
+    const confirmed = await confirmDestructive(
+      'Delete account',
+      'This permanently deletes your account and all data — tasks, workouts, nutrition, finance, and journal. This cannot be undone.',
+      'Delete forever',
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    try {
+      await deleteAccount();
+      reportSyncSuccess('Account deleted.');
+    } catch (error) {
+      reportSyncError('DeleteAccount', error, 'Could not delete account. Try again.');
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  }, []);
 
   const [usernameDraft, setUsernameDraft] = useState(profile?.username ?? '');
   const [usernameError, setUsernameError] = useState<string | null>(null);
@@ -313,6 +365,9 @@ export function SettingsScreen() {
           </Text>
           <Text className="mt-2 text-sm" style={{ color: theme.textSecondary }}>
             BMR/TDEE from Mifflin-St Jeor. Weight comes from your latest weight log ({bodyWeight.toFixed(1)} kg).
+          </Text>
+          <Text className="mt-2 text-xs leading-5" style={{ color: theme.textMuted }}>
+            {HEALTH_DISCLAIMER}
           </Text>
 
           <Text className="mt-4 text-xs font-bold uppercase tracking-[1px]" style={{ color: theme.textMuted }}>
@@ -578,6 +633,57 @@ export function SettingsScreen() {
               View TrackIt Pro
             </Text>
           </Pressable>
+        </View>
+      </GlassPanel>
+
+      <GlassPanel borderRadius={24} style={{ marginBottom: 16 }}>
+        <View className="p-5">
+          <Text className="text-[10px] font-bold uppercase tracking-[2px]" style={{ color: theme.textMuted }}>
+            Account
+          </Text>
+
+          <Pressable
+            onPress={() => void handleSignOut()}
+            className="mt-4 items-center rounded-2xl py-3.5 active:opacity-90"
+            style={{ backgroundColor: `${theme.primary}18`, borderWidth: 1, borderColor: `${theme.primary}44` }}
+          >
+            <Text className="text-sm font-bold" style={{ color: theme.primary }}>
+              Sign out
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => void handleDeleteAccount()}
+            disabled={isDeletingAccount}
+            className="mt-3 items-center rounded-2xl py-3.5 active:opacity-90"
+            style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.10)',
+              borderWidth: 1,
+              borderColor: 'rgba(239, 68, 68, 0.35)',
+              opacity: isDeletingAccount ? 0.6 : 1,
+            }}
+          >
+            <Text className="text-sm font-bold" style={{ color: '#EF4444' }}>
+              {isDeletingAccount ? 'Deleting…' : 'Delete account'}
+            </Text>
+          </Pressable>
+
+          <Text className="mt-3 text-xs leading-4" style={{ color: theme.textMuted }}>
+            Deleting your account permanently removes all data. This cannot be undone.
+          </Text>
+
+          <View className="mt-4 flex-row items-center justify-center gap-4">
+            <Pressable onPress={() => void Linking.openURL(PRIVACY_POLICY_URL)}>
+              <Text className="text-xs font-semibold underline" style={{ color: theme.textSecondary }}>
+                Privacy Policy
+              </Text>
+            </Pressable>
+            <Pressable onPress={() => void Linking.openURL(TERMS_OF_SERVICE_URL)}>
+              <Text className="text-xs font-semibold underline" style={{ color: theme.textSecondary }}>
+                Terms of Service
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </GlassPanel>
 

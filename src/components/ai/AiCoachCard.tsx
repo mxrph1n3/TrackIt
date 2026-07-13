@@ -3,6 +3,7 @@ import { Brain, RefreshCw, Sparkles } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { AI_COACH_DISCLAIMER } from '../../constants/disclaimers';
 import { useFeatureGate } from '../../hooks/useFeatureGate';
 import { useAiCoach } from '../../hooks/useAiCoach';
 import { triggerHaptic } from '../../lib/platform/haptics';
@@ -51,6 +52,13 @@ export function AiCoachCard({ autoLoad: _autoLoad = false }: AiCoachCardProps) {
         subtitle: {
           fontSize: 11,
           fontWeight: '600',
+          color: theme.textMuted,
+          marginBottom: 6,
+        },
+        disclaimer: {
+          fontSize: 10,
+          lineHeight: 15,
+          fontWeight: '500',
           color: theme.textMuted,
           marginBottom: 14,
         },
@@ -152,6 +160,7 @@ export function AiCoachCard({ autoLoad: _autoLoad = false }: AiCoachCardProps) {
         </View>
 
         <Text style={styles.subtitle}>Battle plan from your live logs · Gemini Flash</Text>
+        <Text style={styles.disclaimer}>{AI_COACH_DISCLAIMER}</Text>
 
         {error ? (
           <View style={styles.messageBox}>

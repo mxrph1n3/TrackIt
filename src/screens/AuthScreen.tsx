@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -22,6 +23,8 @@ import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
 import { isAppleSignInAvailable } from '../lib/auth/apple';
 import { validateAuthForm, type AuthFieldErrors } from '../lib/auth/validation';
 import { useAuth } from '../hooks/useAuth';
+import { MIN_ACCOUNT_AGE } from '../constants/disclaimers';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import { supportsNativeBlur } from '../lib/platform/blur';
 import { triggerHaptic } from '../lib/platform/haptics';
 import { useTheme } from '../theme/ThemeContext';
@@ -43,6 +46,8 @@ export function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [ageError, setAgeError] = useState<string | null>(null);
   const [appleAvailable, setAppleAvailable] = useState(false);
 
   useEffect(() => {
@@ -56,15 +61,37 @@ export function AuthScreen() {
     clearAuthError();
   }, [clearAuthError, email, password]);
 
-  const canSubmit = useMemo(
-    () => email.trim().length > 0 && password.length > 0 && !isAuthenticating,
-    [email, isAuthenticating, password],
-  );
+  useEffect(() => {
+    setAgeConfirmed(false);
+    setAgeError(null);
+  }, [mode]);
+
+  const canSubmit = useMemo(() => {
+    if (email.trim().length === 0 || password.length === 0 || isAuthenticating) {
+      return false;
+    }
+    if (mode === 'sign-up' && !ageConfirmed) {
+      return false;
+    }
+    return true;
+  }, [ageConfirmed, email, isAuthenticating, mode, password]);
+
+  const ensureAgeConfirmed = () => {
+    if (mode !== 'sign-up' || ageConfirmed) {
+      setAgeError(null);
+      return true;
+    }
+    setAgeError(`You must be at least ${MIN_ACCOUNT_AGE} years old to create an account.`);
+    return false;
+  };
 
   const handleSubmit = async () => {
     const errors = validateAuthForm(email, password, mode);
     setFieldErrors(errors);
     if (errors.email || errors.password) {
+      return;
+    }
+    if (!ensureAgeConfirmed()) {
       return;
     }
     void triggerHaptic('medium');
@@ -148,6 +175,39 @@ export function AuthScreen() {
                     />
                   </View>
 
+                  {mode === 'sign-up' ? (
+                    <Pressable
+                      onPress={() => {
+                        setAgeConfirmed((prev) => !prev);
+                        setAgeError(null);
+                      }}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: ageConfirmed }}
+                      style={styles.ageRow}
+                    >
+                      <View
+                        style={[
+                          styles.ageCheckbox,
+                          {
+                            borderColor: ageError ? '#EF4444' : theme.borderSubtle,
+                            backgroundColor: ageConfirmed ? '#775DD8' : 'transparent',
+                          },
+                        ]}
+                      >
+                        {ageConfirmed ? <Text style={styles.ageCheckmark}>✓</Text> : null}
+                      </View>
+                      <Text style={[styles.ageLabel, { color: theme.textSecondary }]}>
+                        I confirm I am at least {MIN_ACCOUNT_AGE} years old
+                      </Text>
+                    </Pressable>
+                  ) : null}
+
+                  {ageError ? (
+                    <View style={styles.errorBanner}>
+                      <Text style={styles.errorText}>{ageError}</Text>
+                    </View>
+                  ) : null}
+
                   {authError ? (
                     <View style={styles.errorBanner}>
                       <Text style={styles.errorText}>{authError}</Text>
@@ -174,13 +234,29 @@ export function AuthScreen() {
                   <AuthSocialRow
                     appleAvailable={appleAvailable}
                     disabled={isAuthenticating}
-                    onGoogle={() => void signInWithGoogle()}
-                    onApple={() => void signInWithApple()}
+                    onGoogle={() => {
+                      if (!ensureAgeConfirmed()) return;
+                      void signInWithGoogle();
+                    }}
+                    onApple={() => {
+                      if (!ensureAgeConfirmed()) return;
+                      void signInWithApple();
+                    }}
                   />
                 </View>
               </View>
             </LinearGradient>
           </Animated.View>
+
+          <View style={styles.legalRow}>
+            <Pressable onPress={() => void Linking.openURL(PRIVACY_POLICY_URL)}>
+              <Text style={[styles.legalLink, { color: theme.textMuted }]}>Privacy Policy</Text>
+            </Pressable>
+            <Text style={[styles.legalDivider, { color: theme.textMuted }]}>·</Text>
+            <Pressable onPress={() => void Linking.openURL(TERMS_OF_SERVICE_URL)}>
+              <Text style={[styles.legalLink, { color: theme.textMuted }]}>Terms of Service</Text>
+            </Pressable>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -240,6 +316,47 @@ const styles = StyleSheet.create({
   },
   fields: {
     marginTop: 22,
+  },
+  ageRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    marginTop: 16,
+  },
+  ageCheckbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  ageCheckmark: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  ageLabel: {
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '500',
+  },
+  legalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 20,
+  },
+  legalLink: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  legalDivider: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   errorBanner: {
     marginBottom: 14,

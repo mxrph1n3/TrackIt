@@ -1,6 +1,7 @@
 import { Crown, X } from 'lucide-react-native';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { HEALTH_DISCLAIMER } from '../../constants/disclaimers';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
 import { WORKOUT_GOAL_OPTIONS } from '../../constants/workoutGoals';
 import { FREE_BUILTIN_PROGRAM_ID } from '../../constants/workoutFreeTier';
@@ -55,6 +56,7 @@ export function WorkoutGoalPickerModal() {
                 Choose what this session is focused on — program and exercises will match your
                 goal.
               </Text>
+              <Text style={[styles.disclaimer, { color: healthTheme.slate }]}>{HEALTH_DISCLAIMER}</Text>
             </View>
             <Pressable
               onPress={closeWorkoutGoalPicker}
@@ -186,6 +188,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 14,
     lineHeight: 20,
+  },
+  disclaimer: {
+    marginTop: 10,
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: '500',
   },
   closeButton: {
     width: 40,

@@ -38,17 +38,9 @@ export const PREMIUM_FEATURE_META: Record<PremiumFeatureId, PremiumFeatureMeta> 
     title: 'Advanced Analytics',
     description: 'All-time stats, heatmaps, forecasts, and cross-module comparisons.',
   },
-  export: {
-    title: 'Data Export',
-    description: 'Export your logs to PDF, Excel, or CSV.',
-  },
   cloud_sync: {
     title: 'Cloud Sync',
     description: 'Keep every device in sync automatically.',
-  },
-  cloud_backup: {
-    title: 'Cloud Backups',
-    description: 'Automatic encrypted backups of your TrackIt data.',
   },
   premium_themes: {
     title: 'Premium Themes',

@@ -5,7 +5,15 @@
   "framework": null,
   "rewrites": [
     {
-      "source": "/((?!_expo/|assets/|favicon.ico).*)",
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/((?!_expo/|assets/|favicon.ico|privacy.html|terms.html).*)",
       "destination": "/index.html"
     }
   ]
