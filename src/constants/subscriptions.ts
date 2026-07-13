@@ -23,7 +23,6 @@ export const SUBSCRIPTION_DISPLAY_PRICING = {
 } as const;
 
 export const PREMIUM_BENEFITS = [
-  'AI Coach',
   '100+ workout programs',
   'Unlimited custom programs',
   'Full exercise library',

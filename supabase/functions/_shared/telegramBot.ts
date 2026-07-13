@@ -244,7 +244,7 @@ export function buildHelpMessage(config: BotConfig): string {
       '',
       '1️⃣ Tap <b>Open TrackIt</b> to launch the Mini App.',
       '2️⃣ Your Telegram account is linked automatically — no password needed.',
-      '3️⃣ All features are free — AI Coach, analytics, workouts, and reminders.',
+      '3️⃣ All features are free — analytics, workouts, and reminders.',
       '4️⃣ Turn on <b>Telegram Reminders</b> in Settings — nudges arrive here in chat (08:00–22:00).',
       '',
       '<b>Reminder schedule</b>',

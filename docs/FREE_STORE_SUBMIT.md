@@ -12,8 +12,7 @@ Branch: **`free-app`** (`APP_IS_FULLY_FREE = true`). No billing, all features un
 - [x] Sign in with Apple on iOS (required when Google exists)
 - [ ] Demo account for reviewers created in Supabase Auth
 - [ ] Screenshots + Play feature graphic uploaded
-- [ ] App Store privacy nutrition labels + Play Data Safety filled (disclose Supabase + Gemini)
-- [ ] Edge functions from `free-app` deployed so AI Coach is not Pro-gated server-side
+- [ ] App Store privacy nutrition labels + Play Data Safety filled (disclose Supabase)
 
 Redeploy legal pages:
 
@@ -23,11 +22,10 @@ npm run export:web
 # deploy dist/ to Vercel (or push free-app and point Vercel to this branch)
 ```
 
-Deploy Pro-bypass for AI Coach (production):
+Deploy edge functions from `free-app` if using Telegram reminders:
 
 ```bash
-supabase functions deploy ai-coach-analyze
-# shared files included with function deploy; also redeploy tma/bot if using Telegram
+supabase functions deploy tma-access
 ```
 
 ## Builds
@@ -71,7 +69,7 @@ Or in App Store Connect: TestFlight → add build → Internal / External testin
 **Google Play Console**
 - App `com.trackit`, free
 - No paid products
-- Data Safety: account data, health/fitness user-entered, AI processing (Gemini), cloud sync
+- Data Safety: account data, health/fitness user-entered, cloud sync
 - Content rating questionnaire
 
 ## Typical rejection causes (avoid)
@@ -80,7 +78,6 @@ Or in App Store Connect: TestFlight → add build → Internal / External testin
 |------|--------------------|
 | Listing mentions Pro / paid IAP but app has none | Use free `store/LISTING.md` |
 | Privacy/Terms still describe subscriptions | Redeploy `public/*.html` from `free-app` |
-| AI Coach returns 403 | Deploy `ai-coach-analyze` with free mode |
 | Missing SIWA | Keep `expo-apple-authentication` |
 | Incomplete demo login | Create `review@…` account before submit |
 | Crash on cold start | Smoke-test TestFlight / internal track before review |

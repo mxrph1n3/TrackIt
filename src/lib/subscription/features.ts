@@ -6,10 +6,6 @@ export type PremiumFeatureMeta = {
 };
 
 export const PREMIUM_FEATURE_META: Record<PremiumFeatureId, PremiumFeatureMeta> = {
-  ai_coach: {
-    title: 'AI Coach',
-    description: 'Cross-module insights from tasks, workouts, nutrition, finance, and habits.',
-  },
   ai_tasks: {
     title: 'AI Task Planning',
     description: 'Break projects into stages and distribute tasks across your week.',

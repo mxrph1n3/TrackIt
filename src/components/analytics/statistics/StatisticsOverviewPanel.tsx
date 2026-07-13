@@ -1,6 +1,5 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { AiCoachCard } from '../../ai/AiCoachCard';
 import { AnalyticsFreeTierBanner } from '../AnalyticsFreeTierBanner';
 import { useAnalyticsOverview } from '../../../hooks/useAnalyticsOverview';
 import { SPACING } from '../../../theme/designTokens';
@@ -25,7 +24,6 @@ export function StatisticsOverviewPanel() {
   return (
     <View style={styles.wrap}>
       <AnalyticsFreeTierBanner />
-      <AiCoachCard />
       <OverallGrowthCard
         percent={data.overallGrowth.percent}
         rangeLabel={data.overallGrowth.rangeLabel}

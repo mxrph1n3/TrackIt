@@ -355,8 +355,8 @@ export function PremiumScreen({
               {tmaAccess.isInTrial
                 ? `Trial active — ${tmaAccess.trialDaysRemaining} day(s) left with full access and reminders.`
                 : tmaAccess.hasStarsSubscription
-                  ? `TrackIt Pro subscription active (${monthlyPriceLabel}). AI Coach, analytics, and reminders are unlocked.`
-                  : 'AI Coach, advanced analytics, cloud sync, and premium themes are unlocked.'}
+                  ? `TrackIt Pro subscription active (${monthlyPriceLabel}). Analytics and reminders are unlocked.`
+                  : 'Advanced analytics, cloud sync, and premium themes are unlocked.'}
             </Text>
             <Pressable onPress={() => void refresh()} style={styles.secondaryButton}>
               <Text style={styles.secondaryLabel}>Refresh subscription status</Text>

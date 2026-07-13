@@ -24,7 +24,7 @@ This build has **no in-app purchases and no subscriptions**.
 **Keywords (100 chars):** tasks,habits,workout,nutrition,finance,planner,fitness,tracker,AI coach,gamification
 
 **Promotional text (170 chars, optional):**  
-One free app for tasks, workouts, nutrition, finance, and habits — with XP, streaks, and an AI Coach that reads your real logs.
+One free app for tasks, workouts, nutrition, finance, and habits — with XP and streaks.
 
 **Description:**
 
@@ -36,17 +36,16 @@ TrackIt is your daily command center: plan tasks, train with structured programs
 - Nutrition targets from your profile (BMR/TDEE estimates)
 - Finance overview, subscriptions tracker, and insights
 - Habits, journal, and gamification (XP, levels, leaderboard)
-- AI Coach — personalized summary from your recent activity
 - Smart reminders (optional; enable in Settings)
 
-Health and AI features are for general wellness only — not medical or financial advice.
+Health features are for general wellness only — not medical or financial advice.
 
 ---
 
 ## Google Play
 
 **Short description (80 chars):**  
-Free life OS — tasks, workouts, nutrition, finance, habits & AI Coach.
+Free life OS — tasks, workouts, nutrition, finance, and habits.
 
 **Full description:** Use the App Store description above (Play allows up to 4000 chars).
 
@@ -65,7 +64,7 @@ Free life OS — tasks, workouts, nutrition, finance, habits & AI Coach.
 **Notes for reviewer:**
 ```
 TrackIt is a free app with no in-app purchases or subscriptions.
-All features (AI Coach, analytics, workouts, reminders) are unlocked for every signed-in user.
+All features (analytics, workouts, reminders) are unlocked for every signed-in user.
 
 Sign in: email, Google, or Sign in with Apple (iOS).
 Account deletion: Settings → Account → Delete account.

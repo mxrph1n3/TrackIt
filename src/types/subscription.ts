@@ -5,7 +5,6 @@ export type SubscriptionProductId =
 
 /** Premium capabilities that can be gated independently. */
 export type PremiumFeatureId =
-  | 'ai_coach'
   | 'ai_tasks'
   | 'ai_habits'
   | 'ai_workout'
