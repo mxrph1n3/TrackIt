@@ -2,6 +2,7 @@ import { ChevronRight } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
 
 import { PROFILE_MENU_ITEMS } from '../../constants/profileMenu';
+import { isAppFullyFree } from '../../constants/appAccess';
 import { navigateTab } from '../../navigation/navigationRef';
 import type { RootTabParamList } from '../../navigation/types';
 import { useProfileModuleStore } from '../../stores/useProfileModuleStore';
@@ -40,9 +41,13 @@ export function ProfileNavMenu({ forcedActiveId, onModulePress }: ProfileNavMenu
     }
   };
 
+  const menuItems = isAppFullyFree()
+    ? PROFILE_MENU_ITEMS.filter((item) => item.id !== 'premium')
+    : PROFILE_MENU_ITEMS;
+
   return (
     <View className="gap-1">
-      {PROFILE_MENU_ITEMS.map((item) => {
+      {menuItems.map((item) => {
         const isActive = resolvedActiveId === item.id;
         const Icon = item.icon;
         const showXpBadge = item.id === 'achievements' && uncollectedXp > 0;

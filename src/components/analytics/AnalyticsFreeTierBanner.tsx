@@ -2,6 +2,7 @@ import { Crown } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
 
 import { FREE_ANALYTICS_DAYS } from '../../constants/workoutFreeTier';
+import { isAppFullyFree } from '../../constants/appAccess';
 import { usePaywallStore } from '../../stores/usePaywallStore';
 import { selectIsPro, useSubscriptionStore } from '../../stores/useSubscriptionStore';
 import { BRAND } from '../../theme/designTokens';
@@ -13,7 +14,7 @@ export function AnalyticsFreeTierBanner() {
   const isPro = useSubscriptionStore(selectIsPro);
   const openPaywall = usePaywallStore((s) => s.openPaywall);
 
-  if (isPro) {
+  if (isPro || isAppFullyFree()) {
     return null;
   }
 

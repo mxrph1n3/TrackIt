@@ -1,5 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
+import { isAppFullyFree } from '../_shared/appAccess.ts';
+
 const COACH_SYSTEM_PROMPT = `# ROLE & IDENTITY
 
 You are the "TrackIt AI Coach" — behavioral psychologist, trainer, financial strategist, and productivity mentor inside TrackIt.
@@ -55,6 +57,10 @@ function sanitizePrompt(raw: string | undefined): string {
 }
 
 async function verifyProAccess(userId: string, authHeader: string): Promise<boolean> {
+  if (isAppFullyFree()) {
+    return true;
+  }
+
   const rcSecret = Deno.env.get('REVENUECAT_SECRET_KEY');
   if (rcSecret) {
     try {

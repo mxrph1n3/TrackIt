@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { isAppFullyFree } from '../constants/appAccess';
 import { IS_WEB } from '../lib/platform/constants';
 import {
   configureSubscriptionService,
@@ -69,6 +70,26 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   devProOverride: false,
 
   initialize: async (userId) => {
+    if (isAppFullyFree()) {
+      const syncedTma =
+        userId && canSyncTmaAccess() ? await syncTmaAccess() : EMPTY_TMA_ACCESS;
+
+      set({
+        status: { ...DEFAULT_STATUS, isPro: true },
+        offerings: DEFAULT_OFFERINGS,
+        tmaAccess: {
+          ...syncedTma,
+          hasFullAccess: true,
+          canUseNotifications: true,
+        },
+        tmaAccessReady: !canSyncTmaAccess() || Boolean(userId),
+        isReady: true,
+        isLoading: false,
+        error: null,
+      });
+      return;
+    }
+
     set({ isLoading: true, error: null });
 
     try {
@@ -105,6 +126,21 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   },
 
   refresh: async () => {
+    if (isAppFullyFree()) {
+      const tmaAccess = canSyncTmaAccess() ? await syncTmaAccess() : get().tmaAccess;
+      set({
+        status: { ...get().status, isPro: true },
+        tmaAccess: {
+          ...tmaAccess,
+          hasFullAccess: true,
+          canUseNotifications: true,
+        },
+        error: null,
+        tmaAccessReady: true,
+      });
+      return;
+    }
+
     try {
       const [status, offerings, tmaAccess] = await Promise.all([
         fetchSubscriptionStatus(),
@@ -122,12 +158,15 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
   syncTma: async () => {
     if (!canSyncTmaAccess()) {
-      return EMPTY_TMA_ACCESS;
+      return get().tmaAccess;
     }
 
     const tmaAccess = await syncTmaAccess();
-    set({ tmaAccess, tmaAccessReady: true });
-    return tmaAccess;
+    const merged = isAppFullyFree()
+      ? { ...tmaAccess, hasFullAccess: true, canUseNotifications: true }
+      : tmaAccess;
+    set({ tmaAccess: merged, tmaAccessReady: true });
+    return merged;
   },
 
   purchase: async (productId) => {
@@ -216,6 +255,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 }));
 
 export function selectIsPro(state: SubscriptionState): boolean {
+  if (isAppFullyFree()) {
+    return true;
+  }
   if (__DEV__ && state.devProOverride) {
     return true;
   }
@@ -227,6 +269,9 @@ export function selectIsPro(state: SubscriptionState): boolean {
 
 /** Paid Pro (Stars / store) — excludes TMA trial-only access so users can subscribe early. */
 export function selectHasPaidPro(state: SubscriptionState): boolean {
+  if (isAppFullyFree()) {
+    return true;
+  }
   if (__DEV__ && state.devProOverride) {
     return true;
   }
@@ -243,6 +288,9 @@ export function selectHasPaidPro(state: SubscriptionState): boolean {
 }
 
 export function selectCanUseNotifications(state: SubscriptionState): boolean {
+  if (isAppFullyFree()) {
+    return true;
+  }
   if (__DEV__ && state.devProOverride) {
     return true;
   }
@@ -265,5 +313,8 @@ export function useCanUseNotifications(): boolean {
 }
 
 export function isRevenueCatReady(): boolean {
+  if (isAppFullyFree()) {
+    return false;
+  }
   return isNativeStoreBillingAvailable();
 }

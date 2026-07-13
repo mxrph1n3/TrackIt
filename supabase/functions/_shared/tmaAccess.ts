@@ -1,5 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
+import { isAppFullyFree } from './appAccess.ts';
+
 const TMA_TRIAL_DAYS = 3;
 const TMA_STARS_SUBSCRIPTION_PERIOD_SECONDS = 30 * 24 * 60 * 60;
 const TMA_STARS_SUBSCRIPTION_PERIOD_DAYS = 30;
@@ -110,7 +112,7 @@ export function buildAccessPayload(row: {
   const hasStarsSubscription =
     row.is_pro && (row.pro_expires_at == null || new Date(row.pro_expires_at).getTime() > now);
 
-  const hasFullAccess = hasStarsSubscription || isInTrial;
+  const hasFullAccess = isAppFullyFree() || hasStarsSubscription || isInTrial;
   const trialDaysRemaining =
     isInTrial && trialEndsMs
       ? Math.max(0, Math.ceil((trialEndsMs - now) / (24 * 60 * 60 * 1000)))

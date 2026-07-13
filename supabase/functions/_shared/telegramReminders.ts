@@ -1,3 +1,4 @@
+import { isAppFullyFree } from './appAccess.ts';
 import { getServiceClient } from './tmaAccess.ts';
 import { getBotConfig, sendBotMessage } from './telegramBot.ts';
 
@@ -287,7 +288,7 @@ export async function processTelegramReminders(now = new Date()): Promise<{ sent
     if (!profile.telegram_user_id) continue;
 
     const { data: hasPremium } = await service.rpc('user_has_premium_access', { p_user_id: profile.id });
-    if (!hasPremium) {
+    if (!isAppFullyFree() && !hasPremium) {
       skipped += 1;
       continue;
     }

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { isAppFullyFree } from '../constants/appAccess';
 import type { PremiumFeatureId } from '../types/subscription';
 
 type PaywallState = {
@@ -12,6 +13,11 @@ type PaywallState = {
 export const usePaywallStore = create<PaywallState>((set) => ({
   isOpen: false,
   feature: null,
-  openPaywall: (feature) => set({ isOpen: true, feature: feature ?? null }),
+  openPaywall: (feature) => {
+    if (isAppFullyFree()) {
+      return;
+    }
+    set({ isOpen: true, feature: feature ?? null });
+  },
   closePaywall: () => set({ isOpen: false, feature: null }),
 }));

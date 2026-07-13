@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { PremiumScreen } from '../../screens/PremiumScreen';
+import { isAppFullyFree } from '../../constants/appAccess';
 import { usePaywallStore } from '../../stores/usePaywallStore';
 import { useTheme } from '../../theme/ThemeContext';
 import { premiumQuickSpringConfig, premiumSpringConfig, timingEntrance, timingExit } from '../../theme/motion';
@@ -48,6 +49,10 @@ export function PaywallHost() {
     opacity: opacity.value,
     transform: [{ translateY: (1 - progress.value) * 24 }],
   }));
+
+  if (isAppFullyFree()) {
+    return null;
+  }
 
   return (
     <Modal visible={isOpen} animationType="none" transparent statusBarTranslucent onRequestClose={closePaywall}>

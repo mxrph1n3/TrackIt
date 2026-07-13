@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { getDashboardTierTheme } from '../../lib/dashboard/tierTheme';
+import { isAppFullyFree } from '../../constants/appAccess';
 import { useProgression } from '../../hooks/useProgression';
 import { usePaywallStore } from '../../stores/usePaywallStore';
 import { selectIsPro, useSubscriptionStore } from '../../stores/useSubscriptionStore';
@@ -65,10 +66,10 @@ export function ProfileHero() {
             RANK {profileStats.rank}
           </Text>
         </View>
-        {isPro ? <PremiumBadge label="PRO" /> : null}
+        {isPro && !isAppFullyFree() ? <PremiumBadge label="PRO" /> : null}
       </View>
 
-      {!isPro ? (
+      {!isPro && !isAppFullyFree() ? (
         <Pressable
           onPress={() => openPaywall()}
           className="mt-4 flex-row items-center gap-2 rounded-full px-5 py-2.5 active:opacity-90"

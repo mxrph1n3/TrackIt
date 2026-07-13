@@ -2,6 +2,7 @@ import {
   buildAccessPayload,
   getServiceClient,
 } from './tmaAccess.ts';
+import { isAppFullyFree } from './appAccess.ts';
 import { getTmaMonthlyPriceLabel, getTmaStarsPrice } from './tmaBilling.ts';
 import { ensureTelegramUserAccount, type TelegramChatUser } from './tmaAuth.ts';
 import { PAYMENT_SUCCESS_MESSAGE } from './starsInvoice.ts';
@@ -124,16 +125,20 @@ function buildPremiumPurchaseGuideMessage(config: BotConfig): string {
 }
 
 function buildMainKeyboard(config: BotConfig): ReplyMarkup {
-  return {
-    inline_keyboard: [
-      [{ text: '🚀 Open TrackIt', web_app: { url: config.webAppUrl } }],
-      [{ text: `⭐ Buy Premium — ${config.monthlyPriceLabel}`, callback_data: 'buy_premium' }],
-      [
-        { text: '📊 My status', callback_data: 'check_status' },
-        { text: '❓ Help', callback_data: 'show_help' },
-      ],
-    ],
-  };
+  const rows: InlineKeyboardButton[][] = [
+    [{ text: '🚀 Open TrackIt', web_app: { url: config.webAppUrl } }],
+  ];
+
+  if (!isAppFullyFree()) {
+    rows.push([{ text: `⭐ Buy Premium — ${config.monthlyPriceLabel}`, callback_data: 'buy_premium' }]);
+  }
+
+  rows.push([
+    { text: '📊 My status', callback_data: 'check_status' },
+    { text: '❓ Help', callback_data: 'show_help' },
+  ]);
+
+  return { inline_keyboard: rows };
 }
 
 async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T | null> {
@@ -191,6 +196,11 @@ function formatStatusMessage(
   const access = buildAccessPayload(row);
   const greeting = firstName ? `<b>${escapeHtml(firstName)}</b>, here is your TrackIt access:` : 'Your TrackIt access:';
 
+  if (isAppFullyFree()) {
+    const reminders = row.telegram_reminders_enabled ? 'enabled' : 'disabled';
+    return `${greeting}\n\n✅ <b>TrackIt is fully free</b> — all features unlocked.\nTelegram reminders: <b>${reminders}</b>.`;
+  }
+
   if (access.hasStarsSubscription) {
     const expiry = access.proExpiresAt
       ? new Date(access.proExpiresAt).toLocaleDateString('en-US', {
@@ -211,6 +221,14 @@ function formatStatusMessage(
 
 export function buildStartMessage(firstName?: string, monthlyPriceLabel = '$5.99/month'): string {
   const greeting = firstName ? `Hi ${escapeHtml(firstName)}!\n\n` : '';
+  if (isAppFullyFree()) {
+    return [
+      `${greeting}Welcome to <b>TrackIt</b>! 🎯 Your habit tracker inside Telegram — fully free with all features unlocked.`,
+      '',
+      'Tap the button below to open the Mini App and start tracking.',
+    ].join('\n');
+  }
+
   return [
     `${greeting}Welcome to <b>TrackIt</b>! 🎯 Your ultimate habit tracker right inside Telegram. Click the button below to start tracking your progress.`,
     '',
@@ -220,6 +238,27 @@ export function buildStartMessage(firstName?: string, monthlyPriceLabel = '$5.99
 }
 
 export function buildHelpMessage(config: BotConfig): string {
+  if (isAppFullyFree()) {
+    return [
+      '<b>How TrackIt works</b>',
+      '',
+      '1️⃣ Tap <b>Open TrackIt</b> to launch the Mini App.',
+      '2️⃣ Your Telegram account is linked automatically — no password needed.',
+      '3️⃣ All features are free — AI Coach, analytics, workouts, and reminders.',
+      '4️⃣ Turn on <b>Telegram Reminders</b> in Settings — nudges arrive here in chat (08:00–22:00).',
+      '',
+      '<b>Reminder schedule</b>',
+      '08:00 Morning · 12:00 Midday · 16:00 Progress',
+      '19:00 Evening · 21:00 Summary · 22:00 Final nudge',
+      '',
+      '<b>Commands</b>',
+      '/start — Welcome message and main menu',
+      '/app — Open the Mini App',
+      '/status — Check your access',
+      '/help — Show this guide',
+    ].join('\n');
+  }
+
   return [
     '<b>How TrackIt works</b>',
     '',
@@ -264,22 +303,26 @@ export async function handleHelpCommand(config: BotConfig, chatId: number): Prom
 }
 
 export async function handlePaySupportCommand(config: BotConfig, chatId: number): Promise<void> {
-  await sendBotMessage(
-    config,
-    chatId,
-    [
-      '<b>Payment support</b>',
-      '',
-      'TrackIt Pro is billed monthly via <b>Telegram Stars</b> (currency XTR).',
-      '',
-      '• Payment issues: describe your problem here in this chat.',
-      '• Subscription status: /status',
-      '• Buy or renew Pro: open Mini App → Statistics → Pro (or /pro for steps)',
-      '',
-      'Telegram Support cannot help with in-bot Star purchases — contact us via this bot.',
-    ].join('\n'),
-    buildMainKeyboard(config),
-  );
+  const body = isAppFullyFree()
+    ? [
+        '<b>TrackIt is free</b>',
+        '',
+        'This build has no paid subscriptions or Telegram Stars billing.',
+        'For help with the app, use /help or open the Mini App.',
+      ].join('\n')
+    : [
+        '<b>Payment support</b>',
+        '',
+        'TrackIt Pro is billed monthly via <b>Telegram Stars</b> (currency XTR).',
+        '',
+        '• Payment issues: describe your problem here in this chat.',
+        '• Subscription status: /status',
+        '• Buy or renew Pro: open Mini App → Statistics → Pro (or /pro for steps)',
+        '',
+        'Telegram Support cannot help with in-bot Star purchases — contact us via this bot.',
+      ].join('\n');
+
+  await sendBotMessage(config, chatId, body, buildMainKeyboard(config));
 }
 
 export async function handleTermsCommand(config: BotConfig, chatId: number): Promise<void> {
@@ -352,12 +395,11 @@ export async function handleProCommand(
   chatId: number,
   _telegramUser: TelegramChatUser,
 ): Promise<void> {
-  await sendBotMessage(
-    config,
-    chatId,
-    buildPremiumPurchaseGuideMessage(config),
-    buildMainKeyboard(config),
-  );
+  const message = isAppFullyFree()
+    ? '<b>TrackIt is fully free</b> — no subscription needed. Open the Mini App to use all features.'
+    : buildPremiumPurchaseGuideMessage(config);
+
+  await sendBotMessage(config, chatId, message, buildMainKeyboard(config));
 }
 
 export async function handleCallbackQuery(
@@ -368,11 +410,17 @@ export async function handleCallbackQuery(
   telegramUser: TelegramChatUser,
 ): Promise<void> {
   if (data === 'subscribe_pro' || data === 'buy_premium') {
-    await answerCallbackQuery(config, callbackQueryId, 'Open the Mini App to pay');
+    await answerCallbackQuery(
+      config,
+      callbackQueryId,
+      isAppFullyFree() ? 'TrackIt is fully free' : 'Open the Mini App to pay',
+    );
     await sendBotMessage(
       config,
       chatId,
-      buildPremiumPurchaseGuideMessage(config),
+      isAppFullyFree()
+        ? '<b>TrackIt is fully free</b> — no payment required. Tap Open TrackIt below.'
+        : buildPremiumPurchaseGuideMessage(config),
       buildMainKeyboard(config),
     );
     return;

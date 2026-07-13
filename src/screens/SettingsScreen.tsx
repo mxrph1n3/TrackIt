@@ -8,6 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useGamification } from '../hooks/useGamification';
 import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import { HEALTH_DISCLAIMER } from '../constants/disclaimers';
+import { isAppFullyFree } from '../constants/appAccess';
 import { getTmaMonthlyPriceLabel, TMA_TRIAL_DAYS } from '../constants/tmaBilling';
 import { deleteAccount } from '../lib/account/accountService';
 import { IS_WEB } from '../lib/platform/constants';
@@ -490,11 +491,13 @@ export function SettingsScreen() {
           {isTma ? (
             <>
               <Text className="mt-2 text-sm" style={{ color: theme.textSecondary }}>
-                {canUseNotifications
-                  ? tmaAccess.isInTrial
-                    ? `Included in your ${TMA_TRIAL_DAYS}-day trial. After trial, Pro at ${monthlyPriceLabel} keeps reminders.`
-                    : 'Bot messages on the TrackIt schedule — morning, midday, progress, and evening.'
-                  : `Trial ended. Subscribe at ${monthlyPriceLabel} to restore smart reminders and Pro access.`}
+                {isAppFullyFree()
+                  ? 'Bot messages on the TrackIt schedule — morning, midday, progress, and evening.'
+                  : canUseNotifications
+                    ? tmaAccess.isInTrial
+                      ? `Included in your ${TMA_TRIAL_DAYS}-day trial. After trial, Pro at ${monthlyPriceLabel} keeps reminders.`
+                      : 'Bot messages on the TrackIt schedule — morning, midday, progress, and evening.'
+                    : `Trial ended. Subscribe at ${monthlyPriceLabel} to restore smart reminders and Pro access.`}
               </Text>
               <View className="mt-4 flex-row items-center justify-between">
                 <View className="flex-1 pr-4">
@@ -599,43 +602,45 @@ export function SettingsScreen() {
         </View>
       </GlassPanel>
 
-      <GlassPanel borderRadius={24} style={{ marginBottom: 16 }}>
-        <View className="p-5">
-          <Text className="text-[10px] font-bold uppercase tracking-[2px]" style={{ color: theme.textMuted }}>
-            Premium themes
-          </Text>
-          <Text className="mt-2 text-sm" style={{ color: theme.textSecondary }}>
-            Unlock AMOLED Black, Glass, Minimal, Gradient, and Cyber with TrackIt Pro.
-          </Text>
-          <View className="mt-4 flex-row flex-wrap gap-2">
-            {PREMIUM_THEME_OPTIONS.map((label) => (
-              <Pressable
-                key={label}
-                onPress={() => requirePremiumThemes(() => {})}
-                className="rounded-full px-3 py-2 active:opacity-80"
-                style={{
-                  backgroundColor: `${theme.primary}10`,
-                  borderWidth: 1,
-                  borderColor: `${theme.primary}33`,
-                }}
-              >
-                <Text className="text-xs font-bold" style={{ color: theme.textMuted }}>
-                  {label} · PRO
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-          <Pressable
-            onPress={() => openPaywall('premium_themes')}
-            className="mt-4 items-center rounded-2xl py-3 active:opacity-90"
-            style={{ backgroundColor: `${theme.primary}18`, borderWidth: 1, borderColor: `${theme.primary}44` }}
-          >
-            <Text className="text-sm font-bold" style={{ color: theme.primary }}>
-              View TrackIt Pro
+      {!isAppFullyFree() ? (
+        <GlassPanel borderRadius={24} style={{ marginBottom: 16 }}>
+          <View className="p-5">
+            <Text className="text-[10px] font-bold uppercase tracking-[2px]" style={{ color: theme.textMuted }}>
+              Premium themes
             </Text>
-          </Pressable>
-        </View>
-      </GlassPanel>
+            <Text className="mt-2 text-sm" style={{ color: theme.textSecondary }}>
+              Unlock AMOLED Black, Glass, Minimal, Gradient, and Cyber with TrackIt Pro.
+            </Text>
+            <View className="mt-4 flex-row flex-wrap gap-2">
+              {PREMIUM_THEME_OPTIONS.map((label) => (
+                <Pressable
+                  key={label}
+                  onPress={() => requirePremiumThemes(() => {})}
+                  className="rounded-full px-3 py-2 active:opacity-80"
+                  style={{
+                    backgroundColor: `${theme.primary}10`,
+                    borderWidth: 1,
+                    borderColor: `${theme.primary}33`,
+                  }}
+                >
+                  <Text className="text-xs font-bold" style={{ color: theme.textMuted }}>
+                    {label} · PRO
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+            <Pressable
+              onPress={() => openPaywall('premium_themes')}
+              className="mt-4 items-center rounded-2xl py-3 active:opacity-90"
+              style={{ backgroundColor: `${theme.primary}18`, borderWidth: 1, borderColor: `${theme.primary}44` }}
+            >
+              <Text className="text-sm font-bold" style={{ color: theme.primary }}>
+                View TrackIt Pro
+              </Text>
+            </Pressable>
+          </View>
+        </GlassPanel>
+      ) : null}
 
       <GlassPanel borderRadius={24} style={{ marginBottom: 16 }}>
         <View className="p-5">
@@ -688,7 +693,7 @@ export function SettingsScreen() {
         </View>
       </GlassPanel>
 
-      {__DEV__ ? (
+      {__DEV__ && !isAppFullyFree() ? (
         <GlassPanel borderRadius={24} style={{ marginBottom: 16 }}>
           <View className="flex-row items-center justify-between p-5">
             <View className="flex-1 pr-4">
