@@ -1,0 +1,15 @@
+# Shrink EAS upload archive (was ~211 MB before exclusions).
+.git/
+docs/
+supabase/
+scripts/
+seed.js
+assets/icon-concepts/
+assets/icon-candidate.png
+**/*.md
+!README.md
+.cursor/
+.github/
+dist/
+web-build/
+.expo/

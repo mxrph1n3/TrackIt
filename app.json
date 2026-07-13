@@ -12,7 +12,8 @@
       "bundleIdentifier": "com.zenith.trackit",
       "usesAppleSignIn": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSUserNotificationsUsageDescription": "TrackIt sends optional reminders for tasks, habits, workouts, and daily check-ins."
       }
     },
     "android": {
@@ -48,6 +49,18 @@
       "output": "single"
     },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F3F5FA",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "dark": {
+            "backgroundColor": "#07070A",
+            "image": "./assets/splash-icon.png"
+          }
+        }
+      ],
       "expo-secure-store",
       "expo-apple-authentication",
       "expo-web-browser",
@@ -69,7 +82,8 @@
             }
           }
         }
-      ]
+      ],
+      "expo-splash-screen"
     ],
     "extra": {
       "eas": {

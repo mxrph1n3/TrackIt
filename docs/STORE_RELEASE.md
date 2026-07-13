@@ -2,7 +2,7 @@
 
 Step-by-step guide to publish the **native iOS/Android** app. This is separate from the [Telegram Mini App](./TELEGRAM_BOT.md) (web/TMA) deploy on Vercel.
 
-> **Current status:** Phase 1 ~80% done in code (not yet pushed/deployed). Store submission still blocked by Phase 2–4.
+> **Current status:** Phase 1 complete (pushed + `delete-account` deployed). Phase 2 in progress — EAS preview build queued on older commit; rebuild after Phase 2 push.
 
 ---
 
@@ -34,34 +34,34 @@ No code. Block everything else until these exist.
 
 ---
 
-### Phase 1 — Compliance in code (agent)
+### Phase 1 — Compliance in code ✅
 
-**Done locally (not pushed yet):**
 - [x] Privacy + Terms pages (`public/privacy.html`, `public/terms.html`)
-- [x] Links in Settings + Paywall
+- [x] Links in Settings + Paywall + Auth
 - [x] Account deletion + Sign out (`delete-account` edge function)
 - [x] Paywall auto-renew disclosure + disable purchase without RevenueCat
-
-**Still to do (next session):**
-- [ ] Legal links on **Auth** screen footer
-- [ ] **Age gate 13+** on sign-up (checkbox on Auth)
-- [ ] **Health disclaimer** on nutrition settings + workout start
-- [ ] **AI disclaimer** on AI Coach card (data sent to Gemini)
-- [ ] **Remove or implement** fake Pro claims: PDF export, cloud backups
-- [ ] Push + deploy: `git push` → Vercel; `supabase functions deploy delete-account`
-- [ ] Verify `/privacy` and `/terms` live on production URL
+- [x] Age gate 13+ on sign-up (Auth)
+- [x] Health disclaimer (nutrition settings, workout start)
+- [x] AI disclaimer on AI Coach card
+- [x] Removed fake Pro claims (export, cloud backups)
+- [x] Push + deploy: Vercel; `supabase functions deploy delete-account`
+- [ ] Verify `/privacy` and `/terms` live on production URL (after Vercel rebuild)
 
 ---
 
-### Phase 2 — Release infrastructure (agent + you)
+### Phase 2 — Release infrastructure (in progress)
 
-- [ ] Add `eas.json` (development / preview / production profiles)
-- [ ] Add npm scripts: `build:ios`, `build:android`, `submit:ios`, `submit:android`
-- [ ] `app.json`: splash, `NSUserNotificationsUsageDescription`, Android `POST_NOTIFICATIONS`
-- [ ] Resize icon to 1024×1024 if needed
-- [ ] Set EAS secrets: `EXPO_PUBLIC_SUPABASE_*`, `EXPO_PUBLIC_REVENUECAT_*`
-- [ ] First `eas build --platform all --profile production`
-- [ ] Fix any build errors
+- [x] Add `eas.json` (development / preview / production profiles)
+- [x] Add npm scripts: `build:ios`, `build:android`, `submit:*`, `build:preview:*`
+- [x] Link Expo project (`extra.eas.projectId` in `app.json`)
+- [x] Set EAS env: `EXPO_PUBLIC_SUPABASE_*`, `EXPO_PUBLIC_REVENUECAT_*`
+- [x] `app.json`: splash (`expo-splash-screen`), `NSUserNotificationsUsageDescription`, `ITSAppUsesNonExemptEncryption`
+- [x] Icon resized to 1024×1024
+- [x] `.easignore` to reduce upload size
+- [x] Store listing draft (`store/LISTING.md`)
+- [ ] First `eas build --platform android --profile preview` on **latest** commit (current queue is stale)
+- [ ] `eas build --platform android --profile production` (after Google Play Console)
+- [ ] iOS production build (requires Apple Developer Program $99/yr)
 
 ---
 
