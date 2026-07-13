@@ -1,4 +1,5 @@
 import { markUserActivityToday } from '../notifications/activityTracking';
+import { buildTasksForDayOrFilter, rolloverStaleTodayTasks } from '../planner/taskRollover';
 import { isSupabaseConfigured, isMissingSchemaError, supabase } from '../supabase';
 import { fetchDashboardFinance } from '../finance/dashboardFinance';
 import type { TaskRow } from '../../types/quickActionRecords';
@@ -29,11 +30,13 @@ export async function fetchTodayTasks(userId: string): Promise<ScheduleItem[]> {
   const today = toDayKey(new Date());
   const { start, end } = dayRangeIso(today);
 
+  await rolloverStaleTodayTasks(userId);
+
   const { data, error } = await supabase
     .from('tasks')
     .select('*')
     .eq('user_id', userId)
-    .or(`due_date.eq.${today},is_today.eq.true,and(created_at.gte.${start},created_at.lt.${end})`)
+    .or(buildTasksForDayOrFilter(today, start, end))
     .order('created_at', { ascending: true });
 
   if (error) {
@@ -88,7 +91,7 @@ export async function toggleTaskCompletion(taskId: string, completed: boolean): 
 
   const { data, error } = await supabase
     .from('tasks')
-    .update({ completed })
+    .update(completed ? { completed, is_today: false } : { completed })
     .eq('id', taskId)
     .eq('user_id', userId)
     .select('id, completed')

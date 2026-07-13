@@ -41,7 +41,7 @@ Open the Mini App for a free 3-day Pro trial. After that, subscribe at ${monthly
 Smart reminders are delivered right here in chat — morning motivation, task nudges, workout prompts, and evening wrap-ups (08:00–22:00). Enable them in Settings → Telegram Reminders.`;
 
 const BOT_SHORT_DESCRIPTION =
-  'Tasks, workouts & habits in Telegram. 3-day Pro trial, then 250 Stars/month. Chat reminders included.';
+  `Tasks, workouts & habits in Telegram. 3-day Pro trial, then ${monthlyPriceLabel}. Chat reminders included.`;
 
 if (!botToken) {
   console.error('Missing TELEGRAM_BOT_TOKEN');

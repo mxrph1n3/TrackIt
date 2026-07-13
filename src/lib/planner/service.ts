@@ -1,5 +1,6 @@
 import { isSupabaseConfigured, isMissingSchemaError, supabase } from '../supabase';
 import { fetchSubtasksForTaskIds } from './subtaskService';
+import { buildTasksForDayOrFilter, rolloverStaleTodayTasks } from './taskRollover';
 import type { JournalEntry, PlannerEventItem, PlannerHabitItem, PlannerTaskItem } from '../../types/planner';
 import type { HabitLogRow, HabitRow } from '../../types/database';
 import type { TaskRow } from '../../types/quickActionRecords';
@@ -130,8 +131,12 @@ export async function fetchTasksForDay(userId: string, dayKey: string): Promise<
     return [];
   }
 
-  const { start, end } = dayRangeIso(dayKey);
   const todayKey = toDayKey(new Date());
+  if (dayKey === todayKey) {
+    await rolloverStaleTodayTasks(userId);
+  }
+
+  const { start, end } = dayRangeIso(dayKey);
 
   let query = supabase
     .from('tasks')
@@ -139,13 +144,7 @@ export async function fetchTasksForDay(userId: string, dayKey: string): Promise<
     .eq('user_id', userId)
     .order('created_at', { ascending: true });
 
-  if (dayKey === todayKey) {
-    query = query.or(
-      `due_date.eq.${dayKey},is_today.eq.true,and(created_at.gte.${start},created_at.lt.${end})`,
-    );
-  } else {
-    query = query.or(`due_date.eq.${dayKey},and(created_at.gte.${start},created_at.lt.${end})`);
-  }
+  query = query.or(buildTasksForDayOrFilter(dayKey, start, end));
 
   const { data, error } = await query;
 
@@ -237,6 +236,7 @@ export async function fetchTasksForTimeline(
       .select('*')
       .eq('user_id', userId)
       .eq('is_today', true)
+      .eq('completed', false)
       .order('created_at', { ascending: true });
 
     if (!todayResult.error && todayResult.data) {
