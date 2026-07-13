@@ -6,6 +6,7 @@ import {
 } from '@musclemap/core';
 import { getBodyDiagram, type BodyDiagram, type BodyView } from '@musclemap/assets';
 import { useMemo } from 'react';
+import { View } from 'react-native';
 import Svg, { G, Path, Rect } from 'react-native-svg';
 
 import { useHealthIsDark } from '../../hooks/useHealthIsDark';

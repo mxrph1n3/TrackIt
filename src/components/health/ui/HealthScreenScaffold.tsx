@@ -1,3 +1,4 @@
+import type { PropsWithChildren } from 'react';
 import { Platform, ScrollView, StyleSheet, View, type ScrollViewProps, type StyleProp, type ViewStyle } from 'react-native';
 
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
