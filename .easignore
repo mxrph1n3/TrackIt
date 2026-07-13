@@ -1,5 +1,7 @@
 # Shrink EAS upload archive (was ~211 MB before exclusions).
 .git/
+android/
+ios/
 docs/
 supabase/
 scripts/
