@@ -88,7 +88,7 @@ Terms: https://track-it-umber-psi.vercel.app/terms
 |-------|------|--------|
 | App icon | 1024×1024 | ✅ `assets/icon-light.png` |
 | Phone screenshots | 6.7" / 6.5" (iOS), phone (Android) | ☐ Capture from device |
-| Feature graphic (Play) | 1024×500 | ☐ Design |
+| Feature graphic (Play) | 1024×500 | ✅ `store/feature-graphic.png` |
 | Tablet screenshots | Optional | ☐ |
 
 ---
