@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
 import { corsHeaders, validateTelegramInitData } from '../_shared/tmaAccess.ts';
+import { getTmaStarsPrice } from '../_shared/tmaBilling.ts';
 import { buildStarsInvoiceBody, buildStarsInvoicePayload } from '../_shared/starsInvoice.ts';
 
 type RequestBody = {
@@ -45,7 +46,7 @@ Deno.serve(async (req) => {
     const body = (await req.json()) as RequestBody;
     const initData = body.initData?.trim() ?? '';
     const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
-    const starsPrice = Number.parseInt(Deno.env.get('TMA_STARS_PRICE') ?? '250', 10);
+    const starsPrice = getTmaStarsPrice();
 
     if (!initData || !botToken) {
       return new Response(JSON.stringify({ error: 'Telegram init data or bot token missing' }), {

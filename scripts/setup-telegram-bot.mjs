@@ -16,7 +16,8 @@ const webAppUrl = (
   'https://track-it-umber-psi.vercel.app'
 ).replace(/\/$/, '');
 const projectRef = process.env.SUPABASE_PROJECT_REF?.trim() || 'vvdakzkcfnmczddukgtg';
-const starsPrice = Number.parseInt(process.env.TMA_STARS_PRICE ?? '250', 10);
+const starsPrice = Number.parseInt(process.env.TMA_STARS_PRICE ?? '300', 10);
+const monthlyPriceLabel = process.env.TMA_MONTHLY_PRICE_LABEL?.trim() || '$5.99/month';
 
 const BOT_COMMANDS = [
   { command: 'start', description: 'Welcome message and main menu' },
@@ -35,7 +36,7 @@ const BOT_DESCRIPTION = `TrackIt — your productivity companion inside Telegram
 🍎 Nutrition, habits & finance
 🤖 AI Coach & analytics (Pro)
 
-Open the Mini App for a free 3-day Pro trial. After that, subscribe monthly with Telegram Stars.
+Open the Mini App for a free 3-day Pro trial. After that, subscribe at ${monthlyPriceLabel} (paid with Telegram Stars at checkout).
 
 Smart reminders are delivered right here in chat — morning motivation, task nudges, workout prompts, and evening wrap-ups (08:00–22:00). Enable them in Settings → Telegram Reminders.`;
 

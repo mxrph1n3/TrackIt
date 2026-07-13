@@ -23,8 +23,7 @@ import {
 } from '../constants/subscriptions';
 import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import {
-  getTmaStarsPrice,
-  TMA_STARS_BILLING_PERIOD_LABEL,
+  getTmaMonthlyPriceLabel,
   TMA_TRIAL_DAYS,
 } from '../constants/tmaBilling';
 import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
@@ -61,7 +60,7 @@ export function PremiumScreen({
   const hasPaidPro = useSubscriptionStore(selectHasPaidPro);
   const tmaAccess = useSubscriptionStore((s) => s.tmaAccess);
   const isTma = IS_WEB && isTelegramMiniApp();
-  const starsPrice = getTmaStarsPrice();
+  const monthlyPriceLabel = getTmaMonthlyPriceLabel();
   const offerings = useSubscriptionStore((s) => s.offerings);
   const isPurchasing = useSubscriptionStore((s) => s.isPurchasing);
   const isLoading = useSubscriptionStore((s) => s.isLoading);
@@ -356,7 +355,7 @@ export function PremiumScreen({
               {tmaAccess.isInTrial
                 ? `Trial active — ${tmaAccess.trialDaysRemaining} day(s) left with full access and reminders.`
                 : tmaAccess.hasStarsSubscription
-                  ? 'Monthly Telegram Stars subscription active. AI Coach, analytics, and reminders are unlocked.'
+                  ? `TrackIt Pro subscription active (${monthlyPriceLabel}). AI Coach, analytics, and reminders are unlocked.`
                   : 'AI Coach, advanced analytics, cloud sync, and premium themes are unlocked.'}
             </Text>
             <Pressable onPress={() => void refresh()} style={styles.secondaryButton}>
@@ -433,8 +432,8 @@ export function PremiumScreen({
                 </GlassPanel>
               ) : (
                 <Text style={[styles.planMeta, { marginBottom: 12 }]}>
-                  Your {TMA_TRIAL_DAYS}-day trial has ended. Subscribe with Telegram Stars (billed
-                  monthly) to keep Pro features and smart reminders.
+                  Your {TMA_TRIAL_DAYS}-day trial has ended. Subscribe at {monthlyPriceLabel} to keep
+                  Pro features and smart reminders.
                 </Text>
               )}
 
@@ -448,8 +447,8 @@ export function PremiumScreen({
                 ) : (
                   <Text style={styles.primaryButtonLabel}>
                     {tmaAccess.isInTrial
-                      ? `Subscribe — ${starsPrice} Stars / ${TMA_STARS_BILLING_PERIOD_LABEL}`
-                      : `Unlock Pro — ${starsPrice} Stars / ${TMA_STARS_BILLING_PERIOD_LABEL}`}
+                      ? `Subscribe — ${monthlyPriceLabel}`
+                      : `Unlock Pro — ${monthlyPriceLabel}`}
                   </Text>
                 )}
               </Pressable>
@@ -459,8 +458,8 @@ export function PremiumScreen({
               </Pressable>
 
               <Text style={[styles.configNote, { marginTop: 8 }]}>
-                Billed monthly via Telegram Stars. Subscription renews automatically; cancel in
-                Telegram → Settings → Stars.
+                Billed at {monthlyPriceLabel} via Telegram Stars at checkout. Subscription renews
+                automatically; cancel in Telegram → Settings → Stars.
               </Text>
             </>
           ) : (

@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useGamification } from '../hooks/useGamification';
 import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import { HEALTH_DISCLAIMER } from '../constants/disclaimers';
-import { TMA_TRIAL_DAYS } from '../constants/tmaBilling';
+import { getTmaMonthlyPriceLabel, TMA_TRIAL_DAYS } from '../constants/tmaBilling';
 import { deleteAccount } from '../lib/account/accountService';
 import { IS_WEB } from '../lib/platform/constants';
 import { notificationsSupportedInRuntime } from '../lib/platform/services';
@@ -286,6 +286,7 @@ export function SettingsScreen() {
   const setHardcoreMode = useNotificationSettingsStore((s) => s.setHardcoreMode);
 
   const isTma = IS_WEB && isTelegramMiniApp();
+  const monthlyPriceLabel = getTmaMonthlyPriceLabel();
   const canUseNotifications = useSubscriptionStore(selectCanUseNotifications);
   const tmaAccess = useSubscriptionStore((s) => s.tmaAccess);
   const [telegramReminders, setTelegramReminders] = useState(tmaAccess.telegramRemindersEnabled);
@@ -491,9 +492,9 @@ export function SettingsScreen() {
               <Text className="mt-2 text-sm" style={{ color: theme.textSecondary }}>
                 {canUseNotifications
                   ? tmaAccess.isInTrial
-                    ? `Included in your ${TMA_TRIAL_DAYS}-day trial. After trial, Pro via Telegram Stars keeps reminders.`
+                    ? `Included in your ${TMA_TRIAL_DAYS}-day trial. After trial, Pro at ${monthlyPriceLabel} keeps reminders.`
                     : 'Bot messages on the TrackIt schedule — morning, midday, progress, and evening.'
-                  : `Trial ended. Subscribe with Telegram Stars to restore smart reminders and Pro access.`}
+                  : `Trial ended. Subscribe at ${monthlyPriceLabel} to restore smart reminders and Pro access.`}
               </Text>
               <View className="mt-4 flex-row items-center justify-between">
                 <View className="flex-1 pr-4">

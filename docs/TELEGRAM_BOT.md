@@ -9,7 +9,7 @@ Full guide: how users open the app, sign in via Telegram, and pay with Stars.
 | Tutorial (Telegraf) | TrackIt implementation |
 |----------------------|-------------------------|
 | `bot.start()` welcome + WebApp button | `telegram-webhook` → `handleStartCommand()` |
-| `ctx.sendInvoice` (XTR, 250 Stars) | **Not used in chat** — `/pro` and **Buy Premium** send instructions instead |
+| `ctx.sendInvoice` (XTR, ~300 Stars) | **Not used in chat** — `/pro` and **Buy Premium** send instructions instead |
 | `createInvoiceLink` + `openInvoice` | Mini App `telegram-create-invoice` → `starsPayment.web.ts` |
 | `answerPreCheckoutQuery(true)` | `telegram-webhook` pre_checkout handler |
 | `successful_payment` → thank you | `grantStarsPro()` + `sendPaymentSuccessMessage()` |
@@ -165,7 +165,7 @@ Optional in BotFather (or use the setup script below):
 EXPO_PUBLIC_SUPABASE_URL=https://vvdakzkcfnmczddukgtg.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon key>
 EXPO_PUBLIC_WEB_APP_URL=https://track-it-umber-psi.vercel.app
-EXPO_PUBLIC_TMA_STARS_PRICE=250
+EXPO_PUBLIC_TMA_STARS_PRICE=300
 ```
 
 Redeploy after changes (disable build cache).
@@ -185,7 +185,8 @@ https://track-it-umber-psi.vercel.app/auth/callback
 | Secret | Description |
 |--------|-------------|
 | `TELEGRAM_BOT_TOKEN` | Bot token from BotFather |
-| `TMA_STARS_PRICE` | Monthly price in Stars (e.g. `250`) |
+| `TMA_STARS_PRICE` | Stars charged at checkout (~300 ≈ $5.99/month) |
+| `TMA_MONTHLY_PRICE_LABEL` | Display price in bot messages (default `$5.99/month`) |
 | `TMA_WEB_APP_URL` | Mini App URL (same as Vercel production URL) |
 | `TMA_AUTH_SECRET` | Random secret for TMA auth passwords |
 | `ALLOWED_ORIGIN` | `https://track-it-umber-psi.vercel.app` |
@@ -222,7 +223,7 @@ Reminders run every 15 minutes and send the same schedule as the native app (08:
 ```bash
 TELEGRAM_BOT_TOKEN="YOUR_BOT_TOKEN" \
 TMA_WEB_APP_URL="https://track-it-umber-psi.vercel.app" \
-TMA_STARS_PRICE=250 \
+TMA_STARS_PRICE=300 \
 SUPABASE_PROJECT_REF=vvdakzkcfnmczddukgtg \
 node scripts/setup-telegram-bot.mjs
 ```

@@ -2,6 +2,7 @@ import {
   buildAccessPayload,
   getServiceClient,
 } from './tmaAccess.ts';
+import { getTmaMonthlyPriceLabel, getTmaStarsPrice } from './tmaBilling.ts';
 import { ensureTelegramUserAccount, type TelegramChatUser } from './tmaAuth.ts';
 import { PAYMENT_SUCCESS_MESSAGE } from './starsInvoice.ts';
 
@@ -26,6 +27,7 @@ export type BotConfig = {
   botToken: string;
   webAppUrl: string;
   starsPrice: number;
+  monthlyPriceLabel: string;
 };
 
 export function getBotConfig(): BotConfig | null {
@@ -37,9 +39,12 @@ export function getBotConfig(): BotConfig | null {
     Deno.env.get('ALLOWED_ORIGIN')?.trim() ||
     'https://track-it-umber-psi.vercel.app';
 
-  const starsPrice = Number.parseInt(Deno.env.get('TMA_STARS_PRICE') ?? '250', 10);
-
-  return { botToken, webAppUrl: webAppUrl.replace(/\/$/, ''), starsPrice };
+  return {
+    botToken,
+    webAppUrl: webAppUrl.replace(/\/$/, ''),
+    starsPrice: getTmaStarsPrice(),
+    monthlyPriceLabel: getTmaMonthlyPriceLabel(),
+  };
 }
 
 async function callBotApi<T>(
@@ -112,7 +117,7 @@ function buildPremiumPurchaseGuideMessage(config: BotConfig): string {
     '1️⃣ Tap <b>Open TrackIt</b> below.',
     '2️⃣ Open the <b>Statistics</b> tab (bottom navigation).',
     '3️⃣ Tap <b>Pro</b> on the upgrade banner.',
-    `4️⃣ Pay <b>${config.starsPrice} Telegram Stars / month</b>.`,
+    `4️⃣ Subscribe at <b>${config.monthlyPriceLabel}</b> (paid with Telegram Stars at checkout).`,
     '',
     'Your Pro access activates right after payment.',
   ].join('\n');
@@ -122,7 +127,7 @@ function buildMainKeyboard(config: BotConfig): ReplyMarkup {
   return {
     inline_keyboard: [
       [{ text: '🚀 Open TrackIt', web_app: { url: config.webAppUrl } }],
-      [{ text: `⭐ Buy Premium — ${config.starsPrice} Stars`, callback_data: 'buy_premium' }],
+      [{ text: `⭐ Buy Premium — ${config.monthlyPriceLabel}`, callback_data: 'buy_premium' }],
       [
         { text: '📊 My status', callback_data: 'check_status' },
         { text: '❓ Help', callback_data: 'show_help' },
@@ -181,7 +186,7 @@ function formatStatusMessage(
     telegram_reminders_enabled: boolean;
     telegram_user_id: number | null;
   },
-  starsPrice: number,
+  monthlyPriceLabel: string,
 ): string {
   const access = buildAccessPayload(row);
   const greeting = firstName ? `<b>${escapeHtml(firstName)}</b>, here is your TrackIt access:` : 'Your TrackIt access:';
@@ -201,16 +206,16 @@ function formatStatusMessage(
     return `${greeting}\n\n🎁 <b>Free trial</b> — ${access.trialDaysRemaining} day(s) left.\nYou have full Pro access and Telegram reminders during the trial.\n\nAfter the trial, subscribe in the Mini App → <b>Statistics</b> → <b>Pro</b>.`;
   }
 
-  return `${greeting}\n\n🔒 Your free trial has ended.\nOpen the Mini App → <b>Statistics</b> → <b>Pro</b> to subscribe with Stars (${starsPrice}/month).`;
+  return `${greeting}\n\n🔒 Your free trial has ended.\nOpen the Mini App → <b>Statistics</b> → <b>Pro</b> to subscribe (${monthlyPriceLabel}).`;
 }
 
-export function buildStartMessage(firstName?: string, starsPrice = 250): string {
+export function buildStartMessage(firstName?: string, monthlyPriceLabel = '$5.99/month'): string {
   const greeting = firstName ? `Hi ${escapeHtml(firstName)}!\n\n` : '';
   return [
     `${greeting}Welcome to <b>TrackIt</b>! 🎯 Your ultimate habit tracker right inside Telegram. Click the button below to start tracking your progress.`,
     '',
     `🎁 <b>3-day free trial</b> with full Pro access.`,
-    `After the trial — <b>${starsPrice} Stars/month</b> in the Mini App (Statistics → Pro).`,
+    `After the trial — <b>${monthlyPriceLabel}</b> in the Mini App (Statistics → Pro).`,
   ].join('\n');
 }
 
@@ -222,7 +227,7 @@ export function buildHelpMessage(config: BotConfig): string {
     '2️⃣ Your Telegram account is linked automatically — no password needed.',
     '3️⃣ Enjoy a <b>3-day Pro trial</b> with all features.',
     '4️⃣ Turn on <b>Telegram Reminders</b> in Settings — nudges arrive here in chat (08:00–22:00).',
-    `5️⃣ After the trial, subscribe in the Mini App → <b>Statistics</b> → <b>Pro</b> (${config.starsPrice} Stars / month).`,
+    `5️⃣ After the trial, subscribe in the Mini App → <b>Statistics</b> → <b>Pro</b> (${config.monthlyPriceLabel}).`,
     '',
     '<b>Payment</b>',
     'Stars checkout works only inside the Mini App — not in this chat. Use /pro for step-by-step instructions.',
@@ -248,7 +253,7 @@ export async function handleStartCommand(
   await sendBotMessage(
     config,
     chatId,
-    buildStartMessage(telegramUser.first_name, config.starsPrice),
+    buildStartMessage(telegramUser.first_name, config.monthlyPriceLabel),
     buildMainKeyboard(config),
   );
   warmEnsureTelegramUserAccount(telegramUser);
@@ -285,7 +290,7 @@ export async function handleTermsCommand(config: BotConfig, chatId: number): Pro
       '<b>TrackIt Pro — Terms</b>',
       '',
       `• <b>Product:</b> TrackIt Pro — digital subscription (AI Coach, analytics, reminders).`,
-      `• <b>Price:</b> ${config.starsPrice} Telegram Stars per month (XTR).`,
+      `• <b>Price:</b> ${config.monthlyPriceLabel} (paid with Telegram Stars at checkout).`,
       '• <b>Billing:</b> Renews automatically via Telegram Stars until cancelled in Telegram → Settings → Stars.',
       '• <b>Delivery:</b> Pro access is activated immediately after successful payment in the Mini App.',
       '• <b>Refunds:</b> Contact /paysupport — refunds are processed per Telegram Stars policy.',
@@ -337,7 +342,7 @@ export async function handleStatusCommand(
   await sendBotMessage(
     config,
     chatId,
-    formatStatusMessage(telegramUser.first_name, profile, config.starsPrice),
+    formatStatusMessage(telegramUser.first_name, profile, config.monthlyPriceLabel),
     buildMainKeyboard(config),
   );
 }
@@ -430,9 +435,9 @@ export const BOT_DESCRIPTION = `TrackIt — your productivity companion inside T
 🍎 Nutrition, habits & finance
 🤖 AI Coach & analytics (Pro)
 
-Open the Mini App for a free 3-day Pro trial. After that, subscribe monthly with Telegram Stars.
+Open the Mini App for a free 3-day Pro trial. After that, subscribe at $5.99/month (paid with Telegram Stars at checkout).
 
 Smart reminders are delivered right here in chat — morning motivation, task nudges, workout prompts, and evening wrap-ups (08:00–22:00). Enable them in Settings → Telegram Reminders.`;
 
 export const BOT_SHORT_DESCRIPTION =
-  'Tasks, workouts & habits in Telegram. 3-day Pro trial, then 250 Stars/month. Chat reminders included.';
+  'Tasks, workouts & habits in Telegram. 3-day Pro trial, then $5.99/month. Chat reminders included.';
