@@ -5,7 +5,7 @@ export const MAINTENANCE_TRACK: WorkoutTrack = {
   id: 'maintenance',
   slug: 'maintenance',
   title: 'Full Body Beginner',
-  description: 'Balanced beginner-friendly cycle — included with TrackIt Free.',
+  description: 'Balanced beginner-friendly cycle for everyday consistency.',
   durationWeeks: 2,
   days: [
     day(1, 1, 'Warm-up + Upper/Core', [

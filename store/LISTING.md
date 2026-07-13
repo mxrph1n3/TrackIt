@@ -21,7 +21,7 @@ This build has **no in-app purchases and no subscriptions**.
 **Price:** Free  
 **In-App Purchases:** None
 
-**Keywords (100 chars):** tasks,habits,workout,nutrition,finance,planner,fitness,tracker,AI coach,gamification
+**Keywords (100 chars):** tasks,habits,workout,nutrition,finance,planner,fitness,tracker,streaks,gamification
 
 **Promotional text (170 chars, optional):**  
 One free app for tasks, workouts, nutrition, finance, and habits — with XP and streaks.
@@ -32,7 +32,7 @@ TrackIt is your daily command center: plan tasks, train with structured programs
 
 **What you can do**
 - Planner with tasks, subtasks, and focus sessions
-- 100+ workout programs plus custom programs
+- Structured workout programs (maintenance, fat loss, mass gain) plus custom programs
 - Nutrition targets from your profile (BMR/TDEE estimates)
 - Finance overview, subscriptions tracker, and insights
 - Habits, journal, and gamification (XP, levels, leaderboard)

@@ -558,7 +558,7 @@ export function QuickActionSheet({
               <ActionHubRecentActions items={recentActions} onPressItem={handleRecentPress} />
 
               <View style={styles.bottomZone}>
-                <Text style={[styles.sectionLabel, { color: hubTheme.sectionLabel }]}>AI Quick Input</Text>
+                <Text style={[styles.sectionLabel, { color: hubTheme.sectionLabel }]}>Quick Input</Text>
                 <View style={[styles.quickInputShell, { borderColor: hubTheme.glassEdge, backgroundColor: hubTheme.panelBg }]}>
                   {supportsNativeBlur() ? (
                     <BlurView intensity={hubTheme.isDark ? 36 : 18} tint={hubTheme.blurTint} style={StyleSheet.absoluteFill} />

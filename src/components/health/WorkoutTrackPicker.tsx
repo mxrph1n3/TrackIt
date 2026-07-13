@@ -2,6 +2,7 @@ import { ChevronRight, Crown } from 'lucide-react-native';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { FREE_BUILTIN_PROGRAM_ID } from '../../constants/workoutFreeTier';
+import { isAppFullyFree } from '../../constants/appAccess';
 import { getWorkoutTracks } from '../../constants/workoutPrograms';
 import { useWorkoutProgramAccess } from '../../hooks/useWorkoutProgramAccess';
 import { triggerHaptic } from '../../lib/platform/haptics';
@@ -53,13 +54,13 @@ export function WorkoutTrackPicker({ selectedTrackId, onSelect }: WorkoutTrackPi
                     >
                       {track.title}
                     </Text>
-                    {locked ? (
+                    {locked && !isAppFullyFree() ? (
                       <View className="flex-row items-center gap-1 rounded-full bg-ethereal-neon/15 px-2 py-0.5">
                         <Crown color="#775DD8" size={10} strokeWidth={2.4} />
                         <Text className="text-[9px] font-bold uppercase text-ethereal-neon">Pro</Text>
                       </View>
                     ) : null}
-                    {isFreeProgram ? (
+                    {isFreeProgram && !isAppFullyFree() ? (
                       <View className="rounded-full bg-emerald-500/15 px-2 py-0.5">
                         <Text className="text-[9px] font-bold uppercase text-emerald-600">Free</Text>
                       </View>

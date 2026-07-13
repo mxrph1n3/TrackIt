@@ -7,8 +7,9 @@ Branch: **`free-app`** (`APP_IS_FULLY_FREE = true`). No billing, all features un
 - [x] No paywall / no IAP UI for users
 - [x] Privacy + Terms describe a **free** product (deployed on Vercel from this branch)
 - [x] Account deletion in Settings
-- [x] Age gate 13+
-- [x] Health + AI disclaimers
+- [x] Age gate 13+ (email sign-up + Google/Apple)
+- [x] Health disclaimer
+- [x] Listing matches product (no AI Coach / accurate program count)
 - [x] Sign in with Apple on iOS (required when Google exists)
 - [ ] Demo account for reviewers created in Supabase Auth
 - [ ] Screenshots + Play feature graphic uploaded

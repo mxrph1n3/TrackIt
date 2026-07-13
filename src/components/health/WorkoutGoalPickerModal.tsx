@@ -5,6 +5,7 @@ import { HEALTH_DISCLAIMER } from '../../constants/disclaimers';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
 import { WORKOUT_GOAL_OPTIONS } from '../../constants/workoutGoals';
 import { FREE_BUILTIN_PROGRAM_ID } from '../../constants/workoutFreeTier';
+import { isAppFullyFree } from '../../constants/appAccess';
 import { getWorkoutTrack } from '../../constants/workoutPrograms';
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useWorkoutProgramAccess } from '../../hooks/useWorkoutProgramAccess';
@@ -107,7 +108,7 @@ export function WorkoutGoalPickerModal() {
                           <Text style={[styles.optionTitle, { color: healthTheme.ink }]}>
                             {option.title}
                           </Text>
-                          {requiresPro ? (
+                          {requiresPro && !isAppFullyFree() ? (
                             <View
                               style={[styles.proBadge, { backgroundColor: healthTheme.accentSoft }]}
                             >
@@ -117,7 +118,7 @@ export function WorkoutGoalPickerModal() {
                               </Text>
                             </View>
                           ) : null}
-                          {isFreeProgram ? (
+                          {isFreeProgram && !isAppFullyFree() ? (
                             <View style={styles.freeBadge}>
                               <Text style={styles.freeBadgeText}>Free</Text>
                             </View>

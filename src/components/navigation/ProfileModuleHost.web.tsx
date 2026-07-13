@@ -10,6 +10,7 @@ import { MissionRoadmapScreen } from '../../screens/MissionRoadmapScreen';
 import { PremiumScreen } from '../../screens/PremiumScreen';
 import { QuotesScreen } from '../../screens/QuotesScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
+import { isAppFullyFree } from '../../constants/appAccess';
 import { useProfileModuleStore } from '../../stores/useProfileModuleStore';
 import { useTheme } from '../../theme/ThemeContext';
 
@@ -45,6 +46,10 @@ export function ProfileModuleHost() {
   }, [activeModule, closeModule]);
 
   if (!activeModule) {
+    return null;
+  }
+
+  if (activeModule === 'premium' && isAppFullyFree()) {
     return null;
   }
 

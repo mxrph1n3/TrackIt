@@ -48,7 +48,7 @@ export const PREMIUM_FEATURE_META: Record<PremiumFeatureId, PremiumFeatureMeta> 
   },
   pro_workout_programs: {
     title: 'Pro Workout Programs',
-    description: '100+ goal-based programs for mass, fat loss, strength, home, and gym.',
+    description: 'Additional goal-based programs for mass, fat loss, strength, home, and gym.',
   },
   custom_workout_programs: {
     title: 'Unlimited Programs',

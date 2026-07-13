@@ -85,6 +85,15 @@ export function AuthScreen() {
     return false;
   };
 
+  const ensureAgeConfirmedForSocial = () => {
+    if (ageConfirmed) {
+      setAgeError(null);
+      return true;
+    }
+    setAgeError(`Confirm you are at least ${MIN_ACCOUNT_AGE} before using Google or Apple sign-in.`);
+    return false;
+  };
+
   const handleSubmit = async () => {
     const errors = validateAuthForm(email, password, mode);
     setFieldErrors(errors);
@@ -175,8 +184,7 @@ export function AuthScreen() {
                     />
                   </View>
 
-                  {mode === 'sign-up' ? (
-                    <Pressable
+                  <Pressable
                       onPress={() => {
                         setAgeConfirmed((prev) => !prev);
                         setAgeError(null);
@@ -200,7 +208,6 @@ export function AuthScreen() {
                         I confirm I am at least {MIN_ACCOUNT_AGE} years old
                       </Text>
                     </Pressable>
-                  ) : null}
 
                   {ageError ? (
                     <View style={styles.errorBanner}>
@@ -235,11 +242,11 @@ export function AuthScreen() {
                     appleAvailable={appleAvailable}
                     disabled={isAuthenticating}
                     onGoogle={() => {
-                      if (!ensureAgeConfirmed()) return;
+                      if (!ensureAgeConfirmedForSocial()) return;
                       void signInWithGoogle();
                     }}
                     onApple={() => {
-                      if (!ensureAgeConfirmed()) return;
+                      if (!ensureAgeConfirmedForSocial()) return;
                       void signInWithApple();
                     }}
                   />

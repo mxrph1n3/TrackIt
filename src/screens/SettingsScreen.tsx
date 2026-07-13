@@ -586,7 +586,7 @@ export function SettingsScreen() {
             Light & Dark
           </Text>
           <Text className="mt-1 text-sm" style={{ color: theme.textSecondary }}>
-            Ethereal Light and Obsidian Dark are included with TrackIt Free.
+            Ethereal Light and Obsidian Dark are available for every account.
           </Text>
           <View className="mt-4 flex-row items-center justify-between">
             <Text className="text-base font-bold" style={{ color: theme.textPrimary }}>

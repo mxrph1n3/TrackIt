@@ -23,7 +23,7 @@ export const SUBSCRIPTION_DISPLAY_PRICING = {
 } as const;
 
 export const PREMIUM_BENEFITS = [
-  '100+ workout programs',
+  'Structured workout programs',
   'Unlimited custom programs',
   'Full exercise library',
   'Smart nutrition planning',

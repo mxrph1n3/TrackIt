@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import { isAppFullyFree } from '../constants/appAccess';
+
 export type ProfileStackModuleId =
   | 'habits'
   | 'focus'
@@ -19,6 +21,11 @@ type ProfileModuleState = {
 
 export const useProfileModuleStore = create<ProfileModuleState>((set) => ({
   activeModule: null,
-  openModule: (id) => set({ activeModule: id }),
+  openModule: (id) => {
+    if (id === 'premium' && isAppFullyFree()) {
+      return;
+    }
+    set({ activeModule: id });
+  },
   closeModule: () => set({ activeModule: null }),
 }));
