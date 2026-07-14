@@ -18,10 +18,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#F3F5FA",
-        "foregroundImage": "./assets/android-icon-light-foreground.png",
-        "backgroundImage": "./assets/android-icon-light-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#f0e6fa",
+        "foregroundImage": "./assets/android-icon-light-foreground.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.trackit.lifeos",

@@ -1,16 +1,14 @@
-import { Search } from 'lucide-react-native';
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { MenuHeaderButton } from '../../navigation/MenuHeaderButton';
 import { useTheme } from '../../../theme/ThemeContext';
 
 type StatisticsOverviewHeaderProps = {
   onMenuPress?: () => void;
-  onSearchPress?: () => void;
 };
 
-export function StatisticsOverviewHeader({ onMenuPress, onSearchPress }: StatisticsOverviewHeaderProps) {
+export function StatisticsOverviewHeader({ onMenuPress }: StatisticsOverviewHeaderProps) {
   const { theme } = useTheme();
 
   const styles = useMemo(
@@ -23,15 +21,9 @@ export function StatisticsOverviewHeader({ onMenuPress, onSearchPress }: Statist
           marginBottom: 18,
           paddingHorizontal: 2,
         },
-        iconButton: {
+        spacer: {
           width: 40,
           height: 40,
-          borderRadius: 20,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: theme.cardFrosted,
-          borderWidth: 1,
-          borderColor: theme.borderSubtle,
         },
         title: {
           fontSize: 11,
@@ -53,14 +45,7 @@ export function StatisticsOverviewHeader({ onMenuPress, onSearchPress }: Statist
 
       <Text style={styles.title}>Statistics Overview</Text>
 
-      <Pressable
-        onPress={onSearchPress}
-        style={styles.iconButton}
-        accessibilityRole="button"
-        accessibilityLabel="Search statistics"
-      >
-        <Search color={theme.textPrimary} size={20} strokeWidth={1.8} />
-      </Pressable>
+      <View style={styles.spacer} />
     </View>
   );
 }
