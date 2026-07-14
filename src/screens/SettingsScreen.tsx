@@ -6,7 +6,7 @@ import { IsolatedScreenLayout } from '../components/layout/IsolatedScreenShell';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { useAuth } from '../hooks/useAuth';
 import { useGamification } from '../hooks/useGamification';
-import { PRIVACY_POLICY_URL, SUPPORT_EMAIL, TERMS_OF_SERVICE_URL } from '../constants/legal';
+import { PRIVACY_POLICY_URL, SUPPORT_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import { HEALTH_DISCLAIMER } from '../constants/disclaimers';
 import { isAppFullyFree } from '../constants/appAccess';
 import { getTmaMonthlyPriceLabel, TMA_TRIAL_DAYS } from '../constants/tmaBilling';
@@ -689,7 +689,7 @@ export function SettingsScreen() {
                 Terms of Service
               </Text>
             </Pressable>
-            <Pressable onPress={() => void Linking.openURL(`mailto:${SUPPORT_EMAIL}`)}>
+            <Pressable onPress={() => void Linking.openURL(SUPPORT_URL)}>
               <Text className="text-xs font-semibold underline" style={{ color: theme.textSecondary }}>
                 Support
               </Text>

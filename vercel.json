@@ -13,7 +13,11 @@
       "destination": "/terms.html"
     },
     {
-      "source": "/((?!_expo/|assets/|favicon.ico|privacy.html|terms.html).*)",
+      "source": "/support",
+      "destination": "/support.html"
+    },
+    {
+      "source": "/((?!_expo/|assets/|favicon.ico|privacy.html|terms.html|support.html).*)",
       "destination": "/index.html"
     }
   ]
