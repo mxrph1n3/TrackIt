@@ -61,14 +61,14 @@ Or in App Store Connect: TestFlight → add build → Internal / External testin
 ## Console setup (free app)
 
 **App Store Connect**
-- Bundle ID `com.mxrphin3.trackit`
+- Bundle ID `com.trackit.lifeos`
 - Price: Free
 - **Do not** create subscription products for this build
 - Paste Privacy / Terms / Support URLs from `store/LISTING.md`
 - Paste App Review notes from `store/LISTING.md`
 
 **Google Play Console**
-- App `com.mxrphin3.trackit`, free
+- App `com.trackit.lifeos`, free
 - No paid products
 - Data Safety: account data, health/fitness user-entered, cloud sync
 - Content rating questionnaire

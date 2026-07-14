@@ -3,7 +3,7 @@
 Use with the **`free-app`** branch for App Store Connect and Google Play.  
 This build has **no in-app purchases and no subscriptions**.
 
-**Bundle / package:** `com.mxrphin3.trackit`  
+**Bundle / package:** `com.trackit.lifeos`  
 **Privacy:** https://track-it-umber-psi.vercel.app/privacy  
 **Terms:** https://track-it-umber-psi.vercel.app/terms  
 **Support URL:** https://track-it-umber-psi.vercel.app/support  
