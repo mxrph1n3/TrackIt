@@ -9,7 +9,7 @@
     "scheme": "trackit2",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.trackit",
+      "bundleIdentifier": "com.mxrphin3.trackit",
       "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -24,7 +24,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.trackit",
+      "package": "com.mxrphin3.trackit",
       "intentFilters": [
         {
           "action": "VIEW",
