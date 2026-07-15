@@ -21,6 +21,9 @@
         "backgroundColor": "#f0e6fa",
         "foregroundImage": "./assets/android-icon-light-foreground.png"
       },
+      "blockedPermissions": [
+        "android.permission.ACTIVITY_RECOGNITION"
+      ],
       "predictiveBackGestureEnabled": false,
       "package": "com.trackit.lifeos",
       "intentFilters": [
