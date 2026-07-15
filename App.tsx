@@ -22,6 +22,7 @@ import { WelcomeGateScreen } from './src/screens/WelcomeGateScreen';
 import { completeOAuthSessionFromCurrentUrl } from './src/lib/auth/oauth';
 import { tryTelegramAutoSignIn } from './src/lib/auth/telegramAuthService';
 import { IS_WEB } from './src/lib/platform/constants';
+import { KeyboardProviderCompat } from './src/lib/platform/keyboard';
 import { supabase } from './src/lib/supabase';
 import { useGamificationStore } from './src/stores/useGamificationStore';
 import { AppThemeRoot } from './src/theme/AppThemeRoot';
@@ -151,12 +152,14 @@ export default function App() {
 
   const tree = (
     <RootWrapper style={styles.root}>
-      <SafeAreaProvider>
-        <TelegramBootstrap />
-        <AppThemeRoot>
-          <AuthGuardRoot />
-        </AppThemeRoot>
-      </SafeAreaProvider>
+      <KeyboardProviderCompat>
+        <SafeAreaProvider>
+          <TelegramBootstrap />
+          <AppThemeRoot>
+            <AuthGuardRoot />
+          </AppThemeRoot>
+        </SafeAreaProvider>
+      </KeyboardProviderCompat>
     </RootWrapper>
   );
 

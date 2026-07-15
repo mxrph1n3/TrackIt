@@ -1,11 +1,9 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Linking,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -26,6 +24,7 @@ import { useAuth } from '../hooks/useAuth';
 import { MIN_ACCOUNT_AGE } from '../constants/disclaimers';
 import { PRIVACY_POLICY_URL, SUPPORT_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import { supportsNativeBlur } from '../lib/platform/blur';
+import { KeyboardAwareScrollViewCompat } from '../lib/platform/keyboard';
 import { triggerHaptic } from '../lib/platform/haptics';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -49,6 +48,12 @@ export function AuthScreen() {
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [ageError, setAgeError] = useState<string | null>(null);
   const [appleAvailable, setAppleAvailable] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+
+  const scrollPasswordIntoView = () => {
+    // Wait for the keyboard animation so the final content size is measured.
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 250);
+  };
 
   useEffect(() => {
     void isAppleSignInAvailable().then(setAppleAvailable);
@@ -121,21 +126,21 @@ export function AuthScreen() {
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <AmbientBackground />
 
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollViewCompat
+        ref={scrollRef}
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        bottomOffset={24}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingTop: insets.top + 12,
+          paddingBottom: insets.bottom + 28,
+          paddingHorizontal: 22,
+          justifyContent: 'center',
+        }}
       >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingTop: insets.top + 12,
-            paddingBottom: insets.bottom + 28,
-            paddingHorizontal: 22,
-            justifyContent: 'center',
-          }}
-        >
           <AuthHeroMark />
 
           <Animated.View entering={FadeInDown.duration(420).delay(80)}>
@@ -181,6 +186,7 @@ export function AuthScreen() {
                       textContentType={mode === 'sign-up' ? 'newPassword' : 'password'}
                       placeholder={mode === 'sign-up' ? 'At least 8 characters' : 'Your password'}
                       error={fieldErrors.password}
+                      onFocus={scrollPasswordIntoView}
                     />
                   </View>
 
@@ -268,8 +274,7 @@ export function AuthScreen() {
               <Text style={[styles.legalLink, { color: theme.textMuted }]}>Support</Text>
             </Pressable>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollViewCompat>
 
       {isAuthenticating ? (
         <View style={styles.loadingScrim}>

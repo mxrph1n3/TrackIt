@@ -3,7 +3,6 @@ import { ListTree, Plus, X } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -13,6 +12,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { KeyboardAvoidingViewCompat } from '../../lib/platform/keyboard';
 
 import { useBottomSheetLayout } from '../../hooks/useBottomSheetLayout';
 import { usePlannerSheetStyles } from '../../hooks/usePlannerSheetStyles';
@@ -333,10 +333,7 @@ export function TaskCreationSheet({
       accessibilityLabel="Close task creator"
       contentStyle={{ paddingHorizontal: 0 }}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ width: '100%' }}
-      >
+      <KeyboardAvoidingViewCompat behavior="padding" style={{ width: '100%' }}>
         <View style={[styles.sheet, { maxHeight: sheetMaxHeight, paddingBottom: footerPaddingBottom }]}>
           <View style={styles.handle} />
 
@@ -470,7 +467,7 @@ export function TaskCreationSheet({
             </Pressable>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoidingViewCompat>
     </DismissibleOverlay>
   );
 }
