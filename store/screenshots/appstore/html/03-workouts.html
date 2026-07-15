@@ -1,0 +1,244 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="banner.css">
+<style>
+/* Health module: own theme — canvas #F7F8FC, solid white cards radius 30 */
+.app { background:#F7F8FC !important; }
+.hh-toprow { display:flex; align-items:flex-start; justify-content:space-between; margin:10px 0 16px; }
+.hh-toprow .menu svg { width:22px; height:22px; stroke:#1E1A3E; stroke-width:1.5; fill:none; stroke-linecap:round; }
+.hh-title { font-size:32px; font-weight:900; letter-spacing:-0.8px; color:#1E1A3E; margin-bottom:4px; text-align:center; }
+.hh-sub { font-size:15px; font-weight:500; color:#7F7D9C; text-align:center; }
+.seg { background:#fff; border:1px solid rgba(119,93,216,0.08); border-radius:16px; padding:4px; display:flex; margin-bottom:16px; }
+.seg .s { flex:1; text-align:center; padding:10px 0; border-radius:12px; font-size:13px; font-weight:700; color:#7F7D9C; }
+.seg .s.active { background:rgba(124,92,252,0.12); color:#1E1A3E; }
+
+.hcard { background:#fff; border:1px solid rgba(119,93,216,0.08); border-radius:30px; box-shadow:0 8px 24px rgba(119,93,216,0.06);
+  padding:20px; margin-bottom:14px; overflow:hidden; }
+
+.hero { position:relative; padding:20px; padding-right:104px; min-height:200px; display:flex; flex-direction:column; justify-content:center;
+  background:
+    radial-gradient(240px 200px at 88% 30%, rgba(124,92,252,0.42), rgba(124,92,252,0) 70%),
+    radial-gradient(190px 170px at 78% 85%, rgba(56,189,248,0.28), rgba(56,189,248,0) 70%),
+    radial-gradient(140px 130px at 96% 60%, rgba(244,114,182,0.22), rgba(244,114,182,0) 70%),
+    linear-gradient(90deg, rgba(247,248,252,0.97) 0%, rgba(247,248,252,0.85) 34%, rgba(247,248,252,0.35) 60%, rgba(247,248,252,0.06) 82%),
+    #ECE8FA; }
+.hero .kick { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#7F7D9C; }
+.hero .t { font-size:28px; font-weight:900; letter-spacing:-0.8px; color:#1E1A3E; margin-top:6px; }
+.hero .muscles { font-size:13px; font-weight:500; line-height:18px; color:#7F7D9C; margin-top:6px; }
+.hero .meta { font-size:14px; font-weight:600; color:#8E89B3; margin-top:10px; }
+.hero .cta { margin-top:16px; background:#7C5CFC; border-radius:16px; padding:15px 20px; display:flex; align-items:center; justify-content:center; gap:9px;
+  box-shadow:0 6px 14px rgba(124,92,252,0.28); width:230px; }
+.hero .cta svg { width:18px; height:18px; fill:#fff; stroke:none; }
+.hero .cta span { font-size:16px; font-weight:700; letter-spacing:0.2px; color:#fff; }
+.hero-dumbbell { position:absolute; right:22px; top:50%; transform:translateY(-50%) rotate(-35deg); opacity:0.85; }
+
+.wp-head { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.wp-head .k { flex:1; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#7F7D9C; }
+.wp-head .mid { font-size:13px; font-weight:700; color:#1E1A3E; }
+.wp-head .pct { min-width:36px; text-align:right; font-size:13px; font-weight:700; color:#7C5CFC; }
+.hbar { height:6px; border-radius:3px; background:rgba(124,92,252,0.12); overflow:hidden; }
+.hbar .fill { height:100%; border-radius:3px; background:#7C5CFC; }
+
+.stats-row { display:flex; gap:8px; }
+.stile { flex:1; border-radius:16px; background:rgba(124,92,252,0.12); padding:12px 6px; display:flex; flex-direction:column; align-items:center; }
+.stile svg { width:16px; height:16px; stroke:#7C5CFC; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; margin-bottom:6px; }
+.stile .v { font-size:18px; font-weight:900; letter-spacing:-0.4px; color:#1E1A3E; }
+.stile .l { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#7F7D9C; margin-top:2px; }
+
+.streak { position:relative; height:168px; border-radius:30px; border:1px solid rgba(119,93,216,0.08); background:
+    radial-gradient(240px 150px at 85% 20%, rgba(124,92,252,0.25), rgba(124,92,252,0) 70%),
+    linear-gradient(180deg, rgba(247,248,252,0.94), rgba(247,248,252,0.86) 45%, rgba(247,248,252,0.72)),
+    #EEEAFB;
+  box-shadow:0 8px 24px rgba(119,93,216,0.06); padding:18px 20px; margin-bottom:14px;
+  display:flex; flex-direction:column; justify-content:space-between; overflow:hidden; }
+.streak .krow { display:flex; align-items:center; gap:6px; }
+.streak .krow svg { width:14px; height:14px; fill:#7C5CFC; stroke:none; }
+.streak .krow span { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#7F7D9C; }
+.streak .big { font-size:28px; font-weight:900; letter-spacing:-0.6px; color:#1E1A3E; margin-top:6px; }
+.streak .longest { font-size:13px; font-weight:500; color:#8E89B3; margin-top:3px; }
+.days { display:flex; justify-content:space-between; }
+.dayc { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.dayc .c { width:28px; height:28px; border-radius:14px; background:rgba(124,92,252,0.12); border:1px solid rgba(124,92,252,0.35);
+  display:flex; align-items:center; justify-content:center; }
+.dayc .c.done { background:#7C5CFC; border:none; }
+.dayc .c svg { width:12px; height:12px; stroke:#fff; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.dayc .l { font-size:10px; font-weight:600; color:#7F7D9C; }
+
+.recent { display:flex; align-items:center; gap:14px; }
+.recent .thumb { width:56px; height:56px; border-radius:16px; flex-shrink:0;
+  background: radial-gradient(40px 34px at 65% 35%, rgba(124,92,252,0.7), rgba(124,92,252,0.25)), #DDD5F6;
+  display:flex; align-items:center; justify-content:center; }
+.recent .thumb svg { width:26px; height:26px; stroke:#fff; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.recent .t { font-size:17px; font-weight:800; color:#1E1A3E; }
+.recent .m { font-size:13px; font-weight:500; color:#8E89B3; margin-top:4px; }
+.xp-pill { background:rgba(124,92,252,0.12); border-radius:999px; padding:6px 10px; display:flex; align-items:center; gap:5px; }
+.xp-pill svg { width:14px; height:14px; fill:#7C5CFC; stroke:none; }
+.xp-pill span { font-size:12px; font-weight:800; color:#7C5CFC; }
+.recent-stats { display:flex; margin-top:16px; padding-top:14px; border-top:1px solid rgba(119,93,216,0.08); }
+.rstat { flex:1; text-align:center; }
+.rstat .v { font-size:16px; font-weight:800; color:#1E1A3E; }
+.rstat .l { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:#7F7D9C; margin-top:2px; }
+</style></head>
+<body>
+<div class="canvas">
+  <div class="glow g1"></div><div class="glow g2"></div>
+
+  <div class="copy">
+    <div class="brandline"><img src="appicon.png" alt=""><span>TrackIt</span></div>
+    <h1>Workouts That<br><span class="accent">Build Momentum.</span></h1>
+    <p>Structured programs, weekly streaks and every PR on record.</p>
+  </div>
+
+  <div class="shard ghost" style="width:220px; height:220px; left:60px;  top:680px;"></div>
+  <div class="shard soft"  style="width:115px; height:115px; left:180px; top:940px; transform:rotate(16deg);"></div>
+  <div class="shard tiny"  style="width:42px;  height:42px;  left:100px; top:1160px; transform:rotate(-20deg);"></div>
+  <div class="shard tiny"  style="width:30px;  height:30px;  right:130px; top:660px; transform:rotate(24deg);"></div>
+  <div class="shard soft"  style="width:66px;  height:66px;  right:70px;  top:2580px; transform:rotate(-12deg);"></div>
+
+  <img class="ninja right" src="assets/ninja-workout.png" style="width:620px; height:1420px; right:-70px; object-position:78% 0%;">
+
+  <div class="device-wrap" style="--dx:-150px;"><div class="device"><div class="screen"><div class="app">
+
+    <div class="statusbar">
+      <span class="time">9:41</span>
+      <div class="island"></div>
+      <div class="right">
+        <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#1E1A3E"/><rect x="5" y="6" width="3" height="6" rx="1" fill="#1E1A3E"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#1E1A3E"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#1E1A3E"/></svg>
+        <svg width="17" height="12" viewBox="0 0 24 18"><circle cx="12" cy="15.4" r="2" fill="#1E1A3E"/><path d="M6.8 11a8 8 0 0 1 10.4 0" stroke="#1E1A3E" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M3.4 7a13 13 0 0 1 17.2 0" stroke="#1E1A3E" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" fill="none" stroke="rgba(30,26,62,0.4)"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#1E1A3E"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4z" fill="rgba(30,26,62,0.4)"/></svg>
+      </div>
+    </div>
+
+    <div class="app-body">
+      <div class="hh-toprow">
+        <span class="menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span>
+        <div>
+          <div class="hh-title">Workouts</div>
+          <div class="hh-sub">Today's training</div>
+        </div>
+        <span style="width:40px;"></span>
+      </div>
+
+      <div class="seg">
+        <div class="s active">Workouts</div>
+        <div class="s">Nutrition</div>
+      </div>
+
+      <!-- Hero -->
+      <div class="hcard" style="padding:0;">
+        <div class="hero">
+          <span class="kick">Today's Workout</span>
+          <div class="t">Day 1 — Upper</div>
+          <div class="muscles">Chest · Back · Arms</div>
+          <div class="meta">6 exercises · ~55 min</div>
+          <div class="cta">
+            <svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
+            <span>Start Workout</span>
+          </div>
+          <svg class="hero-dumbbell" width="72" height="72" viewBox="0 0 24 24" style="stroke:#7C5CFC; stroke-width:1.6; fill:none; stroke-linecap:round; stroke-linejoin:round;">
+            <path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Week Progress -->
+      <div class="hcard" style="padding:16px;">
+        <div class="wp-head">
+          <span class="k">Week Progress</span>
+          <span class="mid">3 / 5 workouts</span>
+          <span class="pct">60%</span>
+        </div>
+        <div class="hbar"><div class="fill" style="width:60%;"></div></div>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="hcard" style="padding:14px;">
+        <div class="stats-row">
+          <div class="stile">
+            <svg viewBox="0 0 24 24"><path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7"/></svg>
+            <span class="v">48</span><span class="l">Workouts</span>
+          </div>
+          <div class="stile">
+            <svg viewBox="0 0 24 24"><path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
+            <span class="v">36</span><span class="l">Hours</span>
+          </div>
+          <div class="stile">
+            <svg viewBox="0 0 24 24"><path d="M22 7 13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/></svg>
+            <span class="v">52t</span><span class="l">Volume</span>
+          </div>
+          <div class="stile">
+            <svg viewBox="0 0 24 24"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/></svg>
+            <span class="v">12</span><span class="l">PRs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Streak -->
+      <div class="streak">
+        <div>
+          <div class="krow">
+            <svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+            <span>Streak</span>
+          </div>
+          <div class="big">14 days</div>
+          <div class="longest">Longest: 21 days</div>
+        </div>
+        <div class="days">
+          <div class="dayc"><div class="c done"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div><span class="l">Mon</span></div>
+          <div class="dayc"><div class="c done"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div><span class="l">Tue</span></div>
+          <div class="dayc"><div class="c done"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div><span class="l">Wed</span></div>
+          <div class="dayc"><div class="c done"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div><span class="l">Thu</span></div>
+          <div class="dayc"><div class="c"></div><span class="l">Fri</span></div>
+          <div class="dayc"><div class="c"></div><span class="l">Sat</span></div>
+          <div class="dayc"><div class="c"></div><span class="l">Sun</span></div>
+        </div>
+      </div>
+
+      <!-- Recent workout -->
+      <div class="hcard">
+        <div class="recent">
+          <div class="thumb">
+            <svg viewBox="0 0 24 24"><path d="m6.5 6.5 11 11M3 10l7-7M14 21l7-7"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div class="t">Day 1 — Upper</div>
+            <div class="m">Today · 62 min</div>
+          </div>
+          <div class="xp-pill">
+            <svg viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+            <span>+240 XP</span>
+          </div>
+        </div>
+        <div class="recent-stats">
+          <div class="rstat"><div class="v">6</div><div class="l">Exercises</div></div>
+          <div class="rstat"><div class="v">18</div><div class="l">Sets</div></div>
+          <div class="rstat"><div class="v">6.2t</div><div class="l">Volume</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="fab"><div class="inner">
+        <svg width="25" height="25" viewBox="0 0 24 24"><polygon points="12,3 21,12 12,21 3,12" fill="none" stroke="#7C5CFC" stroke-width="1.6" stroke-linejoin="round"/><polygon points="12,7.5 16.5,12 12,16.5 7.5,12" fill="none" stroke="#7C5CFC" stroke-width="1.2" opacity="0.35"/></svg>
+      </div></div>
+      <div class="tab active">
+        <svg viewBox="0 0 24 24"><path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"/></svg>
+        <div class="dot"></div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+
+  </div></div></div></div>
+</div>
+</body></html>

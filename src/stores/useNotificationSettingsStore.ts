@@ -15,8 +15,10 @@ type NotificationSettingsState = NotificationSettings & {
   setHardcoreMode: (hardcoreMode: boolean) => void;
 };
 
+// Notifications are opt-in: the OS permission prompt must only appear after
+// the user explicitly enables reminders in Settings (App Store guideline 4.5.4).
 const DEFAULT_SETTINGS: NotificationSettings = {
-  enabled: true,
+  enabled: false,
   hardcoreMode: false,
 };
 

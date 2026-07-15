@@ -1,0 +1,238 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="banner.css">
+<style>
+/* Dashboard-specific app styles (logical px) */
+.dash-header { display:flex; align-items:center; justify-content:space-between; margin:10px 0 20px; }
+.dash-header svg { width:22px; height:22px; stroke:#1E1A3E; stroke-width:1.5; fill:none; stroke-linecap:round; }
+.dash-title { font-size:11px; font-weight:700; letter-spacing:3.5px; text-transform:uppercase; color:#1E1A3E; }
+
+.op-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.op-title { font-size:10px; font-weight:700; letter-spacing:2.4px; text-transform:uppercase; color:#8E89B3; }
+.tier-pill { border-radius:999px; padding:4px 10px; border:1px solid rgba(99,102,241,0.45); background:rgba(99,102,241,0.16);
+  font-size:9px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; color:#6366F1;
+  box-shadow:0 0 10px rgba(99,102,241,0.45); }
+.op-body { display:flex; gap:16px; align-items:center; }
+.ring-wrap { position:relative; width:118px; height:118px; flex-shrink:0; }
+.ring-wrap svg { position:absolute; inset:0; }
+.ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-center .pct { font-size:30px; font-weight:900; letter-spacing:-1.5px; color:#1E1A3E; }
+.ring-center .cap { font-size:7px; font-weight:800; letter-spacing:2.6px; text-transform:uppercase; color:#8E89B3; margin-top:3px; }
+.metrics { flex:1; display:flex; flex-direction:column; gap:10px; }
+.metric .m-row { display:flex; align-items:center; gap:7px; }
+.metric .dot6 { width:6px; height:6px; border-radius:3px; }
+.metric .m-label { font-size:12px; font-weight:500; color:#1E1A3E; flex:1; }
+.metric .m-val { font-size:12px; font-weight:700; color:#1E1A3E; font-variant-numeric:tabular-nums; }
+.metric .m-track { height:4px; border-radius:999px; background:rgba(119,93,216,0.12); margin:5px 0 0 13px; overflow:hidden; }
+.metric .m-fill { height:100%; border-radius:999px; }
+
+.sched-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.sched-title { font-size:11px; font-weight:700; letter-spacing:2.4px; text-transform:uppercase; color:#1E1A3E; }
+.view-all { font-size:12px; font-weight:600; color:#775DD8; }
+.sched-item { display:flex; align-items:center; padding:13px 4px; border-bottom:1px solid rgba(119,93,216,0.10); }
+.sched-item:last-of-type { border-bottom:none; }
+.cbx { width:24px; height:24px; border-radius:7px; flex-shrink:0; background:rgba(255,255,255,0.5); border:1.5px solid rgba(139,92,246,0.45); }
+.cbx.done { background:linear-gradient(135deg,#775DD8,#6366F1); border:none; box-shadow:0 0 10px rgba(119,93,216,0.55);
+  display:flex; align-items:center; justify-content:center; }
+.cbx.done svg { width:14px; height:14px; stroke:#fff; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.sched-copy { margin-left:14px; }
+.sched-copy .t { font-size:16px; font-weight:600; color:#1E1A3E; }
+.sched-copy .t.done { color:rgba(30,26,62,0.45); text-decoration:line-through; }
+.sched-copy .time { font-size:12px; color:#7F7D9C; margin-top:2px; }
+.add-pill { margin:14px auto 2px; width:196px; height:50px; border-radius:25px; background:rgba(255,255,255,0.52);
+  border:1px solid rgba(119,93,216,0.14); display:flex; align-items:center; justify-content:space-between; padding:0 6px 0 22px; }
+.add-pill .lbl { font-size:13px; font-weight:700; letter-spacing:0.6px; color:#8E89B3; }
+.add-pill .circ { width:38px; height:38px; border-radius:19px; background:#775DD8; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 10px rgba(119,93,216,0.26); }
+.add-pill .circ svg { width:17px; height:17px; stroke:#fff; stroke-width:2.6; fill:none; stroke-linecap:round; }
+
+.streak-card { position:relative; height:124px; border-radius:28px; border:1px solid rgba(255,255,255,0.6); overflow:hidden;
+  background:
+    radial-gradient(220px 160px at 82% 40%, rgba(149,128,232,0.55), rgba(149,128,232,0) 70%),
+    radial-gradient(160px 130px at 70% 80%, rgba(56,189,248,0.30), rgba(56,189,248,0) 70%),
+    radial-gradient(120px 110px at 92% 15%, rgba(244,114,182,0.28), rgba(244,114,182,0) 70%),
+    linear-gradient(90deg, rgba(250,250,252,0.98) 0%, rgba(250,250,252,0.88) 38%, rgba(250,250,252,0.42) 62%, rgba(250,250,252,0.10) 88%),
+    #EDE9FB;
+  display:flex; align-items:center; margin-bottom:14px; }
+.streak-copy { padding-left:40px; display:flex; flex-direction:column; align-items:center; }
+.streak-copy .k { font-size:10px; font-weight:700; letter-spacing:2.2px; text-transform:uppercase; color:#8E89B3; }
+.streak-copy .n { font-size:44px; font-weight:800; letter-spacing:-1.5px; line-height:46px; color:#775DD8; text-shadow:0 0 12px rgba(119,93,216,0.28); }
+.streak-copy .u { font-size:12px; font-weight:600; letter-spacing:2.4px; text-transform:uppercase; color:#7F7D9C; margin-top:-2px; }
+.crystal-art { position:absolute; right:26px; top:50%; transform:translateY(-50%) rotate(12deg); }
+
+.health-top { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.icon-shell { width:38px; height:38px; border-radius:13px; background:rgba(119,93,216,0.07); border:1px solid rgba(119,93,216,0.13);
+  display:flex; align-items:center; justify-content:center; gap:2px; }
+.icon-shell svg { width:15px; height:15px; stroke:#775DD8; stroke-width:2.1; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.h-name { font-size:14px; font-weight:800; color:#1E1A3E; }
+.h-sub { font-size:11px; font-weight:600; color:#7F7D9C; }
+.h-title { font-size:18px; font-weight:900; letter-spacing:-0.4px; color:#1E1A3E; }
+.h-meta { font-size:12px; font-weight:600; color:#7F7D9C; margin-top:4px; }
+</style></head>
+<body>
+<div class="canvas">
+  <div class="glow g1"></div><div class="glow g2"></div>
+
+  <div class="copy">
+    <div class="brandline"><img src="appicon.png" alt=""><span>TrackIt</span></div>
+    <h1>Your Entire Life.<br><span class="accent">One Command Center.</span></h1>
+    <p>Tasks, habits, workouts, nutrition and money — finally in one app.</p>
+  </div>
+
+  <div class="shard ghost" style="width:230px; height:230px; left:70px;  top:660px;"></div>
+  <div class="shard soft"  style="width:120px; height:120px; left:170px; top:900px; transform:rotate(14deg);"></div>
+  <div class="shard tiny"  style="width:44px;  height:44px;  left:96px;  top:1120px; transform:rotate(-18deg);"></div>
+  <div class="shard tiny"  style="width:30px;  height:30px;  right:120px; top:640px; transform:rotate(22deg);"></div>
+  <div class="shard soft"  style="width:70px;  height:70px;  right:64px;  top:2600px; transform:rotate(-10deg);"></div>
+
+  <img class="ninja right" src="assets/ninja-gate.png" style="width:640px; height:1560px; right:-80px; object-position:50% 0%;">
+
+  <div class="device-wrap" style="--dx:-150px;"><div class="device"><div class="screen"><div class="app">
+
+    <div class="statusbar">
+      <span class="time">9:41</span>
+      <div class="island"></div>
+      <div class="right">
+        <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#1E1A3E"/><rect x="5" y="6" width="3" height="6" rx="1" fill="#1E1A3E"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#1E1A3E"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#1E1A3E"/></svg>
+        <svg width="17" height="12" viewBox="0 0 24 18"><circle cx="12" cy="15.4" r="2" fill="#1E1A3E"/><path d="M6.8 11a8 8 0 0 1 10.4 0" stroke="#1E1A3E" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M3.4 7a13 13 0 0 1 17.2 0" stroke="#1E1A3E" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" fill="none" stroke="rgba(30,26,62,0.4)"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#1E1A3E"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4z" fill="rgba(30,26,62,0.4)"/></svg>
+      </div>
+    </div>
+
+    <div class="app-body">
+      <div class="dash-header">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <span class="dash-title">Dashboard</span>
+        <svg viewBox="0 0 24 24"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"/></svg>
+      </div>
+
+      <!-- Overall Progress -->
+      <div class="card" style="border-radius:26px; padding:14px 16px 16px;">
+        <div class="op-head">
+          <span class="op-title">Overall Progress</span>
+          <span class="tier-pill">Tier C</span>
+        </div>
+        <div class="op-body">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 118 118">
+              <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#EDE9FE"/><stop offset="30%" stop-color="#775DD8"/>
+                <stop offset="65%" stop-color="#6366F1"/><stop offset="100%" stop-color="#775DD8"/>
+              </linearGradient></defs>
+              <circle cx="59" cy="59" r="54" stroke="rgba(119,93,216,0.12)" stroke-width="6" fill="none"/>
+              <circle cx="59" cy="59" r="54" stroke="url(#rg)" stroke-width="5" fill="none"
+                stroke-linecap="round" stroke-dasharray="230.7 339.3" transform="rotate(-90 59 59)"/>
+            </svg>
+            <div class="ring-center"><span class="pct">68%</span><span class="cap">Complete</span></div>
+          </div>
+          <div class="metrics">
+            <div class="metric">
+              <div class="m-row"><span class="dot6" style="background:#775DD8; box-shadow:0 0 4px #775DD8;"></span><span class="m-label">Discipline</span><span class="m-val">74%</span></div>
+              <div class="m-track"><div class="m-fill" style="width:74%; background:#775DD8;"></div></div>
+            </div>
+            <div class="metric">
+              <div class="m-row"><span class="dot6" style="background:#6366F1; box-shadow:0 0 4px #6366F1;"></span><span class="m-label">Habits</span><span class="m-val">82%</span></div>
+              <div class="m-track"><div class="m-fill" style="width:82%; background:#6366F1;"></div></div>
+            </div>
+            <div class="metric">
+              <div class="m-row"><span class="dot6" style="background:#7C3AED; box-shadow:0 0 4px #7C3AED;"></span><span class="m-label">Mindset</span><span class="m-val">61%</span></div>
+              <div class="m-track"><div class="m-fill" style="width:61%; background:#7C3AED;"></div></div>
+            </div>
+            <div class="metric">
+              <div class="m-row"><span class="dot6" style="background:#5B21B6; box-shadow:0 0 4px #5B21B6;"></span><span class="m-label">Health</span><span class="m-val">70%</span></div>
+              <div class="m-track"><div class="m-fill" style="width:70%; background:#5B21B6;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Schedule -->
+      <div class="card" style="border-radius:26px; padding:20px;">
+        <div class="sched-head">
+          <span class="sched-title">Today's Schedule</span>
+          <span class="view-all">View All</span>
+        </div>
+        <div class="sched-item">
+          <div class="cbx done"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div class="sched-copy"><div class="t done">Morning run — 5k</div><div class="time">07:00</div></div>
+        </div>
+        <div class="sched-item">
+          <div class="cbx done"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div class="sched-copy"><div class="t done">Design review with the team</div><div class="time">10:30</div></div>
+        </div>
+        <div class="sched-item">
+          <div class="cbx"></div>
+          <div class="sched-copy"><div class="t">Ship the new landing page</div><div class="time">14:00</div></div>
+        </div>
+        <div class="sched-item">
+          <div class="cbx"></div>
+          <div class="sched-copy"><div class="t">Read 20 pages of Deep Work</div><div class="time">19:00</div></div>
+        </div>
+        <div class="add-pill">
+          <span class="lbl">ADD TASK</span>
+          <div class="circ"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Focus Streak -->
+      <div class="streak-card">
+        <div class="streak-copy">
+          <span class="k">Focus Streak</span>
+          <span class="n">12</span>
+          <span class="u">Days</span>
+        </div>
+        <svg class="crystal-art" width="86" height="86" viewBox="0 0 24 24">
+          <defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#B9A6F5"/><stop offset="55%" stop-color="#7C5CFC"/><stop offset="100%" stop-color="#5B3ED6"/>
+          </linearGradient></defs>
+          <polygon points="12,2 21,12 12,22 3,12" fill="url(#cg)" opacity="0.9"/>
+          <polygon points="12,2 21,12 12,12" fill="#fff" opacity="0.25"/>
+          <polygon points="12,12 12,22 3,12" fill="#000" opacity="0.10"/>
+        </svg>
+      </div>
+
+      <!-- Health card (top half, partially visible behind tab bar) -->
+      <div class="card" style="padding:16px 20px;">
+        <div class="health-top">
+          <div class="icon-shell">
+            <svg viewBox="0 0 24 24"><path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div class="h-name">Health</div>
+            <div class="h-sub">Today</div>
+          </div>
+          <div style="width:34px; height:34px; border-radius:17px; background:rgba(255,255,255,0.55); border:1px solid rgba(119,93,216,0.14); display:flex; align-items:center; justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" style="stroke:#775DD8; stroke-width:2.2; fill:none; stroke-linecap:round; stroke-linejoin:round;"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="h-title">Push Day</div>
+        <div class="h-meta">Chest · Shoulders · Triceps</div>
+        <div class="h-meta">6 exercises · ≈55 min · +192 XP</div>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab active">
+        <svg viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="fab"><div class="inner">
+        <svg width="25" height="25" viewBox="0 0 24 24"><polygon points="12,3 21,12 12,21 3,12" fill="none" stroke="#7C5CFC" stroke-width="1.6" stroke-linejoin="round"/><polygon points="12,7.5 16.5,12 12,16.5 7.5,12" fill="none" stroke="#7C5CFC" stroke-width="1.2" opacity="0.35"/></svg>
+      </div></div>
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"/></svg>
+        <div class="dot"></div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+
+  </div></div></div></div>
+</div>
+</body></html>

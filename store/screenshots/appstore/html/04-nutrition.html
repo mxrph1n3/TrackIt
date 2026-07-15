@@ -1,0 +1,244 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="banner.css">
+<style>
+.app { background:#F7F8FC !important; }
+.hh-toprow { display:flex; align-items:flex-start; justify-content:space-between; margin:10px 0 16px; }
+.hh-toprow .menu svg { width:22px; height:22px; stroke:#1E1A3E; stroke-width:1.5; fill:none; stroke-linecap:round; }
+.hh-title { font-size:32px; font-weight:900; letter-spacing:-0.8px; color:#1E1A3E; margin-bottom:4px; text-align:center; }
+.hh-sub { font-size:15px; font-weight:500; color:#7F7D9C; text-align:center; }
+.cal-btn { width:40px; height:40px; border-radius:20px; background:#fff; border:1px solid rgba(119,93,216,0.08);
+  display:flex; align-items:center; justify-content:center; }
+.cal-btn svg { width:20px; height:20px; stroke:#1E1A3E; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.seg { background:#fff; border:1px solid rgba(119,93,216,0.08); border-radius:16px; padding:4px; display:flex; margin-bottom:16px; }
+.seg .s { flex:1; text-align:center; padding:10px 0; border-radius:12px; font-size:13px; font-weight:700; color:#7F7D9C; }
+.seg .s.active { background:rgba(124,92,252,0.12); color:#1E1A3E; }
+
+.hcard { background:#fff; border:1px solid rgba(119,93,216,0.08); border-radius:30px; box-shadow:0 8px 24px rgba(119,93,216,0.06);
+  padding:20px; margin-bottom:12px; overflow:hidden; }
+.kick { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#7F7D9C; }
+
+.cal-hero { display:flex; align-items:center; justify-content:space-between; margin-top:14px; }
+.cal-hero .baseline { display:flex; align-items:baseline; }
+.cal-hero .big { font-size:36px; font-weight:900; letter-spacing:-1.2px; color:#1E1A3E; }
+.cal-hero .goal { font-size:18px; font-weight:600; color:#7F7D9C; margin-left:4px; }
+.cal-hero .left { font-size:14px; font-weight:500; color:#8E89B3; margin-top:8px; }
+.nring { position:relative; width:120px; height:120px; flex-shrink:0; }
+.nring svg { position:absolute; inset:0; }
+.nring .c { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.nring .pct { font-size:18px; font-weight:800; color:#1E1A3E; }
+.nring .of { font-size:10px; font-weight:600; color:#7F7D9C; margin-top:2px; }
+
+.macros { display:flex; gap:10px; margin-bottom:12px; }
+.macro { flex:1; background:#fff; border:1px solid rgba(119,93,216,0.08); border-radius:30px; box-shadow:0 8px 24px rgba(119,93,216,0.06); padding:16px; }
+.macro .l { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#7F7D9C; margin-bottom:6px; }
+.macro .v { font-size:20px; font-weight:900; color:#1E1A3E; }
+.macro .v span { font-size:13px; font-weight:600; color:#7F7D9C; }
+.macro .bar { height:5px; border-radius:3px; background:rgba(124,92,252,0.12); margin-top:8px; overflow:hidden; }
+.macro .bar div { height:100%; border-radius:3px; }
+
+.wt-head { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.wt-badge { width:42px; height:42px; border-radius:14px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.2);
+  display:flex; align-items:center; justify-content:center; }
+.wt-badge svg { width:20px; height:20px; stroke:#60A5FA; stroke-width:2.2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.wt-sub { font-size:13px; font-weight:600; color:#8E89B3; margin-top:3px; }
+.wt-metrics { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:8px; }
+.wt-metrics .big { font-size:34px; font-weight:900; letter-spacing:-1.1px; color:#1E1A3E; }
+.wt-metrics .unit { font-size:18px; font-weight:700; color:#7F7D9C; }
+.wt-metrics .goal { font-size:16px; font-weight:600; color:#7F7D9C; }
+.wt-pctbadge { min-width:58px; padding:10px 12px; border-radius:16px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.2); text-align:center; }
+.wt-pctbadge .p { font-size:18px; font-weight:900; color:#0369A1; }
+.wt-pctbadge .g { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:#7F7D9C; }
+.wt-left { font-size:13px; font-weight:500; color:#8E89B3; margin-bottom:12px; }
+.wt-bar { height:10px; border-radius:999px; background:rgba(56,189,248,0.1); overflow:hidden; }
+.wt-bar div { height:100%; border-radius:999px; background:linear-gradient(90deg,#BAE6FD,#60A5FA,#38BDF8); }
+.wt-btn { margin-top:14px; border-radius:20px; background:linear-gradient(135deg,#BAE6FD,#38BDF8,#0284C7); border:1px solid rgba(255,255,255,0.28);
+  padding:15px 18px; display:flex; align-items:center; justify-content:center; gap:12px; box-shadow:0 8px 18px rgba(2,132,199,0.34); position:relative; overflow:hidden; }
+.wt-btn::before { content:''; position:absolute; inset:0 0 55% 0; background:linear-gradient(180deg,rgba(255,255,255,0.42),rgba(255,255,255,0)); }
+.wt-btn .circ { width:36px; height:36px; border-radius:18px; background:rgba(255,255,255,0.22); border:1px solid rgba(255,255,255,0.38);
+  display:flex; align-items:center; justify-content:center; }
+.wt-btn .circ svg { width:17px; height:17px; stroke:#fff; stroke-width:3; fill:none; stroke-linecap:round; }
+.wt-btn .n { font-size:22px; font-weight:900; letter-spacing:-0.6px; color:#fff; }
+.wt-btn .u { font-size:14px; font-weight:700; text-transform:uppercase; color:rgba(255,255,255,0.88); }
+
+.meals-head { display:flex; align-items:center; justify-content:space-between; margin:2px 4px 12px; }
+.meals-head .r { font-size:12px; font-weight:600; color:#8E89B3; }
+.meal { display:flex; align-items:center; gap:12px; background:#fff; border:1px solid rgba(119,93,216,0.08); border-radius:22px;
+  box-shadow:0 8px 24px rgba(119,93,216,0.05); padding:14px 16px; margin-bottom:10px; }
+.meal .sq { width:32px; height:32px; border-radius:10px; background:rgba(124,92,252,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.meal .sq.done { background:#7C5CFC; }
+.meal .sq svg { width:14px; height:14px; stroke:#7F7D9C; stroke-width:2.2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.meal .sq.done svg { stroke:#fff; stroke-width:3; }
+.meal .slot { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#7F7D9C; }
+.meal .name { font-size:16px; font-weight:700; color:#1E1A3E; margin-top:2px; }
+.meal .kcal { font-size:13px; font-weight:700; color:#7C5CFC; margin-top:2px; }
+.meal .time { font-size:13px; font-weight:600; color:#8E89B3; margin-top:2px; }
+.meal .chev svg { width:18px; height:18px; stroke:#8E89B3; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+</style></head>
+<body>
+<div class="canvas">
+  <div class="glow g1"></div><div class="glow g2"></div>
+
+  <div class="copy">
+    <div class="brandline"><img src="appicon.png" alt=""><span>TrackIt</span></div>
+    <h1>Calories, Macros<br><span class="accent">&amp; Water — Logged.</span></h1>
+    <p>Effortless nutrition tracking with daily goals that adapt to you.</p>
+  </div>
+
+  <div class="shard ghost" style="width:200px; height:200px; right:70px;  top:690px;"></div>
+  <div class="shard soft"  style="width:105px; height:105px; right:190px; top:950px; transform:rotate(-16deg);"></div>
+  <div class="shard tiny"  style="width:38px;  height:38px;  right:120px; top:1170px; transform:rotate(18deg);"></div>
+  <div class="shard tiny"  style="width:28px;  height:28px;  left:140px;  top:660px; transform:rotate(-22deg);"></div>
+  <div class="shard soft"  style="width:62px;  height:62px;  left:76px;   top:2570px; transform:rotate(14deg);"></div>
+
+  <img class="ninja left flip" src="assets/ninja-nutrition.png" style="width:640px; height:1360px; left:-70px; object-position:84% 50%;">
+
+  <div class="device-wrap" style="--dx:150px;"><div class="device"><div class="screen"><div class="app">
+
+    <div class="statusbar">
+      <span class="time">9:41</span>
+      <div class="island"></div>
+      <div class="right">
+        <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#1E1A3E"/><rect x="5" y="6" width="3" height="6" rx="1" fill="#1E1A3E"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#1E1A3E"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#1E1A3E"/></svg>
+        <svg width="17" height="12" viewBox="0 0 24 18"><circle cx="12" cy="15.4" r="2" fill="#1E1A3E"/><path d="M6.8 11a8 8 0 0 1 10.4 0" stroke="#1E1A3E" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M3.4 7a13 13 0 0 1 17.2 0" stroke="#1E1A3E" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" fill="none" stroke="rgba(30,26,62,0.4)"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#1E1A3E"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4z" fill="rgba(30,26,62,0.4)"/></svg>
+      </div>
+    </div>
+
+    <div class="app-body">
+      <div class="hh-toprow">
+        <span class="menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span>
+        <div>
+          <div class="hh-title">Nutrition</div>
+          <div class="hh-sub">Today's summary</div>
+        </div>
+        <div class="cal-btn"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      </div>
+
+      <div class="seg">
+        <div class="s">Workouts</div>
+        <div class="s active">Nutrition</div>
+      </div>
+
+      <!-- Calories hero -->
+      <div class="hcard">
+        <span class="kick">Today's Summary</span>
+        <div class="cal-hero">
+          <div>
+            <div class="baseline"><span class="big">1,450</span><span class="goal">/ 2,200 kcal</span></div>
+            <div class="left">750 kcal left</div>
+          </div>
+          <div class="nring">
+            <svg viewBox="0 0 120 120">
+              <defs><linearGradient id="ng" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#9580E8"/><stop offset="100%" stop-color="#7C5CFC"/>
+              </linearGradient></defs>
+              <circle cx="60" cy="60" r="52" stroke="rgba(124,92,252,0.12)" stroke-width="10" fill="none"/>
+              <circle cx="60" cy="60" r="52" stroke="url(#ng)" stroke-width="10" fill="none"
+                stroke-linecap="round" stroke-dasharray="215.5 326.7" transform="rotate(-90 60 60)"/>
+            </svg>
+            <div class="c"><span class="pct">66%</span><span class="of">of goal</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Macros -->
+      <div class="macros">
+        <div class="macro">
+          <div class="l">Protein</div>
+          <div class="v">120 <span>/165g</span></div>
+          <div class="bar"><div style="width:73%; background:#7C5CFC;"></div></div>
+        </div>
+        <div class="macro">
+          <div class="l">Fat</div>
+          <div class="v">48 <span>/70g</span></div>
+          <div class="bar"><div style="width:69%; background:#F59E0B;"></div></div>
+        </div>
+        <div class="macro">
+          <div class="l">Carbs</div>
+          <div class="v">168 <span>/240g</span></div>
+          <div class="bar"><div style="width:70%; background:#34D399;"></div></div>
+        </div>
+      </div>
+
+      <!-- Water -->
+      <div class="hcard">
+        <div class="wt-head">
+          <div class="wt-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+          </div>
+          <div>
+            <span class="kick">Hydration</span>
+            <div class="wt-sub">5 of 12 glasses today</div>
+          </div>
+        </div>
+        <div class="wt-metrics">
+          <div><span class="big">1.3</span><span class="unit"> L</span><span class="goal"> / 3.0 L</span></div>
+          <div class="wt-pctbadge"><div class="p">42%</div><div class="g">goal</div></div>
+        </div>
+        <div class="wt-bar"><div style="width:42%;"></div></div>
+        <div class="wt-btn">
+          <div class="circ"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></div>
+          <span class="n">+250</span><span class="u">ml</span>
+        </div>
+      </div>
+
+      <!-- Meals -->
+      <div class="meals-head">
+        <span class="kick">Meals</span>
+        <span class="r">2 / 5 completed</span>
+      </div>
+      <div class="meal">
+        <div class="sq done"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div style="flex:1;">
+          <div class="slot">Breakfast</div>
+          <div class="name">Oatmeal with berries</div>
+          <div class="kcal">420 kcal</div>
+        </div>
+        <span class="chev"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+      </div>
+      <div class="meal">
+        <div class="sq done"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div style="flex:1;">
+          <div class="slot">Lunch</div>
+          <div class="name">Chicken rice bowl</div>
+          <div class="kcal">640 kcal</div>
+        </div>
+        <span class="chev"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+      </div>
+      <div class="meal">
+        <div class="sq"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <div style="flex:1;">
+          <div class="slot">Dinner</div>
+          <div class="name">Pending</div>
+          <div class="time">19:00</div>
+        </div>
+        <span class="chev"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="fab"><div class="inner">
+        <svg width="25" height="25" viewBox="0 0 24 24"><polygon points="12,3 21,12 12,21 3,12" fill="none" stroke="#7C5CFC" stroke-width="1.6" stroke-linejoin="round"/><polygon points="12,7.5 16.5,12 12,16.5 7.5,12" fill="none" stroke="#7C5CFC" stroke-width="1.2" opacity="0.35"/></svg>
+      </div></div>
+      <div class="tab active">
+        <svg viewBox="0 0 24 24"><path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"/></svg>
+        <div class="dot"></div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+
+  </div></div></div></div>
+</div>
+</body></html>

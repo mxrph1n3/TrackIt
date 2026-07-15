@@ -69,7 +69,7 @@ All features (analytics, workouts, reminders) are unlocked for every signed-in u
 
 Sign in: email, Google, or Sign in with Apple (iOS).
 Account deletion: Settings → Account → Delete account.
-Push notifications: optional (Settings → Notifications).
+Push notifications: opt-in only — disabled by default; the OS permission prompt appears only after the user enables "Smart reminders" in Settings.
 
 Demo account:
 Email: review@trackit.app
@@ -88,7 +88,7 @@ Terms: https://track-it-umber-psi.vercel.app/terms
 | Asset | Size | Status |
 |-------|------|--------|
 | App icon | 1024×1024 | ✅ `assets/icon-light.png` |
-| Phone screenshots | 6.7" / 6.5" (iOS), phone (Android) | ☐ Capture from device |
+| Phone screenshots | 6.9" (1320×2868) + 6.5" (1284×2778) | ✅ `store/screenshots/appstore/` |
 | Feature graphic (Play) | 1024×500 | ✅ `store/feature-graphic.png` |
 | Tablet screenshots | Optional | ☐ |
 

@@ -1,0 +1,284 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="banner.css">
+<style>
+.an-header { display:flex; align-items:center; justify-content:space-between; margin:10px 0 18px; }
+.an-header svg { width:20px; height:20px; stroke:#1E1A3E; stroke-width:1.5; fill:none; stroke-linecap:round; }
+.an-title { font-size:11px; font-weight:700; letter-spacing:2.8px; text-transform:uppercase; color:#1E1A3E; }
+
+.tabsw { border-radius:20px; border:1px solid rgba(255,255,255,0.6); background:rgba(255,255,255,0.75);
+  box-shadow:0 4px 10px rgba(119,93,216,0.08); padding:8px; display:flex; gap:8px; margin-bottom:16px; overflow:hidden; }
+.tabsw .tp { border-radius:12px; padding:10px 16px; border:1px solid rgba(119,93,216,0.14); background:rgba(119,93,216,0.06);
+  font-size:10px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:#8E89B3; white-space:nowrap; }
+.tabsw .tp.active { background:rgba(119,93,216,0.12); border-color:rgba(119,93,216,0.28); color:#1E1A3E;
+  box-shadow:0 0 12px rgba(119,93,216,0.2); }
+
+.scard { border-radius:28px; border:1px solid rgba(119,93,216,0.14); background:rgba(255,255,255,0.72);
+  box-shadow:0 8px 20px rgba(119,93,216,0.05); padding:16px; margin-bottom:14px; }
+.g-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:8px; }
+.g-k { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#1E1A3E; }
+.g-range { font-size:11px; font-weight:500; color:#8E89B3; margin-top:4px; }
+.g-num { font-size:32px; font-weight:900; letter-spacing:-1px; color:#775DD8; }
+
+.hm-wrap { display:flex; gap:10px; margin-top:12px; }
+.hm-days { display:flex; flex-direction:column; gap:6px; }
+.hm-days span { height:22px; display:flex; align-items:center; font-size:9px; font-weight:700; letter-spacing:0.4px; color:#8E89B3; }
+.hm-grid { display:flex; gap:6px; }
+.hm-col { display:flex; flex-direction:column; gap:6px; }
+.hm-cell { width:22px; height:22px; border-radius:6px; }
+.hm-week { text-align:center; font-size:9px; font-weight:600; color:#8E89B3; margin-top:8px; }
+.legend { display:flex; align-items:center; gap:14px; margin-top:14px; }
+.legend .li { display:flex; align-items:center; gap:6px; font-size:10px; color:#8E89B3; }
+.legend .sw { width:10px; height:10px; border-radius:3px; }
+
+.lb-head { display:flex; align-items:center; justify-content:space-between; margin:2px 4px 12px; }
+.lb-k { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#8E89B3; }
+.lb-link { font-size:12px; font-weight:600; color:#775DD8; }
+.lb-hero { border-radius:24px; border:1px solid rgba(99,102,241,0.45); background:rgba(99,102,241,0.07);
+  box-shadow:0 0 18px rgba(99,102,241,0.28); padding:20px 16px; display:flex; align-items:center; gap:12px;
+  position:relative; overflow:hidden; }
+.lb-hero::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg, rgba(99,102,241,0.13), transparent 60%); }
+.avatar { width:54px; height:54px; border-radius:27px; border:1.5px solid #6366F1; box-shadow:0 0 12px rgba(99,102,241,0.5);
+  background:linear-gradient(135deg,#9580E8,#6366F1); display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:900; color:#fff; }
+.lb-left { width:80px; display:flex; flex-direction:column; align-items:center; gap:6px; position:relative; }
+.lb-left .un { font-size:12px; font-weight:700; color:#1E1A3E; }
+.tier-badge { border-radius:999px; padding:3px 8px; border:1px solid rgba(99,102,241,0.45); background:rgba(99,102,241,0.16);
+  font-size:9px; font-weight:900; letter-spacing:1.3px; text-transform:uppercase; color:#6366F1;
+  box-shadow:0 0 10px rgba(99,102,241,0.45); }
+.lb-mid { flex:1; position:relative; }
+.lb-mid .k { font-size:9px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:#7F7D9C; }
+.lb-mid .v { font-size:14px; font-weight:700; color:#1E1A3E; margin-top:4px; }
+.lb-right { width:108px; text-align:right; position:relative; }
+.lb-right .lvl { font-size:14px; font-weight:900; letter-spacing:2px; text-transform:uppercase; color:#1E1A3E;
+  text-shadow:0 0 12px rgba(99,102,241,0.45); }
+.lb-right .xpbar { height:6px; border-radius:999px; border:1px solid rgba(119,93,216,0.14); background:rgba(119,93,216,0.12);
+  margin-top:8px; overflow:hidden; }
+.lb-right .xpfill { height:100%; border-radius:999px; width:62%; background:linear-gradient(90deg,#6366F1,#775DD8); }
+.lb-right .xphint { font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#8E89B3; margin-top:6px; }
+
+.tp-title { font-size:14px; font-weight:900; letter-spacing:1.6px; text-transform:uppercase; color:#1E1A3E; margin:16px 4px 8px; }
+.lb-row { border-radius:16px; border:1px solid rgba(119,93,216,0.14); background:rgba(255,255,255,0.72);
+  padding:12px 14px; display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.medal { height:28px; min-width:28px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:900; }
+.medal.gold { border:1px solid #FFD700; background:rgba(255,215,0,0.18); color:#B8860B; box-shadow:0 0 12px rgba(255,215,0,0.6); }
+.medal.silver { border:1px solid #C0C0C0; background:rgba(192,192,192,0.18); color:#708090; box-shadow:0 0 12px rgba(192,192,192,0.6); }
+.av-s { width:40px; height:40px; border-radius:20px; display:flex; align-items:center; justify-content:center;
+  font-size:15px; font-weight:900; color:#fff; }
+.lb-row .nm { font-size:14px; font-weight:700; color:#1E1A3E; }
+.lvl-cap { display:inline-block; border-radius:999px; padding:2px 8px; font-size:10px; font-weight:700; text-transform:uppercase; margin-top:4px; }
+.lb-row .xp { text-align:right; }
+.lb-row .xpn { font-size:14px; font-weight:900; color:#1E1A3E; }
+.lb-row .xpl { font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#8E89B3; margin-top:1px; }
+</style></head>
+<body>
+<div class="canvas">
+  <div class="glow g1"></div><div class="glow g2"></div>
+
+  <div class="copy">
+    <div class="brandline"><img src="appicon.png" alt=""><span>TrackIt</span></div>
+    <h1>Watch Yourself<br><span class="accent">Level Up.</span></h1>
+    <p>Streaks, heatmaps, XP and a global leaderboard keep you motivated.</p>
+  </div>
+
+  <div class="shard ghost" style="width:220px; height:220px; right:66px;  top:690px;"></div>
+  <div class="shard soft"  style="width:110px; height:110px; right:186px; top:950px; transform:rotate(-15deg);"></div>
+  <div class="shard tiny"  style="width:40px;  height:40px;  right:116px; top:1170px; transform:rotate(18deg);"></div>
+  <div class="shard tiny"  style="width:28px;  height:28px;  left:136px;  top:655px; transform:rotate(-20deg);"></div>
+  <div class="shard soft"  style="width:64px;  height:64px;  left:72px;   top:2560px; transform:rotate(10deg);"></div>
+
+  <img class="ninja left" src="assets/ninja-gate.png" style="width:600px; height:1500px; left:-70px; object-position:50% 0%;">
+
+  <div class="device-wrap" style="--dx:150px;"><div class="device"><div class="screen"><div class="app">
+
+    <div class="statusbar">
+      <span class="time">9:41</span>
+      <div class="island"></div>
+      <div class="right">
+        <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#1E1A3E"/><rect x="5" y="6" width="3" height="6" rx="1" fill="#1E1A3E"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#1E1A3E"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#1E1A3E"/></svg>
+        <svg width="17" height="12" viewBox="0 0 24 18"><circle cx="12" cy="15.4" r="2" fill="#1E1A3E"/><path d="M6.8 11a8 8 0 0 1 10.4 0" stroke="#1E1A3E" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M3.4 7a13 13 0 0 1 17.2 0" stroke="#1E1A3E" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" fill="none" stroke="rgba(30,26,62,0.4)"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#1E1A3E"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4z" fill="rgba(30,26,62,0.4)"/></svg>
+      </div>
+    </div>
+
+    <div class="app-body">
+      <div class="an-header">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <span class="an-title">Statistics Overview</span>
+        <span style="width:20px;"></span>
+      </div>
+
+      <div class="tabsw">
+        <div class="tp active">Overview</div>
+        <div class="tp">Productivity</div>
+        <div class="tp">Finance</div>
+        <div class="tp">Health</div>
+      </div>
+
+      <!-- Overall Growth -->
+      <div class="scard">
+        <div class="g-head">
+          <div>
+            <div class="g-k">Overall Growth</div>
+            <div class="g-range">Last 7 Days (Jul 10–Jul 16)</div>
+          </div>
+          <span class="g-num">78%</span>
+        </div>
+        <svg width="100%" height="120" viewBox="0 0 300 120" preserveAspectRatio="none">
+          <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#775DD8" stop-opacity="0.28"/>
+            <stop offset="100%" stop-color="#775DD8" stop-opacity="0.02"/>
+          </linearGradient></defs>
+          <path d="M12,72 54,60 96,66 138,44 180,50 222,30 264,22 288,18 L288,96 12,96 Z" fill="url(#ag)"/>
+          <polyline points="12,72 54,60 96,66 138,44 180,50 222,30 264,22 288,18"
+            fill="none" stroke="#775DD8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="72" r="4" fill="#ffffff" stroke="#775DD8" stroke-width="2"/>
+          <circle cx="54" cy="60" r="4" fill="#ffffff" stroke="#775DD8" stroke-width="2"/>
+          <circle cx="96" cy="66" r="4" fill="#ffffff" stroke="#775DD8" stroke-width="2"/>
+          <circle cx="138" cy="44" r="4" fill="#ffffff" stroke="#775DD8" stroke-width="2"/>
+          <circle cx="180" cy="50" r="4" fill="#ffffff" stroke="#775DD8" stroke-width="2"/>
+          <circle cx="222" cy="30" r="4" fill="#ffffff" stroke="#775DD8" stroke-width="2"/>
+          <circle cx="288" cy="18" r="6" fill="#775DD8"/>
+          <text x="12" y="114" font-size="10" font-weight="600" fill="#8E89B3" text-anchor="middle">M</text>
+          <text x="54" y="114" font-size="10" font-weight="600" fill="#8E89B3" text-anchor="middle">T</text>
+          <text x="96" y="114" font-size="10" font-weight="600" fill="#8E89B3" text-anchor="middle">W</text>
+          <text x="138" y="114" font-size="10" font-weight="600" fill="#8E89B3" text-anchor="middle">T</text>
+          <text x="180" y="114" font-size="10" font-weight="600" fill="#8E89B3" text-anchor="middle">F</text>
+          <text x="222" y="114" font-size="10" font-weight="600" fill="#8E89B3" text-anchor="middle">S</text>
+          <text x="288" y="114" font-size="10" font-weight="700" fill="#775DD8" text-anchor="middle">S</text>
+        </svg>
+      </div>
+
+      <!-- Habit heatmap -->
+      <div class="scard">
+        <div class="g-head" style="margin-bottom:0;">
+          <div>
+            <div class="g-k">Habit Completion Heatmap</div>
+            <div class="g-range">Last 4 Weeks</div>
+          </div>
+        </div>
+        <div class="hm-wrap">
+          <div class="hm-days"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+          <div>
+            <div class="hm-grid">
+              <div class="hm-col">
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(119,93,216,0.72);"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(129,140,248,0.55);"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(168,148,232,0.35);"></div>
+                <div class="hm-cell" style="background:rgba(119,93,216,0.72);"></div>
+              </div>
+              <div class="hm-col">
+                <div class="hm-cell" style="background:rgba(119,93,216,0.72);"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(129,140,248,0.55);"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(119,93,216,0.12);"></div>
+                <div class="hm-cell" style="background:rgba(168,148,232,0.35);"></div>
+              </div>
+              <div class="hm-col">
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(119,93,216,0.72);"></div>
+                <div class="hm-cell" style="background:rgba(129,140,248,0.55);"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(168,148,232,0.35);"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+              </div>
+              <div class="hm-col">
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(129,140,248,0.55);"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(119,93,216,0.72);"></div>
+                <div class="hm-cell" style="background:#775DD8;"></div>
+                <div class="hm-cell" style="background:rgba(119,93,216,0.12);"></div>
+              </div>
+            </div>
+            <div class="hm-grid">
+              <div class="hm-col" style="width:22px;"><span class="hm-week">W1</span></div>
+              <div class="hm-col" style="width:22px;"><span class="hm-week">W2</span></div>
+              <div class="hm-col" style="width:22px;"><span class="hm-week">W3</span></div>
+              <div class="hm-col" style="width:22px;"><span class="hm-week">W4</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="li"><span class="sw" style="background:rgba(119,93,216,0.12);"></span>Low</div>
+          <div class="li"><span class="sw" style="background:rgba(129,140,248,0.55);"></span>Moderate</div>
+          <div class="li"><span class="sw" style="background:#775DD8;"></span>Complete</div>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="lb-head">
+        <span class="lb-k">Global Leaderboard</span>
+        <span class="lb-link">View All</span>
+      </div>
+      <div class="lb-hero">
+        <div class="lb-left">
+          <div class="avatar">A</div>
+          <span class="un">alex</span>
+          <span class="tier-badge">Tier C</span>
+        </div>
+        <div class="lb-mid">
+          <div class="k">Global Placement</div>
+          <div class="v">#12 out of 4,300 users</div>
+        </div>
+        <div class="lb-right">
+          <div class="lvl">LVL 18</div>
+          <div class="xpbar"><div class="xpfill"></div></div>
+          <div class="xphint">1,240 XP to next level</div>
+        </div>
+      </div>
+
+      <div class="tp-title">Top Players</div>
+      <div class="lb-row">
+        <div class="medal gold">1</div>
+        <div class="av-s" style="background:linear-gradient(135deg,#FBBF24,#F59E0B);">N</div>
+        <div style="flex:1;">
+          <div class="nm">nova_rise</div>
+          <span class="lvl-cap" style="background:rgba(232,121,249,0.16); border:1px solid rgba(232,121,249,0.45); color:#C026D3;">LVL 52</span>
+        </div>
+        <div class="xp"><div class="xpn">48,210</div><div class="xpl">XP</div></div>
+      </div>
+      <div class="lb-row">
+        <div class="medal silver">2</div>
+        <div class="av-s" style="background:linear-gradient(135deg,#818CF8,#6366F1);">M</div>
+        <div style="flex:1;">
+          <div class="nm">marta.k</div>
+          <span class="lvl-cap" style="background:rgba(96,165,250,0.16); border:1px solid rgba(96,165,250,0.45); color:#2563EB;">LVL 41</span>
+        </div>
+        <div class="xp"><div class="xpn">39,480</div><div class="xpl">XP</div></div>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="fab"><div class="inner">
+        <svg width="25" height="25" viewBox="0 0 24 24"><polygon points="12,3 21,12 12,21 3,12" fill="none" stroke="#7C5CFC" stroke-width="1.6" stroke-linejoin="round"/><polygon points="12,7.5 16.5,12 12,16.5 7.5,12" fill="none" stroke="#7C5CFC" stroke-width="1.2" opacity="0.35"/></svg>
+      </div></div>
+      <div class="tab">
+        <svg viewBox="0 0 24 24"><path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7"/></svg>
+        <div class="dot"></div>
+      </div>
+      <div class="tab active">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"/></svg>
+        <div class="dot"></div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+
+  </div></div></div></div>
+</div>
+</body></html>

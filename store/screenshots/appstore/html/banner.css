@@ -1,0 +1,310 @@
+/* ============================================================
+   TrackIt — App Store banner template  (1320 × 2868, iPhone 6.9")
+   ============================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 1320px;
+  height: 2868px;
+  overflow: hidden;
+  font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Canvas background ---------- */
+.canvas {
+  position: relative;
+  width: 1320px;
+  height: 2868px;
+  background:
+    radial-gradient(1000px 800px at 15% -5%, rgba(149, 128, 232, 0.55), transparent 60%),
+    radial-gradient(1100px 900px at 110% 22%, rgba(56, 189, 248, 0.28), transparent 60%),
+    radial-gradient(900px 900px at -10% 62%, rgba(244, 114, 182, 0.16), transparent 55%),
+    linear-gradient(180deg, #EFEAFC 0%, #F3F5FA 46%, #E7E2F8 100%);
+  overflow: hidden;
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.glow.g1 { width: 700px; height: 700px; left: -220px; top: 900px; background: #C9BCF5; }
+.glow.g2 { width: 620px; height: 620px; right: -200px; top: 1700px; background: #BFE3FA; }
+
+/* ---------- Top copy block ---------- */
+.copy {
+  position: relative;
+  z-index: 5;
+  padding: 80px 100px 0;
+  text-align: center;
+}
+
+.copy .brandline {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+.copy .brandline img {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  box-shadow: 0 10px 26px rgba(119, 93, 216, 0.30);
+}
+.copy .brandline span {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: #3D3855;
+  text-transform: uppercase;
+}
+
+.copy h1 {
+  font-size: 92px;
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -3px;
+  color: #1E1A3E;
+}
+.copy h1 .accent {
+  background: linear-gradient(92deg, #9580E8 0%, #775DD8 45%, #6249C0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.copy p {
+  margin: 24px auto 0;
+  max-width: 960px;
+  text-wrap: balance;
+  font-size: 38px;
+  line-height: 1.35;
+  font-weight: 600;
+  color: #7F7D9C;
+  letter-spacing: -0.4px;
+}
+
+/* ---------- iPhone frame ---------- */
+.device-wrap {
+  position: absolute;
+  left: 50%;
+  transform: translateX(calc(-50% + var(--dx, 0px)));
+  top: 618px;               /* full device visible: 618 + 2200 = 2818 */
+  z-index: 4;
+  filter: drop-shadow(0 60px 120px rgba(78, 55, 160, 0.35));
+}
+
+/* ---------- Ninja / brand art beside the device ---------- */
+.ninja {
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  object-fit: cover;
+  pointer-events: none;
+  filter: contrast(1.05) saturate(1.15);
+  -webkit-mask-image: radial-gradient(78% 82% at 50% 55%, #000 55%, transparent 92%);
+  mask-image: radial-gradient(78% 82% at 50% 55%, #000 55%, transparent 92%);
+}
+.ninja.right { right: -60px; }
+.ninja.left  { left: -60px; }
+.ninja.flip  { transform: scaleX(-1); }
+
+/* ---------- Floating crystal shards ---------- */
+.shard {
+  position: absolute;
+  z-index: 2;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  background: linear-gradient(135deg, #C9BCF5 0%, #9580E8 55%, #6E55CE 100%);
+  pointer-events: none;
+}
+.shard.soft { opacity: 0.35; filter: blur(2px); }
+.shard.tiny { opacity: 0.55; }
+.shard.ghost { opacity: 0.18; filter: blur(6px); }
+
+.device {
+  position: relative;
+  width: 1012px;            /* 440 logical * 2.2 + bezels 22*2 */
+  height: 2200px;           /* enough to crop at canvas bottom */
+  background: #101014;
+  border-radius: 152px;
+  padding: 22px;
+  box-shadow:
+    inset 0 0 0 4px #3c3c44,
+    inset 0 0 0 10px #17171c;
+}
+
+.screen {
+  position: relative;
+  width: 968px;             /* 440 * 2.2 */
+  height: 2156px;
+  border-radius: 130px;
+  overflow: hidden;
+  background: #F3F5FA;
+}
+
+/* App UI is authored at 440×980 logical px, scaled ×2.2 */
+.app {
+  position: absolute;
+  top: 0; left: 0;
+  width: 440px;
+  height: 980px;
+  transform: scale(2.2);
+  transform-origin: top left;
+  background: #F3F5FA;
+  overflow: hidden;
+}
+
+/* ---------- iOS status bar + Dynamic Island (logical px) ---------- */
+.statusbar {
+  position: relative;
+  height: 62px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 38px 8px;
+  z-index: 50;
+}
+.statusbar .time {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1E1A3E;
+  letter-spacing: 0.2px;
+}
+.statusbar .right {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.island {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 124px;
+  height: 36px;
+  border-radius: 20px;
+  background: #101014;
+  z-index: 60;
+}
+
+/* ---------- Shared app-UI primitives (Ethereal theme) ---------- */
+.app-body {
+  padding: 6px 20px 0;
+}
+
+.kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: #7F7D9C;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 28px;
+  box-shadow: 0 8px 18px rgba(119, 93, 216, 0.07);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.row { display: flex; align-items: center; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.pill.purple { background: rgba(119, 93, 216, 0.12); color: #775DD8; }
+.pill.green  { background: rgba(52, 211, 153, 0.16); color: #059669; }
+.pill.amber  { background: rgba(245, 158, 11, 0.15); color: #B45309; }
+
+.icon-tile {
+  width: 40px; height: 40px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(119, 93, 216, 0.12);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #9580E8, #775DD8);
+}
+
+/* ---------- Bottom tab bar (faithful: full-width panel + crystal FAB) ---------- */
+.tabbar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 116px;
+  background: rgba(252, 252, 254, 0.985);
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 -4px 24px rgba(15, 12, 30, 0.08);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  padding: 12px 14px 0;
+  z-index: 40;
+}
+.tab {
+  width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.tab svg {
+  width: 23px; height: 23px;
+  stroke: #7F7D9C; opacity: 0.45;
+  stroke-width: 1.3; fill: none;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.tab.active svg {
+  stroke: #775DD8; opacity: 1;
+  stroke-width: 1.7;
+  transform: scale(1.1);
+}
+.tab .dot { width: 4px; height: 4px; border-radius: 2px; background: transparent; }
+.tab.active .dot { background: #775DD8; box-shadow: 0 0 6px 1px rgba(119, 93, 216, 0.8); }
+
+.fab {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 10px 22px rgba(119, 93, 216, 0.18), inset 0 0 0 6px rgba(124, 92, 252, 0.10);
+  display: flex; align-items: center; justify-content: center;
+  transform: translateY(-26px);
+}
+.fab .inner {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, #FFFFFF, #F8F7FF, #F3F1FF);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.home-indicator {
+  position: absolute;
+  bottom: 12px; left: 50%;
+  transform: translateX(-50%);
+  width: 134px; height: 5px;
+  border-radius: 3px;
+  background: rgba(30, 26, 62, 0.32);
+  z-index: 45;
+}

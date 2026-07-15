@@ -13,6 +13,7 @@ import { getTmaMonthlyPriceLabel, TMA_TRIAL_DAYS } from '../constants/tmaBilling
 import { deleteAccount } from '../lib/account/accountService';
 import { IS_WEB } from '../lib/platform/constants';
 import { notificationsSupportedInRuntime } from '../lib/platform/services';
+import { ensureNotificationPermissions } from '../lib/notifications/reminderService';
 import { notifyTelegramRemindersEnabled, setTelegramRemindersEnabled } from '../lib/subscription/tmaAccessService';
 import { isTelegramMiniApp } from '../lib/telegram/telegramWebApp';
 import {
@@ -297,6 +298,31 @@ export function SettingsScreen() {
     setTelegramReminders(tmaAccess.telegramRemindersEnabled);
   }, [tmaAccess.telegramRemindersEnabled]);
 
+  const handlePushRemindersToggle = useCallback(
+    async (enabled: boolean) => {
+      if (!enabled) {
+        setNotificationsEnabled(false);
+        return;
+      }
+
+      const granted = await ensureNotificationPermissions();
+      if (!granted) {
+        Alert.alert(
+          'Notifications are off',
+          'Allow notifications for TrackIt in system settings to receive reminders.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open Settings', onPress: () => void Linking.openSettings() },
+          ],
+        );
+        return;
+      }
+
+      setNotificationsEnabled(true);
+    },
+    [setNotificationsEnabled],
+  );
+
   const handleTelegramRemindersToggle = useCallback(
     async (enabled: boolean) => {
       if (!canUseNotifications) {
@@ -540,7 +566,7 @@ export function SettingsScreen() {
                 </View>
                 <Switch
                   value={notificationsEnabled}
-                  onValueChange={setNotificationsEnabled}
+                  onValueChange={(value) => void handlePushRemindersToggle(value)}
                   disabled={!notificationsSupportedInRuntime}
                   trackColor={{ false: `${theme.primary}33`, true: theme.primary }}
                   thumbColor="#FFFFFF"
