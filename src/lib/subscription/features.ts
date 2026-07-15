@@ -7,28 +7,28 @@ export type PremiumFeatureMeta = {
 
 export const PREMIUM_FEATURE_META: Record<PremiumFeatureId, PremiumFeatureMeta> = {
   ai_tasks: {
-    title: 'AI Task Planning',
+    title: 'Smart Task Planning',
     description: 'Break projects into stages and distribute tasks across your week.',
   },
   ai_habits: {
-    title: 'AI Habit Analysis',
-    description: 'Recommendations, charts, and predictions for your routines.',
+    title: 'Habit Insights',
+    description: 'Recommendations, charts, and trends for your routines.',
   },
   ai_workout: {
-    title: 'Workout AI',
-    description: 'Personalized programs, auto-progression, and progress analysis.',
+    title: 'Workout Insights',
+    description: 'Structured programs, auto-progression, and progress analysis.',
   },
   ai_nutrition: {
-    title: 'AI Nutrition',
-    description: 'Meal plans, macro targets, recipes, and smart food swaps.',
+    title: 'Nutrition Planning',
+    description: 'Meal targets, macro breakdowns, and smart food swaps.',
   },
   ai_finance: {
-    title: 'AI Finance',
-    description: 'Spending analysis, savings tips, and budget forecasts.',
+    title: 'Finance Insights',
+    description: 'Spending analysis, savings tips, and budget overviews.',
   },
   ai_notes: {
-    title: 'AI Notes',
-    description: 'Summarize, rewrite, generate, and translate your notes.',
+    title: 'Smart Notes',
+    description: 'Organize, structure, and review your notes.',
   },
   advanced_analytics: {
     title: 'Advanced Analytics',

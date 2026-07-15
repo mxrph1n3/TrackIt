@@ -336,7 +336,7 @@ export function PremiumScreen({
           <Sparkles color={BRAND.primaryLight} size={18} />
         </View>
         <Text style={styles.heroSubtitle}>
-          Your intelligent assistant across tasks, workouts, nutrition, finance, and habits.
+          Your command center across tasks, workouts, nutrition, finance, and habits.
         </Text>
         {featureMeta ? (
           <View style={styles.featureCallout}>
@@ -586,7 +586,7 @@ export function PremiumScreen({
   return (
     <IsolatedScreenLayout
       header={
-        <ScreenHeader title="TRACKIT PRO" subtitle="Intelligent life OS" onBack={handleClose} />
+        <ScreenHeader title="TRACKIT PRO" subtitle="Your life OS" onBack={handleClose} />
       }
     >
       {content}

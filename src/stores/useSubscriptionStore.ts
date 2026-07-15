@@ -170,6 +170,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   },
 
   purchase: async (productId) => {
+    if (isAppFullyFree()) {
+      return false;
+    }
     set({ isPurchasing: true, error: null });
 
     try {
@@ -190,6 +193,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   },
 
   purchaseWithStars: async () => {
+    if (isAppFullyFree()) {
+      return false;
+    }
     set({ isPurchasing: true, error: null });
 
     try {
@@ -230,6 +236,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   },
 
   restore: async () => {
+    if (isAppFullyFree()) {
+      return true;
+    }
     set({ isPurchasing: true, error: null });
 
     try {
