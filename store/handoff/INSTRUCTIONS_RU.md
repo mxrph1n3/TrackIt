@@ -1,22 +1,31 @@
 # TrackIt — пакет для публикации в App Store
 
 Всё, что нужно для создания приложения в App Store Connect и отправки на ревью.
-Сборку IPA делает владелец проекта через EAS — от вас нужен только доступ (см. шаг 0) либо загруженный билд.
 
----
+## Сборка IPA (выберите один путь)
 
-## 0. Доступ для сборки (если билд ещё не загружен)
+### Рекомендуется: Xcode Archive (пара кликов)
 
-Создайте App Store Connect API Key и передайте владельцу проекта:
+Готовый нативный проект лежит в репозитории (`ios/`, bundle ID `com.trackit.lifeos`).
 
-1. App Store Connect → **Users and Access → Integrations → App Store Connect API** → «+»
-2. Роль: **App Manager**
-3. Скачайте файл `AuthKey_XXXXXXXX.p8` и передайте вместе с:
-   - **Key ID** (рядом с ключом)
-   - **Issuer ID** (сверху той же страницы)
-   - **Team ID** (developer.apple.com → Membership)
+Пошагово: **[`XCODE_ARCHIVE.md`](./XCODE_ARCHIVE.md)**
 
-После этого билд будет загружен в ваш App Store Connect автоматически.
+Кратко:
+```bash
+git clone https://github.com/mxrph1n3/TrackIt.git && cd TrackIt
+git checkout main && npm install
+npm run ios:xcode
+```
+В Xcode: Team → **Product → Archive** → **Distribute App → App Store Connect**.
+
+### Альтернатива: EAS (облако)
+
+```bash
+npx eas-cli build --platform ios --profile production
+npx eas-cli submit --platform ios --profile production --latest
+```
+
+Или передайте владельцу проекта App Store Connect API Key (`.p8` + Key ID + Issuer ID + Team ID) — он соберёт и загрузит сам.
 
 ---
 
