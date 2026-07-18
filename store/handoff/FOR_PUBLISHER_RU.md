@@ -138,7 +138,24 @@ open ios/TrackIt.xcworkspace
 3. Bundle Identifier = **`com.trackit.lifeos`**  
 4. **Automatically manage signing** = ON  
 5. Entitlements по умолчанию: `TrackIt/TrackIt.store.entitlements` (Push + Sign in with Apple).  
-   Для локального теста на **бесплатном** Personal Team временно переключите на `TrackIt/TrackIt.entitlements` (пустой файл).  
+   Файл **нельзя** оставлять пустым — иначе на Release/TestFlight кнопка Apple не работает.  
+   Для локального теста на **бесплатном** Personal Team временно переключите на `TrackIt/TrackIt.entitlements` (пустой файл).
+
+### Sign in with Apple — чеклист (иначе «не работает» даже на Release)
+
+Нужны **все** пункты:
+
+1. **Платный** Apple Developer Team + Bundle ID `com.trackit.lifeos`
+2. developer.apple.com → Identifiers → App ID `com.trackit.lifeos` → capability **Sign In with Apple** = ON  
+3. Xcode → Signing & Capabilities → capability **Sign In with Apple** добавлена (подтягивает `TrackIt.store.entitlements`)
+4. Supabase Dashboard → Authentication → Providers → **Apple** = Enabled  
+   - **Client IDs** обязательно содержат `com.trackit.lifeos` (App ID / Bundle ID)  
+   - Если нужен ещё web/OAuth: Services ID первым в списке, затем `com.trackit.lifeos`
+5. Пересобрать **Archive / EAS production** после включения capability (старый IPA без entitlement не починится)
+
+Без п.4 нативный sheet Apple может открыться, но вход в приложение упадёт (Supabase отклонит token).  
+Без п.2–3 система вообще не выдаст entitlement — только ошибка / fallback в браузерный OAuth (который тоже нужен Services ID в Supabase).
+  
 
 ## B3. Archive (НЕ Run)
 
