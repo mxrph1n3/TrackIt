@@ -46,7 +46,8 @@ EXPO_PUBLIC_SUPABASE_URL=...
 EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
-Их нужно добавить в EAS Environment Variables (production) на expo.dev **или** положить в `.env` перед сборкой, если собираете локально через Xcode с вшитыми значениями из конфига.
+Их нужно добавить в EAS Environment Variables (production) на expo.dev **или** положить в `.env` в корне репо **перед** Archive / `xcodebuild`.  
+Скрипт `ios/.xcode.env` подхватывает `.env` при сборке JS — без этого IPA покажет *«Supabase is not configured»*.
 
 ---
 
