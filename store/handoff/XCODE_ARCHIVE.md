@@ -1,6 +1,6 @@
 # TrackIt — публикация через Xcode (Archive)
 
-Проект уже подготовлен: bundle ID `com.trackit.lifeos`, имя **TrackIt**, Sign in with Apple, уведомления.
+Проект уже подготовлен: bundle ID `com.trackit.lifeos`, имя **TrackIt**, email-вход, уведомления.
 Нужен только **ваш** Apple Developer аккаунт ($99/год). Без него загрузить в App Store нельзя.
 
 ## Один раз: установка

@@ -29,7 +29,7 @@
 | Build (CFBundleVersion) | **1** |
 | Category hint (Info.plist) | Health & Fitness (`public.app-category.healthcare-fitness`) |
 | Encryption export | `ITSAppUsesNonExemptEncryption = false` |
-| Sign in with Apple | entitlements включены |
+| Push (opt-in) | entitlements `aps-environment` |
 | Push | `aps-environment = production` |
 | Цена / IAP в бинарнике | нет покупок (fully free) |
 
@@ -146,7 +146,7 @@ Initial release. TrackIt is completely free — all features unlocked, no in-app
 TrackIt is a free app with no in-app purchases or subscriptions.
 All features (analytics, workouts, reminders) are unlocked for every signed-in user.
 
-Sign in: email, Google, or Sign in with Apple (iOS).
+Sign in: email and password only (no Google / Apple).
 Account deletion: Settings → Account → Delete account.
 Push notifications: opt-in only — disabled by default; the OS permission prompt appears only after the user enables Smart reminders in Settings.
 

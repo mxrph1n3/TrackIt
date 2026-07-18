@@ -1,5 +1,5 @@
 import { IS_WEB } from '../platform/constants';
-import { isSupabaseConfigured, supabase } from '../supabase';
+import { isSupabaseConfigured } from '../supabase';
 import { createSessionFromUrl, getAuthRedirectUri } from './oauth.shared';
 
 export { getAuthRedirectUri, createSessionFromUrl } from './oauth.shared';
@@ -36,58 +36,4 @@ export async function completeOAuthSessionFromCurrentUrl() {
     console.warn('[Auth] OAuth callback handling failed:', error);
     return null;
   }
-}
-
-export async function signInWithGoogleOAuth() {
-  if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured. Add your environment variables first.');
-  }
-
-  const redirectTo = getAuthRedirectUri();
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo,
-      skipBrowserRedirect: true,
-    },
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  if (!data?.url) {
-    throw new Error('Unable to start Google sign-in.');
-  }
-
-  window.location.assign(data.url);
-  return null;
-}
-
-export async function signInWithAppleOAuth() {
-  if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured. Add your environment variables first.');
-  }
-
-  const redirectTo = getAuthRedirectUri();
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'apple',
-    options: {
-      redirectTo,
-      skipBrowserRedirect: true,
-    },
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  if (!data?.url) {
-    throw new Error('Unable to start Apple sign-in.');
-  }
-
-  window.location.assign(data.url);
-  return null;
 }

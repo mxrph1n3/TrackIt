@@ -8,8 +8,6 @@ import {
   type PropsWithChildren,
 } from 'react';
 
-import { signInWithAppleNative } from '../lib/auth/apple';
-import { signInWithGoogleOAuth } from '../lib/auth/oauth';
 import { toAuthErrorMessage, validateAuthForm } from '../lib/auth/validation';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
@@ -25,8 +23,6 @@ type UseAuthResult = {
   clearAuthError: () => void;
   signInWithEmail: (email: string, password: string) => Promise<boolean>;
   signUpWithEmail: (email: string, password: string) => Promise<boolean>;
-  signInWithGoogle: () => Promise<boolean>;
-  signInWithApple: () => Promise<boolean>;
   signOut: () => Promise<void>;
 };
 
@@ -110,18 +106,6 @@ function useAuthProvider(session: Session | null): UseAuthResult {
     [runAuthAction],
   );
 
-  const signInWithGoogle = useCallback(async () => {
-    return runAuthAction(async () => {
-      await signInWithGoogleOAuth();
-    });
-  }, [runAuthAction]);
-
-  const signInWithApple = useCallback(async () => {
-    return runAuthAction(async () => {
-      await signInWithAppleNative();
-    });
-  }, [runAuthAction]);
-
   const signOut = useCallback(async () => {
     setAuthError(null);
     await supabase.auth.signOut();
@@ -136,8 +120,6 @@ function useAuthProvider(session: Session | null): UseAuthResult {
       clearAuthError,
       signInWithEmail,
       signUpWithEmail,
-      signInWithGoogle,
-      signInWithApple,
       signOut,
     }),
     [
@@ -145,9 +127,7 @@ function useAuthProvider(session: Session | null): UseAuthResult {
       clearAuthError,
       isAuthenticating,
       session,
-      signInWithApple,
       signInWithEmail,
-      signInWithGoogle,
       signOut,
       signUpWithEmail,
     ],

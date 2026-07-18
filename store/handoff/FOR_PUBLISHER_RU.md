@@ -134,31 +134,14 @@ open ios/TrackIt.xcworkspace
 ## B2. Signing
 
 1. Слева таргет **TrackIt** → **Signing & Capabilities**  
-2. **Team** → ваша **платная** Apple Developer команда (Personal Team / бесплатный Apple ID **не подойдёт** — нужны Push и Sign in with Apple)  
+2. **Team** → ваша **платная** Apple Developer команда  
 3. Bundle Identifier = **`com.trackit.lifeos`**  
 4. **Automatically manage signing** = ON  
-5. Entitlements по умолчанию: `TrackIt/TrackIt.store.entitlements` (Push + Sign in with Apple).  
-   Файл **нельзя** оставлять пустым — иначе на Release/TestFlight кнопка Apple не работает.  
-   Для локального теста на **бесплатном** Personal Team временно переключите на `TrackIt/TrackIt.entitlements` (пустой файл).
+5. Entitlements: `TrackIt/TrackIt.store.entitlements` (только Push).  
+   Вход в приложение — **только email/пароль** (Google / Sign in with Apple убраны).
 
-### Sign in with Apple — чеклист (иначе «не работает» даже на Release)
+### Если видите `Supabase is not configured…`
 
-Нужны **все** пункты:
-
-1. **Платный** Apple Developer Team + Bundle ID `com.trackit.lifeos`
-2. developer.apple.com → Identifiers → App ID `com.trackit.lifeos` → capability **Sign In with Apple** = ON  
-3. Xcode → Signing & Capabilities → capability **Sign In with Apple** добавлена (подтягивает `TrackIt.store.entitlements`)
-4. Supabase Dashboard → Authentication → Providers → **Apple** = Enabled  
-   - **Client IDs** обязательно содержат `com.trackit.lifeos` (App ID / Bundle ID)  
-   - Если нужен ещё web/OAuth: Services ID первым в списке, затем `com.trackit.lifeos`
-5. Пересобрать **Archive / EAS production** после включения capability (старый IPA без entitlement не починится)
-
-Без п.4 нативный sheet Apple может открыться, но вход в приложение упадёт (Supabase отклонит token).  
-Без п.2–3 система вообще не выдаст entitlement — только ошибка / fallback в браузерный OAuth (который тоже нужен Services ID в Supabase).
-
-### Если видите эти ошибки
-
-**A) `Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_…`**  
 Сборка сделана **без** `.env`. В корне репо должен быть `.env` (владелец отдаёт отдельно) **до** Archive / EAS:
 
 ```
@@ -167,18 +150,6 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ…
 ```
 
 Потом **пересобрать** IPA. Старый билд чинить нельзя.
-
-**B) JSON в браузере: `"Unsupported provider: provider is not enabled"`**  
-(часто при Google / Apple OAuth)
-
-В [Supabase Dashboard](https://supabase.com/dashboard) → проект → **Authentication → Providers**:
-
-1. **Google** → Enabled = ON (+ Client ID / Secret из Google Cloud)  
-2. **Apple** → Enabled = ON  
-   - Client IDs: как минимум `com.trackit.lifeos`  
-   - для web/OAuth дополнительно Services ID (первым в списке)
-
-Пока провайдер выключен, и Google, и Apple через OAuth будут падать с этой ошибкой. Email/password при этом может работать.
  
 
 ## B3. Archive (НЕ Run)

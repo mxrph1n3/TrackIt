@@ -11,7 +11,6 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.trackit.lifeos",
       "buildNumber": "1",
-      "usesAppleSignIn": true,
       "infoPlist": {
         "CFBundleDisplayName": "TrackIt",
         "LSApplicationCategoryType": "public.app-category.healthcare-fitness",
@@ -71,7 +70,6 @@
           "faceIDPermission": false
         }
       ],
-      "expo-apple-authentication",
       "expo-web-browser",
       [
         "expo-notifications",

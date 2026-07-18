@@ -14,11 +14,9 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { AuthHeroMark } from '../components/auth/AuthHeroMark';
 import { AuthModeTabs, type AuthMode } from '../components/auth/AuthModeTabs';
-import { AuthSocialRow } from '../components/auth/AuthSocialRow';
 import { AuthTextField } from '../components/auth/AuthTextField';
 import { AmbientBackground } from '../components/ui/AmbientBackground';
 import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
-import { isAppleSignInAvailable } from '../lib/auth/apple';
 import { validateAuthForm, type AuthFieldErrors } from '../lib/auth/validation';
 import { useAuth } from '../hooks/useAuth';
 import { MIN_ACCOUNT_AGE } from '../constants/disclaimers';
@@ -37,8 +35,6 @@ export function AuthScreen() {
     clearAuthError,
     signInWithEmail,
     signUpWithEmail,
-    signInWithGoogle,
-    signInWithApple,
   } = useAuth();
 
   const [mode, setMode] = useState<AuthMode>('sign-in');
@@ -47,17 +43,12 @@ export function AuthScreen() {
   const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [ageError, setAgeError] = useState<string | null>(null);
-  const [appleAvailable, setAppleAvailable] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   const scrollPasswordIntoView = () => {
     // Wait for the keyboard animation so the final content size is measured.
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 250);
   };
-
-  useEffect(() => {
-    void isAppleSignInAvailable().then(setAppleAvailable);
-  }, []);
 
   useEffect(() => {
     if (!email && !password) {
@@ -87,15 +78,6 @@ export function AuthScreen() {
       return true;
     }
     setAgeError(`You must be at least ${MIN_ACCOUNT_AGE} years old to create an account.`);
-    return false;
-  };
-
-  const ensureAgeConfirmedForSocial = () => {
-    if (ageConfirmed) {
-      setAgeError(null);
-      return true;
-    }
-    setAgeError(`Confirm you are at least ${MIN_ACCOUNT_AGE} before using Google or Apple sign-in.`);
     return false;
   };
 
@@ -243,19 +225,6 @@ export function AuthScreen() {
                       </Text>
                     </LinearGradient>
                   </Pressable>
-
-                  <AuthSocialRow
-                    appleAvailable={appleAvailable}
-                    disabled={isAuthenticating}
-                    onGoogle={() => {
-                      if (!ensureAgeConfirmedForSocial()) return;
-                      void signInWithGoogle();
-                    }}
-                    onApple={() => {
-                      if (!ensureAgeConfirmedForSocial()) return;
-                      void signInWithApple();
-                    }}
-                  />
                 </View>
               </View>
             </LinearGradient>

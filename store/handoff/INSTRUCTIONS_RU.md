@@ -129,7 +129,7 @@ iPad-скриншоты не нужны (`supportsTablet: false`).
 TrackIt is a free app with no in-app purchases or subscriptions.
 All features (analytics, workouts, reminders) are unlocked for every signed-in user.
 
-Sign in: email, Google, or Sign in with Apple (iOS).
+Sign in: email and password only (no Google / Apple).
 Account deletion: Settings → Account → Delete account.
 Push notifications: opt-in only — disabled by default; the OS permission prompt appears only after the user enables "Smart reminders" in Settings.
 
