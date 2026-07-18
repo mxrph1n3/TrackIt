@@ -150,22 +150,30 @@ open ios/TrackIt.xcworkspace
 
 # После загрузки IPA — App Store Connect (в браузере)
 
+> **Название, категория, описание, keywords — не в Xcode и не в IPA.**  
+> Их нет во вкладке General проекта. Заполняются только в App Store Connect  
+> (или командой `npx eas-cli metadata:push` из готового `store.config.json` в корне репо).
+
+**Полный чеклист выпуска (копипаст всех полей):**  
+→ **`store/handoff/RELEASE_READY_RU.md`**
+
+Кратко:
+
 1. https://appstoreconnect.apple.com → **My Apps** → **+** → New App  
    - Name: **TrackIt**  
    - Bundle ID: **com.trackit.lifeos**  
    - Primary language: English (U.S.)  
-   - SKU: например `trackit-lifeos-001`
+   - SKU: `trackit-lifeos-001`  
+   - Primary category: **Health & Fitness** · Secondary: **Productivity**
 
-2. Метаданные, скриншоты, Privacy, Support — готовый пакет в репо:  
-   **`store/handoff/INSTRUCTIONS_RU.md`**  
-   Скриншоты: **`store/handoff/screenshots/`**
+2. Метаданные + скриншоты + Privacy:  
+   **`RELEASE_READY_RU.md`** · **`INSTRUCTIONS_RU.md`** · **`screenshots/`**  
+   Машинный файл: корневой **`store.config.json`**
 
 3. Privacy Policy: https://track-it-umber-psi.vercel.app/privacy  
    Support: https://track-it-umber-psi.vercel.app/support  
 
-4. Дождаться билда в TestFlight → в версии 1.0 выбрать Build → **Submit for Review**.
-
-Подробности полей (описание, keywords, privacy labels) — в том же `INSTRUCTIONS_RU.md`.
+4. Дождаться билда в TestFlight → версия **1.0.0** → выбрать Build → **Submit for Review**.
 
 ---
 

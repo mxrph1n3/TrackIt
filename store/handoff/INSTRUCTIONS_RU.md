@@ -2,6 +2,11 @@
 
 Всё, что нужно для создания приложения в App Store Connect и отправки на ревью.
 
+**Сводный чеклист «готово к выпуску»:** [`RELEASE_READY_RU.md`](./RELEASE_READY_RU.md)  
+**Машинный листинг (EAS Metadata):** [`../../store.config.json`](../../store.config.json)
+
+> Категория / subtitle / description **не задаются в Xcode** — только в App Store Connect.
+
 ## Сборка IPA (выберите один путь)
 
 ### Рекомендуется: Xcode Archive (пара кликов)

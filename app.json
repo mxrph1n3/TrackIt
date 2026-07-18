@@ -10,8 +10,11 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.trackit.lifeos",
+      "buildNumber": "1",
       "usesAppleSignIn": true,
       "infoPlist": {
+        "CFBundleDisplayName": "TrackIt",
+        "LSApplicationCategoryType": "public.app-category.healthcare-fitness",
         "ITSAppUsesNonExemptEncryption": false,
         "NSUserNotificationsUsageDescription": "TrackIt sends optional reminders for tasks, habits, workouts, and daily check-ins."
       }

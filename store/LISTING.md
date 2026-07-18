@@ -1,7 +1,11 @@
 # TrackIt — Store listing (fully free build)
 
-Use with the **`free-app`** branch for App Store Connect and Google Play.  
+Use with the **`free-app`** / **`main`** branch for App Store Connect and Google Play.  
 This build has **no in-app purchases and no subscriptions**.
+
+**Machine-readable App Store listing:** root [`store.config.json`](../store.config.json)  
+(`eas metadata:push` after the binary is in App Store Connect; replace review phone + demo password first.)  
+**RU handoff checklist:** [`store/handoff/RELEASE_READY_RU.md`](handoff/RELEASE_READY_RU.md)
 
 **Bundle / package:** `com.trackit.lifeos`  
 **Privacy:** https://track-it-umber-psi.vercel.app/privacy  
