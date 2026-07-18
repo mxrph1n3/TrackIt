@@ -24,6 +24,7 @@ npm run setup:ios
 |--------|---------|-------------|
 | `No such module 'Expo'` / `*.modulemap not found` | Открыли `.xcodeproj` или не сделали `pod install` | Закрыть Xcode → `npm run setup:ios` |
 | `Supabase is not configured` | Старый IPA | `git pull` + новый Archive |
+| `PhaseScriptExecution` / `EPERM` … `main.jsbundle` | User Script Sandboxing | В проекте уже `ENABLE_USER_SCRIPT_SANDBOXING = NO`; `git pull` + Clean Build Folder |
 | Красный экран / Metro / `:8081` | Product → Run (Debug) | Нужен только Archive |
 
 Не открывайте `TrackIt.xcodeproj`. Только `TrackIt.xcworkspace`.
