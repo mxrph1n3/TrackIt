@@ -132,10 +132,14 @@ Initial release. TrackIt is completely free — all features unlocked, no in-app
 
 ## App Review
 
-Перед submit владелец проекта передаёт публикатору:
+Перед submit:
 
-1. **Телефон** контакта (E.164, например `+1…` / `+7…`) — заменить в `store.config.json` → `apple.review.phone`
-2. **Пароль демо-аккаунта** — заменить `demoPassword` (логин: `review@trackit.app`)
+1. **Телефон** контакта (E.164) — заменить в `store.config.json` → `apple.review.phone`
+2. **Демо-аккаунт для App Review** (уже задан):
+   - Email: `review@trackit.app`
+   - Password: `trackit`
+
+Аккаунт должен существовать в Supabase Auth до ревью.
 
 **Review notes** (уже в `store.config.json`):
 ```
@@ -156,7 +160,7 @@ Contact email: mxrphin3work@gmail.com
 
 ## Как залить метаданные автоматически (после IPA в TestFlight)
 
-1. Подставить телефон и demo password в `store.config.json`
+1. Подставить телефон в `store.config.json` (demo password уже `trackit`)
 2. Загрузить билд (EAS или Xcode Archive)
 3. Когда билд обработан:
 

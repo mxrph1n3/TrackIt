@@ -121,7 +121,9 @@ iPad-скриншоты не нужны (`supportsTablet: false`).
 
 ## 6. App Review Information
 
-- **Sign-in required:** Yes → указать демо-аккаунт (логин/пароль передаст владелец проекта отдельно, безопасным каналом)
+- **Sign-in required:** Yes  
+  - Username: `review@trackit.app`  
+  - Password: `trackit`
 - **Notes:**
 ```
 TrackIt is a free app with no in-app purchases or subscriptions.

@@ -62,9 +62,9 @@ Free life OS — tasks, workouts, nutrition, finance, and habits.
 
 ## App Review notes (both stores)
 
-**Demo account (create before submit):**
-- Email: `review@trackit.app` (or a dedicated tester you create in Supabase Auth)
-- Password: [set in App Store Connect / share securely]
+**Demo account (create in Supabase Auth before submit):**
+- Email: `review@trackit.app`
+- Password: `trackit`
 
 **Notes for reviewer:**
 ```
@@ -77,7 +77,7 @@ Push notifications: opt-in only — disabled by default; the OS permission promp
 
 Demo account:
 Email: review@trackit.app
-Password: [YOUR_DEMO_PASSWORD]
+Password: trackit
 
 Privacy: https://track-it-umber-psi.vercel.app/privacy
 Terms: https://track-it-umber-psi.vercel.app/terms
