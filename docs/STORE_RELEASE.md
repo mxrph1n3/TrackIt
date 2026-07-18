@@ -389,7 +389,7 @@ Set in **Supabase Edge Function secrets**:
 |------|--------|-------|
 | `aps-environment: production` | ☐ | Currently `development` in entitlements |
 | Push notification capability | ☐ | If using remote push |
-| Sign in with Apple | ✅ | `usesAppleSignIn: true`, `apple.native.ts` |
+| Sign in with Apple | ❌ removed | Email/password only (no third-party social login) |
 | Privacy Nutrition Labels | ☐ | Match actual data collection |
 | `PrivacyInfo.xcprivacy` | Partial | Update `NSPrivacyCollectedDataTypes` |
 | App Review notes | ☐ | Demo account credentials for reviewer |

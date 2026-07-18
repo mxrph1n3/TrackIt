@@ -7,10 +7,10 @@ Branch: **`free-app`** (`APP_IS_FULLY_FREE = true`). No billing, all features un
 - [x] No paywall / no IAP UI for users
 - [x] Privacy + Terms describe a **free** product (deployed on Vercel from this branch)
 - [x] Account deletion in Settings
-- [x] Age gate 13+ (email sign-up + Google/Apple)
+- [x] Age gate 13+ (email sign-up)
 - [x] Health disclaimer
 - [x] Listing matches product (no AI Coach / accurate program count)
-- [x] Sign in with Apple on iOS (required when Google exists)
+- [x] Email/password auth only (no Google / Sign in with Apple)
 - [ ] Demo account for reviewers created in Supabase Auth
 - [ ] Screenshots + Play feature graphic uploaded
 - [ ] App Store privacy nutrition labels + Play Data Safety filled (disclose Supabase)
@@ -79,6 +79,6 @@ Or in App Store Connect: TestFlight → add build → Internal / External testin
 |------|--------------------|
 | Listing mentions Pro / paid IAP but app has none | Use free `store/LISTING.md` |
 | Privacy/Terms still describe subscriptions | Redeploy `public/*.html` from `free-app` |
-| Missing SIWA | Keep `expo-apple-authentication` |
+| Missing SIWA | N/A — social logins removed; email only |
 | Incomplete demo login | Create `review@…` account before submit |
 | Crash on cold start | Smoke-test TestFlight / internal track before review |
