@@ -64,3 +64,30 @@ export async function signInWithGoogleOAuth() {
   window.location.assign(data.url);
   return null;
 }
+
+export async function signInWithAppleOAuth() {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured. Add your environment variables first.');
+  }
+
+  const redirectTo = getAuthRedirectUri();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'apple',
+    options: {
+      redirectTo,
+      skipBrowserRedirect: true,
+    },
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data?.url) {
+    throw new Error('Unable to start Apple sign-in.');
+  }
+
+  window.location.assign(data.url);
+  return null;
+}

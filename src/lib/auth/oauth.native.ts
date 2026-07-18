@@ -1,4 +1,5 @@
 import * as WebBrowser from 'expo-web-browser';
+import type { Provider } from '@supabase/supabase-js';
 
 import { isSupabaseConfigured, supabase } from '../supabase';
 import { createSessionFromUrl, getAuthRedirectUri } from './oauth.shared';
@@ -11,7 +12,7 @@ export async function completeOAuthSessionFromCurrentUrl() {
 
 export { getAuthRedirectUri, createSessionFromUrl } from './oauth.shared';
 
-export async function signInWithGoogleOAuth() {
+async function signInWithOAuthProvider(provider: Provider, label: string) {
   if (!isSupabaseConfigured) {
     throw new Error('Supabase is not configured. Add your environment variables first.');
   }
@@ -19,7 +20,7 @@ export async function signInWithGoogleOAuth() {
   const redirectTo = getAuthRedirectUri();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
+    provider,
     options: {
       redirectTo,
       skipBrowserRedirect: true,
@@ -31,18 +32,27 @@ export async function signInWithGoogleOAuth() {
   }
 
   if (!data?.url) {
-    throw new Error('Unable to start Google sign-in.');
+    throw new Error(`Unable to start ${label} sign-in.`);
   }
 
   const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
 
   if (result.type === 'cancel' || result.type === 'dismiss') {
-    throw new Error('Google sign-in was cancelled.');
+    throw new Error(`${label} sign-in was cancelled.`);
   }
 
   if (result.type !== 'success') {
-    throw new Error('Google sign-in did not complete.');
+    throw new Error(`${label} sign-in did not complete.`);
   }
 
   return createSessionFromUrl(result.url);
+}
+
+export async function signInWithGoogleOAuth() {
+  return signInWithOAuthProvider('google', 'Google');
+}
+
+/** Browser OAuth — works without native Sign in with Apple entitlement (e.g. Personal Team). */
+export async function signInWithAppleOAuth() {
+  return signInWithOAuthProvider('apple', 'Apple');
 }

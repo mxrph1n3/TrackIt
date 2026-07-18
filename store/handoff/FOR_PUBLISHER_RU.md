@@ -2,7 +2,7 @@
 
 **Кому:** тому, кто загружает приложение в App Store Connect  
 **Репозиторий:** https://github.com/mxrph1n3/TrackIt  
-**Ветка:** `main`  
+**Ветка:** `free-app` (актуальные исходники для iOS / App Store; после merge — `main`)  
 **Bundle ID:** `com.trackit.lifeos`  
 **Имя приложения:** TrackIt  
 
@@ -119,7 +119,7 @@ npx --yes eas-cli submit --platform ios --profile production --latest
 ```bash
 git clone https://github.com/mxrph1n3/TrackIt.git
 cd TrackIt
-git checkout main
+git checkout free-app
 npm install
 cd ios
 pod install
@@ -134,9 +134,11 @@ open ios/TrackIt.xcworkspace
 ## B2. Signing
 
 1. Слева таргет **TrackIt** → **Signing & Capabilities**  
-2. **Team** → ваша Apple Developer команда  
+2. **Team** → ваша **платная** Apple Developer команда (Personal Team / бесплатный Apple ID **не подойдёт** — нужны Push и Sign in with Apple)  
 3. Bundle Identifier = **`com.trackit.lifeos`**  
 4. **Automatically manage signing** = ON  
+5. Entitlements по умолчанию: `TrackIt/TrackIt.store.entitlements` (Push + Sign in with Apple).  
+   Для локального теста на **бесплатном** Personal Team временно переключите на `TrackIt/TrackIt.entitlements` (пустой файл).  
 
 ## B3. Archive (НЕ Run)
 
