@@ -39,15 +39,10 @@
 3. Node.js 20+ (`node -v`).  
 4. Доступ к GitHub-репозиторию TrackIt.  
 
-Env для работы логина в приложении (попросите у владельца проекта, файл `.env` в git не лежит):
+**Supabase для логина уже в репозитории** (публичный anon-ключ в `.env.production` + fallback в коде).  
+Отдельный `.env` посреднику **не нужен**. После `git pull` сделайте **новый Archive** — старый IPA без ключей не починить.
 
-```
-EXPO_PUBLIC_SUPABASE_URL=...
-EXPO_PUBLIC_SUPABASE_ANON_KEY=...
-```
-
-Их нужно добавить в EAS Environment Variables (production) на expo.dev **или** положить в `.env` в корне репо **перед** Archive / `xcodebuild`.  
-Скрипт `ios/.xcode.env` подхватывает `.env` при сборке JS — без этого IPA покажет *«Supabase is not configured»*.
+Если всё ещё видите *«Supabase is not configured»* — вы на старой сборке или не обновили ветку `free-app` / `main`.
 
 ---
 
@@ -142,14 +137,8 @@ open ios/TrackIt.xcworkspace
 
 ### Если видите `Supabase is not configured…`
 
-Сборка сделана **без** `.env`. В корне репо должен быть `.env` (владелец отдаёт отдельно) **до** Archive / EAS:
-
-```
-EXPO_PUBLIC_SUPABASE_URL=https://….supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ…
-```
-
-Потом **пересобрать** IPA. Старый билд чинить нельзя.
+Это **старая** сборка (до коммита с `.env.production` / code defaults).  
+Сделайте `git pull` на `free-app` или `main` и **новый** Product → Archive. Старый IPA не чинится.
  
 
 ## B3. Archive (НЕ Run)

@@ -40,16 +40,10 @@ npm run ios:xcode
 
 Готово — IPA уйдёт в App Store Connect. Дальше метаданные и Submit: см. `INSTRUCTIONS_RU.md`.
 
-## Env (если приложение не логинится)
+## Env (логин / Supabase)
 
-В корне репо нужен `.env` (файл в git не лежит):
-
-```
-EXPO_PUBLIC_SUPABASE_URL=...
-EXPO_PUBLIC_SUPABASE_ANON_KEY=...
-```
-
-Попросите эти значения у владельца проекта до Archive, либо задайте их в Xcode Build Settings / схеме, если уже прошиты через EAS.
+Публичные ключи уже в репо (`.env.production` + code defaults). Отдельный `.env` для Archive не обязателен.  
+Если логин пишет «Supabase is not configured» — обновите ветку и пересоберите Archive.
 
 ## Не делайте
 
