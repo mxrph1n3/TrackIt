@@ -246,21 +246,8 @@ export function AuthScreen() {
       </KeyboardAwareScrollViewCompat>
 
       {isAuthenticating ? (
-        <View style={styles.loadingScrim}>
-          <View style={styles.loadingCard}>
-            {supportsNativeBlur() ? (
-              <BlurView intensity={28} tint={theme.blurTint} style={StyleSheet.absoluteFill} />
-            ) : null}
-            <View
-              style={[
-                styles.loadingInner,
-                { backgroundColor: isDark ? 'rgba(20,18,32,0.88)' : 'rgba(255,255,255,0.9)' },
-              ]}
-            >
-              <ActivityIndicator color="#775DD8" size="large" />
-              <Text style={[styles.loadingText, { color: theme.textPrimary }]}>Syncing your orbit…</Text>
-            </View>
-          </View>
+        <View style={styles.loadingScrim} pointerEvents="auto">
+          <ActivityIndicator color="#775DD8" size="large" />
         </View>
       ) : null}
     </View>
@@ -378,22 +365,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(10, 8, 18, 0.42)',
-  },
-  loadingCard: {
-    overflow: 'hidden',
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: 'rgba(149, 128, 232, 0.28)',
-  },
-  loadingInner: {
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    paddingVertical: 26,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    fontWeight: '600',
+    backgroundColor: 'rgba(10, 8, 18, 0.28)',
   },
 });

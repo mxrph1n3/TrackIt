@@ -4,6 +4,7 @@ import 'react-native-reanimated';
 import './global.css';
 
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useRef, useState } from 'react';
 import { Image, Platform, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -26,6 +27,10 @@ import { KeyboardProviderCompat } from './src/lib/platform/keyboard';
 import { supabase } from './src/lib/supabase';
 import { useGamificationStore } from './src/stores/useGamificationStore';
 import { AppThemeRoot } from './src/theme/AppThemeRoot';
+
+void SplashScreen.preventAutoHideAsync().catch(() => {
+  // Splash may already be hidden on web / fast refresh.
+});
 
 
 const WELCOME_BACKGROUND_LIGHT = require('./assets/images/welcome-gate.png');
@@ -103,6 +108,7 @@ function AuthGuardRoot() {
       setUserSession(data.session);
       setIsLoading(false);
       handleAuthSession(data.session);
+      void SplashScreen.hideAsync().catch(() => undefined);
     };
 
     void bootstrapSession();
@@ -116,6 +122,7 @@ function AuthGuardRoot() {
 
       setUserSession(nextSession);
       setIsLoading(false);
+      void SplashScreen.hideAsync().catch(() => undefined);
       handleAuthSession(nextSession, event);
     });
 
