@@ -49,8 +49,6 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSFaceIDUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>TrackIt sends optional reminders for tasks, habits, workouts, and daily check-ins.</string>
 	<key>RCTNewArchEnabled</key>
