@@ -155,7 +155,31 @@ open ios/TrackIt.xcworkspace
 
 Без п.4 нативный sheet Apple может открыться, но вход в приложение упадёт (Supabase отклонит token).  
 Без п.2–3 система вообще не выдаст entitlement — только ошибка / fallback в браузерный OAuth (который тоже нужен Services ID в Supabase).
-  
+
+### Если видите эти ошибки
+
+**A) `Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_…`**  
+Сборка сделана **без** `.env`. В корне репо должен быть `.env` (владелец отдаёт отдельно) **до** Archive / EAS:
+
+```
+EXPO_PUBLIC_SUPABASE_URL=https://….supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ…
+```
+
+Потом **пересобрать** IPA. Старый билд чинить нельзя.
+
+**B) JSON в браузере: `"Unsupported provider: provider is not enabled"`**  
+(часто при Google / Apple OAuth)
+
+В [Supabase Dashboard](https://supabase.com/dashboard) → проект → **Authentication → Providers**:
+
+1. **Google** → Enabled = ON (+ Client ID / Secret из Google Cloud)  
+2. **Apple** → Enabled = ON  
+   - Client IDs: как минимум `com.trackit.lifeos`  
+   - для web/OAuth дополнительно Services ID (первым в списке)
+
+Пока провайдер выключен, и Google, и Apple через OAuth будут падать с этой ошибкой. Email/password при этом может работать.
+ 
 
 ## B3. Archive (НЕ Run)
 
