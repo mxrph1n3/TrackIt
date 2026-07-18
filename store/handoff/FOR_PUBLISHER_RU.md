@@ -60,7 +60,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 ```bash
 git clone https://github.com/mxrph1n3/TrackIt.git
 cd TrackIt
-git checkout main
+git checkout free-app
 npm install
 ```
 
