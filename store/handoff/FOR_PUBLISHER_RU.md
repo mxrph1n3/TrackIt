@@ -2,13 +2,55 @@
 
 **Кому:** тому, кто загружает приложение в App Store Connect  
 **Репозиторий:** https://github.com/mxrph1n3/TrackIt  
-**Ветка:** `free-app` (актуальные исходники для iOS / App Store; после merge — `main`)  
+**Ветка:** `main` или `free-app` (одинаковый код для стора)  
 **Bundle ID:** `com.trackit.lifeos`  
 **Имя приложения:** TrackIt  
 
+**Expo / EAS не обязательны.** Достаточно Mac + Xcode + Node + CocoaPods.
+
 ---
 
-## Сначала прочитайте это (про ваши ошибки)
+## Обязательно после клона (иначе Xcode красный)
+
+В Git **нет** `node_modules/` и `ios/Pods/`. Без установки будут ошибки вроде:
+
+- `No such module 'Expo'`
+- `*.modulemap not found`
+- `SwiftGeneratePch` / `PrecompileSwiftBridgingHeader`
+
+### Одна команда
+
+```bash
+git clone https://github.com/mxrph1n3/TrackIt.git
+cd TrackIt
+git checkout main
+npm run setup:ios
+```
+
+Скрипт сделает `npm install` + `pod install` и откроет **`TrackIt.xcworkspace`**.
+
+### Или вручную
+
+```bash
+npm install
+cd ios && pod install && cd ..
+open ios/TrackIt.xcworkspace
+```
+
+| Правильно | Неправильно |
+|-----------|-------------|
+| `TrackIt.xcworkspace` | `TrackIt.xcodeproj` |
+| Product → **Archive** | Product → Run (Debug) на телефон |
+
+Нужны: **Node.js 20+**, **CocoaPods** (`brew install cocoapods`), **Xcode**.
+
+Если снова `modulemap not found`: закройте Xcode → в терминале `rm -rf ~/Library/Developer/Xcode/DerivedData/TrackIt-*` → снова `npm run setup:ios`.
+
+**Supabase / логин:** ключи уже в репо (`.env.production`). Отдельный `.env` не нужен. После обновления кода — **новый Archive**.
+
+---
+
+## Сначала прочитайте это (про Debug Run)
 
 Сообщения вроде:
 
@@ -16,37 +58,25 @@
 - `Local network prohibited` / `Code=-1009` к `http://10.0.0.4:8081`
 - `empty dSYM` / `UIScene lifecycle`
 
-означают одно: вы запустили **Debug-сборку из Xcode (Product → Run)** на телефон.  
-Такая сборка — **не готовое приложение**. Она пытается скачать JavaScript с компьютера (Metro packager), как «живой» режим разработки. Если Metro нет или iPhone блокирует локальную сеть — чёрный экран с красной ошибкой. Это **не веб**, но и **не release для App Store**.
-
-Для App Store нужна **Release / Archive** или **EAS production build**.  
-Внутри IPA уже лежит JS — Metro **не нужен**, телефон **не** ходит на `:8081`.
+означают: запущен **Debug Run**, а не Archive. Для стора — только **Product → Archive**.
 
 | Что вы делали | Что получается |
 |---------------|----------------|
-| Xcode → Run (Debug) | Нужен Metro → ваши ошибки |
-| `npx expo start` + телефон | Тоже режим разработки |
-| **EAS `production` build** или **Xcode Archive** | Готовый IPA для стора |
-
-`empty dSYM` и `UIScene` можно игнорировать — это не причина красного экрана.
+| Xcode → Run (Debug) | Нужен Metro → ошибки сети |
+| **Xcode Archive** | Готовый IPA для стора |
 
 ---
 
 ## Что нужно иметь
 
-1. Mac с Xcode (для Archive) **или** только терминал + интернет (для EAS).  
-2. **Платный Apple Developer** ($99/год) — без него IPA в стор не загрузить.  
-3. Node.js 20+ (`node -v`).  
-4. Доступ к GitHub-репозиторию TrackIt.  
-
-**Supabase для логина уже в репозитории** (публичный anon-ключ в `.env.production` + fallback в коде).  
-Отдельный `.env` посреднику **не нужен**. После `git pull` сделайте **новый Archive** — старый IPA без ключей не починить.
-
-Если всё ещё видите *«Supabase is not configured»* — вы на старой сборке или не обновили ветку `free-app` / `main`.
+1. Mac с Xcode.  
+2. **Платный Apple Developer** ($99/год).  
+3. Node.js 20+ и CocoaPods.  
+4. Доступ к GitHub TrackIt.  
 
 ---
 
-# Путь A (рекомендуется) — готовая сборка через EAS (облако)
+# Путь A (опционально) — EAS в облаке (нужен Expo-аккаунт)
 
 Так вы получаете **настоящий IPA** без Metro и без Debug Run.
 
@@ -105,28 +135,11 @@ npx --yes eas-cli submit --platform ios --profile production --latest
 
 ---
 
-# Путь B — через Xcode Archive (тоже готовый IPA, без Metro)
+# Путь B (основной без Expo) — Xcode Archive
 
-В репозитории уже есть папка `ios/` с Bundle ID `com.trackit.lifeos`.
+Bundle ID: `com.trackit.lifeos`. Сначала выполните блок **«Обязательно после клона»** выше.
 
-## B1. Подготовка
-
-```bash
-git clone https://github.com/mxrph1n3/TrackIt.git
-cd TrackIt
-git checkout free-app
-npm install
-cd ios
-pod install
-cd ..
-open ios/TrackIt.xcworkspace
-```
-
-Или: `npm run ios:xcode`
-
-Открывать **только** `TrackIt.xcworkspace`, не `.xcodeproj`.
-
-## B2. Signing
+## B1. Signing
 
 1. Слева таргет **TrackIt** → **Signing & Capabilities**  
 2. **Team** → ваша **платная** Apple Developer команда  
@@ -141,7 +154,7 @@ open ios/TrackIt.xcworkspace
 Сделайте `git pull` на `free-app` или `main` и **новый** Product → Archive. Старый IPA не чинится.
  
 
-## B3. Archive (НЕ Run)
+## B2. Archive (НЕ Run)
 
 1. Сверху: схема **TrackIt**  
 2. Устройство: **Any iOS Device (arm64)** — **не** симулятор, **не** ваш iPhone для Debug Run  

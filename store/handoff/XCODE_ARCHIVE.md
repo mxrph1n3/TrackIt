@@ -3,24 +3,19 @@
 Проект уже подготовлен: bundle ID `com.trackit.lifeos`, имя **TrackIt**, email-вход, уведомления.
 Нужен только **ваш** Apple Developer аккаунт ($99/год). Без него загрузить в App Store нельзя.
 
-## Один раз: установка
+## Один раз: установка (обязательно)
+
+В Git нет `node_modules` и `ios/Pods`. Без них: `No such module 'Expo'`, `*.modulemap not found`.
 
 ```bash
 git clone https://github.com/mxrph1n3/TrackIt.git
 cd TrackIt
 git checkout main
-npm install
-cd ios && pod install && cd ..
-open ios/TrackIt.xcworkspace
+npm run setup:ios
 ```
 
-Или одной командой из корня:
-
-```bash
-npm run ios:xcode
-```
-
-Открывать именно **`TrackIt.xcworkspace`**, не `.xcodeproj`.
+Откроется **`TrackIt.xcworkspace`** — только его. Не `.xcodeproj`.  
+Нужны Node 20+ и CocoaPods (`brew install cocoapods`).
 
 ## В Xcode — 4 действия
 
