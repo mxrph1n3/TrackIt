@@ -1,17 +1,58 @@
-# Shrink EAS upload archive (was ~211 MB before exclusions).
-.git/
-android/
-ios/
-docs/
-supabase/
-scripts/
-seed.js
-assets/icon-concepts/
-assets/icon-candidate.png
-**/*.md
-!README.md
+# When .easignore exists it REPLACES .gitignore for the upload archive.
+# Keep this in sync with heavy local folders or uploads balloon to GBs.
+
+# dependencies / tooling
+node_modules/
+.expo/
 .cursor/
 .github/
+.git/
+
+# build outputs
 dist/
+dist-android/
+dist-ios/
 web-build/
-.expo/
+TrackIt-AppStore-Package.zip
+*.zip
+
+# native projects (EAS prebuilds on server)
+android/
+ios/
+.kotlin/
+ios/Pods/
+ios/build/
+ios/DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# docs / scripts not needed in binary
+docs/
+supabase/
+dist-supabase/
+scripts/
+seed.js
+**/*.md
+!README.md
+
+# assets not needed in release binary
+assets/icon-concepts/
+assets/icon-candidate.png
+store/
+
+# secrets / local
+.env
+.env*.local
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+.DS_Store
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.tsbuildinfo
+expo-env.d.ts
+.metro-health-check*
