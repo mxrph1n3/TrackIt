@@ -1,7 +1,9 @@
 import { Flame } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
 import type { HabitWithWeek } from '../../lib/habits/service';
+import { tWeekdayShort } from '../../i18n/helpers';
 import { useTheme } from '../../theme/ThemeContext';
 import { GlassPanel } from '../GlassPanel';
 import { HabitDayCheckbox } from './HabitDayCheckbox';
@@ -13,6 +15,7 @@ type HabitCardProps = {
 };
 
 export function HabitCard({ item, disabled, onToggleDay }: HabitCardProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
 
   return (
@@ -30,7 +33,7 @@ export function HabitCard({ item, disabled, onToggleDay }: HabitCardProps) {
             >
               <Flame color={theme.primary} size={12} strokeWidth={2.4} />
               <Text className="text-xs font-black" style={{ color: theme.primary }}>
-                {item.streakDays} Days
+                {t('habits.streakDays', { count: item.streakDays })}
               </Text>
             </View>
           ) : null}
@@ -43,7 +46,7 @@ export function HabitCard({ item, disabled, onToggleDay }: HabitCardProps) {
                 className="mb-2 text-[9px] font-bold uppercase tracking-wider"
                 style={{ color: theme.textMuted }}
               >
-                {day.label}
+                {tWeekdayShort(t, day.label)}
               </Text>
               <HabitDayCheckbox
                 completed={day.completed}

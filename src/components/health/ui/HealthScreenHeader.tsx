@@ -1,6 +1,7 @@
 import { ChevronLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
@@ -13,6 +14,7 @@ type HealthScreenHeaderProps = {
 };
 
 export function HealthScreenHeader({ title, subtitle, onBack, rightSlot }: HealthScreenHeaderProps) {
+  const { t } = useTranslation();
   const healthTheme = useHealthTheme();
 
   const styles = useMemo(
@@ -68,7 +70,13 @@ export function HealthScreenHeader({ title, subtitle, onBack, rightSlot }: Healt
     <View style={styles.wrap}>
       <View style={styles.row}>
         {onBack ? (
-          <Pressable onPress={onBack} style={styles.backBtn} hitSlop={8}>
+          <Pressable
+            onPress={onBack}
+            style={styles.backBtn}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.goBack')}
+          >
             <ChevronLeft color={healthTheme.ink} size={22} strokeWidth={2.4} />
           </Pressable>
         ) : (

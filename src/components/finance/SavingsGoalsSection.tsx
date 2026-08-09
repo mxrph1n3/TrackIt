@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import { formatMoney } from '../../constants/financeCategories';
@@ -13,6 +14,7 @@ type SavingsGoalsSectionProps = {
 };
 
 export function SavingsGoalsSection({ goals, onCreated }: SavingsGoalsSectionProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const [isAdding, setIsAdding] = useState(false);
   const [name, setName] = useState('');
@@ -41,14 +43,14 @@ export function SavingsGoalsSection({ goals, onCreated }: SavingsGoalsSectionPro
     return (
       <View className="items-center py-2">
         <Text className="text-center text-sm" style={{ color: theme.textMuted }}>
-          No savings goals yet.
+          {t('finance.noGoalsYet')}
         </Text>
         <Pressable
           onPress={() => setIsAdding(true)}
           className="mt-3 rounded-xl px-4 py-2 active:opacity-85"
           style={{ backgroundColor: theme.primary }}
         >
-          <Text className="text-sm font-bold text-ethereal-ink">Add Goal</Text>
+          <Text className="text-sm font-bold text-ethereal-ink">{t('finance.addGoal')}</Text>
         </Pressable>
       </View>
     );
@@ -72,7 +74,7 @@ export function SavingsGoalsSection({ goals, onCreated }: SavingsGoalsSectionPro
             </Text>
             {goal.targetDate ? (
               <Text className="mt-1 text-[10px]" style={{ color: theme.textMuted }}>
-                Target · {new Date(goal.targetDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                {t('finance.target')} · {new Date(goal.targetDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
               </Text>
             ) : null}
             <View className="mt-4 h-2 overflow-hidden rounded-full" style={{ backgroundColor: theme.ringTrack }}>
@@ -82,7 +84,7 @@ export function SavingsGoalsSection({ goals, onCreated }: SavingsGoalsSectionPro
               />
             </View>
             <Text className="mt-2 text-xs font-bold" style={{ color: theme.primary }}>
-              {goal.percent}% complete
+              {t('finance.percentComplete', { percent: goal.percent })}
             </Text>
           </View>
         ))}
@@ -94,7 +96,7 @@ export function SavingsGoalsSection({ goals, onCreated }: SavingsGoalsSectionPro
           >
             <Text className="text-2xl">+</Text>
             <Text className="mt-1 text-xs font-bold" style={{ color: theme.primary }}>
-              Add
+              {t('common.add')}
             </Text>
           </View>
         </Pressable>
@@ -108,7 +110,7 @@ export function SavingsGoalsSection({ goals, onCreated }: SavingsGoalsSectionPro
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="Goal name (e.g. MacBook)"
+            placeholder={t('finance.goalNamePlaceholder')}
             placeholderTextColor={theme.textMuted}
             className="mb-3 rounded-xl border px-4 py-3 text-sm font-semibold"
             style={{ color: theme.textPrimary, borderColor: theme.borderSubtle }}
@@ -116,7 +118,7 @@ export function SavingsGoalsSection({ goals, onCreated }: SavingsGoalsSectionPro
           <TextInput
             value={target}
             onChangeText={setTarget}
-            placeholder="Target amount"
+            placeholder={t('finance.goalAmountPlaceholder')}
             placeholderTextColor={theme.textMuted}
             keyboardType="decimal-pad"
             className="mb-3 rounded-xl border px-4 py-3 text-sm font-semibold"
@@ -131,7 +133,7 @@ export function SavingsGoalsSection({ goals, onCreated }: SavingsGoalsSectionPro
             {isSaving ? (
               <ActivityIndicator color={theme.textPrimary} />
             ) : (
-              <Text className="font-bold text-ethereal-ink">Create Goal</Text>
+              <Text className="font-bold text-ethereal-ink">{t('finance.createGoal')}</Text>
             )}
           </Pressable>
         </View>

@@ -2,6 +2,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Brain, Coffee, Pause, Play, RotateCcw, Sparkles, Timer, Zap } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
@@ -34,21 +35,24 @@ const STROKE_INNER = 10;
 
 const PRESET_META: Record<
   FocusSessionType,
-  { icon: typeof Brain; subtitle: string; accent: string }
+  { icon: typeof Brain; subtitleKey: string; labelKey: string; accent: string }
 > = {
   focus: {
     icon: Brain,
-    subtitle: 'Deep work · zero distractions',
+    subtitleKey: 'focus.presets.deepWorkDesc',
+    labelKey: 'focus.presets.deepWork',
     accent: BRAND.primary,
   },
   short_break: {
     icon: Coffee,
-    subtitle: 'Micro reset · breathe & stretch',
+    subtitleKey: 'focus.presets.microResetDesc',
+    labelKey: 'focus.presets.microReset',
     accent: '#34D399',
   },
   long_break: {
     icon: Sparkles,
-    subtitle: 'Full recharge · step away',
+    subtitleKey: 'focus.presets.fullRechargeDesc',
+    labelKey: 'focus.presets.fullRecharge',
     accent: '#818CF8',
   },
 };
@@ -166,6 +170,7 @@ function FocusRing({
 }
 
 export function FocusScreen() {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
   const { scrollPaddingBottom } = useIsolatedScreenInsets();
   const closeModule = useProfileModuleStore((s) => s.closeModule);
@@ -192,26 +197,24 @@ export function FocusScreen() {
   const PresetIcon = meta.icon;
 
   const statusLabel = useMemo(() => {
-    if (isCompleted) return 'Session Complete';
-    if (isRunning) return 'In Flow';
-    if (isPaused) return 'Paused';
-    return 'Ready';
-  }, [isCompleted, isPaused, isRunning]);
+    if (isCompleted) return t('focus.statuses.complete');
+    if (isRunning) return t('focus.statuses.inFlow');
+    if (isPaused) return t('focus.statuses.paused');
+    return t('focus.statuses.ready');
+  }, [isCompleted, isPaused, isRunning, t]);
 
   const phaseCopy = useMemo(() => {
     if (isCompleted) {
-      return sessionType === 'focus'
-        ? 'Crystal charged · +40 EXP awarded'
-        : 'Break complete · return when ready';
+      return t('focus.statuses.complete');
     }
     if (sessionType === 'focus') {
-      return 'Lock in. The crystal pulses with your focus rhythm.';
+      return t('focus.presets.deepWorkDesc');
     }
     if (sessionType === 'short_break') {
-      return 'Breathe. Let your mind decompress before the next sprint.';
+      return t('focus.presets.microResetDesc');
     }
-    return 'Full reset. Hydrate, move, and come back sharper.';
-  }, [isCompleted, sessionType]);
+    return t('focus.presets.fullRechargeDesc');
+  }, [isCompleted, sessionType, t]);
 
   const ringGradients = useMemo(
     () =>
@@ -416,7 +419,7 @@ export function FocusScreen() {
         horizontalPadding={18}
         contentContainerStyle={{ paddingBottom: scrollPaddingBottom }}
       >
-        <ScreenHeader title="Focus Protocol" subtitle="Pomodoro · Deep Work Engine" onBack={closeModule} />
+        <ScreenHeader title={t('focus.title')} subtitle={t('focus.subtitle')} onBack={closeModule} />
 
         <View style={styles.presetRow}>
           {FOCUS_MODE_PRESETS.map((item, index) => {
@@ -456,7 +459,7 @@ export function FocusScreen() {
                           { color: active ? theme.textPrimary : theme.textMuted },
                         ]}
                       >
-                        {item.label}
+                        {t(itemMeta.labelKey)}
                       </Text>
                       <Text
                         style={[
@@ -566,7 +569,7 @@ export function FocusScreen() {
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
                   <PresetIcon color={meta.accent} size={14} />
                   <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary }}>
-                    {preset.label} · {meta.subtitle}
+                    {t(meta.labelKey)} · {t(meta.subtitleKey)}
                   </Text>
                 </View>
 
@@ -577,27 +580,27 @@ export function FocusScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statKicker}>Focus Hours</Text>
+            <Text style={styles.statKicker}>{t('focus.focusHours')}</Text>
             <Text style={styles.statValue}>{focusHours.toFixed(1)}h</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statKicker}>Active Days</Text>
+            <Text style={styles.statKicker}>{t('focus.activeDays')}</Text>
             <Text style={styles.statValue}>{daysActive}</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statKicker}>Progress</Text>
+            <Text style={styles.statKicker}>{t('focus.progress')}</Text>
             <Text style={styles.statValue}>{Math.round(progressPercent * 100)}%</Text>
           </View>
         </View>
 
         <View style={styles.controls}>
-          <Pressable onPress={reset} style={styles.controlSecondary} accessibilityLabel="Reset timer">
+          <Pressable onPress={reset} style={styles.controlSecondary} accessibilityLabel={t('focus.resetA11y')}>
             <RotateCcw color={theme.primary} size={22} />
           </Pressable>
 
           <Pressable
             onPress={isRunning ? pause : start}
-            accessibilityLabel={isRunning ? 'Pause timer' : 'Start timer'}
+            accessibilityLabel={isRunning ? t('focus.pauseA11y') : t('focus.startA11y')}
           >
             <LinearGradient
               colors={[theme.primaryNeon, theme.primary, '#6366F1']}
@@ -616,10 +619,10 @@ export function FocusScreen() {
 
         <Text style={styles.controlCaption}>
           {isRunning
-            ? 'Tap pause to suspend the protocol'
+            ? t('focus.tapHints.pause')
             : isCompleted
-              ? 'Tap play to begin a new cycle'
-              : 'Tap play to initiate focus protocol'}
+              ? t('focus.tapHints.restart')
+              : t('focus.tapHints.start')}
         </Text>
       </IsolatedScrollView>
     </IsolatedScreenShell>

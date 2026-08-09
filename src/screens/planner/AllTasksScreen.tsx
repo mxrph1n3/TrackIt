@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 
 import { ScheduleCheckbox } from '../../components/dashboard/ScheduleCheckbox';
@@ -14,13 +15,10 @@ import { BRAND } from '../../theme/designTokens';
 import { getThemedSurfaces } from '../../theme/themedSurfaces';
 import { useTheme } from '../../theme/ThemeContext';
 
-const FILTERS: Array<{ id: TaskListFilter; label: string }> = [
-  { id: 'open', label: 'Open' },
-  { id: 'all', label: 'All' },
-  { id: 'done', label: 'Done' },
-];
+const FILTER_IDS: TaskListFilter[] = ['open', 'all', 'done'];
 
 export function AllTasksScreen() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
@@ -170,22 +168,28 @@ export function AllTasksScreen() {
       >
         <View style={styles.header}>
           <Pressable onPress={closeAllTasks} hitSlop={8}>
-            <Text style={styles.back}>Back</Text>
+            <Text style={styles.back}>{t('common.back')}</Text>
           </Pressable>
-          <Text style={styles.title}>All Tasks</Text>
+          <Text style={styles.title}>{t('planner.allTasks')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         <View style={styles.filters}>
-          {FILTERS.map((item) => {
-            const active = filter === item.id;
+          {FILTER_IDS.map((id) => {
+            const active = filter === id;
+            const label =
+              id === 'open'
+                ? t('planner.filters.open')
+                : id === 'all'
+                  ? t('planner.filters.all')
+                  : t('planner.filters.done');
             return (
               <Pressable
-                key={item.id}
-                onPress={() => setFilter(item.id)}
+                key={id}
+                onPress={() => setFilter(id)}
                 style={[styles.filterChip, active && styles.filterChipActive]}
               >
-                <Text style={[styles.filterText, active && styles.filterTextActive]}>{item.label}</Text>
+                <Text style={[styles.filterText, active && styles.filterTextActive]}>{label}</Text>
               </Pressable>
             );
           })}
@@ -198,11 +202,13 @@ export function AllTasksScreen() {
         ) : tasks.length === 0 ? (
           <PlannerPremiumCard>
             <View style={styles.empty}>
-              <Text style={styles.emptyTitle}>No tasks here</Text>
+              <Text style={styles.emptyTitle}>{t('planner.noTasks')}</Text>
               <Text style={styles.emptyBody}>
                 {filter === 'done'
-                  ? 'Completed tasks will show up in this list.'
-                  : 'Open Action Hub to create your first task.'}
+                  ? t('planner.noTasksDone')
+                  : filter === 'open'
+                    ? t('planner.noTasksOpen')
+                    : t('planner.noTasks')}
               </Text>
             </View>
           </PlannerPremiumCard>
@@ -231,7 +237,7 @@ export function AllTasksScreen() {
                         {task.title}
                       </Text>
                       <Text style={styles.taskMeta}>
-                        {task.dayLabel ?? 'Scheduled'} · {task.time}
+                        {task.dayLabel ?? t('planner.schedule.scheduled')} · {task.time}
                       </Text>
                     </View>
                     {totalSubtasks > 0 ? (

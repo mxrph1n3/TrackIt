@@ -19,8 +19,26 @@ alter table public.profiles
   alter column days_active set default 1,
   alter column habits_count set default 0;
 
+-- Leaderboard / public_profiles depend on focus_hours — drop before type change.
+drop view if exists public.leaderboard cascade;
+drop view if exists public.public_profiles cascade;
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'profiles'
+      and column_name = 'focus_hours'
+      and data_type <> 'numeric'
+  ) then
+    alter table public.profiles
+      alter column focus_hours type numeric(10, 2) using focus_hours::numeric(10, 2);
+  end if;
+end $$;
+
 alter table public.profiles
-  alter column focus_hours type numeric(10, 2) using focus_hours::numeric(10, 2),
   alter column focus_hours set default 0.0;
 
 alter table public.profiles
@@ -222,6 +240,7 @@ create policy "Users can insert their own profile"
 
 drop policy if exists "Users can update their own profile" on public.profiles;
 drop policy if exists "Profiles block direct xp level writes" on public.profiles;
+drop policy if exists "Users can update safe profile fields" on public.profiles;
 create policy "Users can update safe profile fields"
   on public.profiles for update
   using (auth.uid() = id)

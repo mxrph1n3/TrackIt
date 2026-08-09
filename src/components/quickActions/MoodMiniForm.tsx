@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -16,11 +17,11 @@ import { useThemedStyles } from '../../hooks/useThemedStyles';
 import { useTheme } from '../../theme/ThemeContext';
 
 const MOOD_OPTIONS = [
-  { score: 1, label: 'Rough', emoji: '😞' },
-  { score: 2, label: 'Low', emoji: '😕' },
-  { score: 3, label: 'Okay', emoji: '😐' },
-  { score: 4, label: 'Good', emoji: '🙂' },
-  { score: 5, label: 'Great', emoji: '😄' },
+  { score: 1, key: 'rough', emoji: '😞' },
+  { score: 2, key: 'low', emoji: '😕' },
+  { score: 3, key: 'okay', emoji: '😐' },
+  { score: 4, key: 'good', emoji: '🙂' },
+  { score: 5, key: 'great', emoji: '😄' },
 ] as const;
 
 type MoodMiniFormProps = {
@@ -29,6 +30,7 @@ type MoodMiniFormProps = {
 };
 
 export function MoodMiniForm({ onSuccess, onBack }: MoodMiniFormProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { text, surfaces } = useThemedStyles();
   const { awardXp } = useProgression();
@@ -58,7 +60,7 @@ export function MoodMiniForm({ onSuccess, onBack }: MoodMiniFormProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.heading, { color: theme.textPrimary }]}>How are you feeling?</Text>
+      <Text style={[styles.heading, { color: theme.textPrimary }]}>{t('actionHub.forms.howFeeling')}</Text>
       <View style={styles.moodRow}>
         {MOOD_OPTIONS.map((option) => {
           const active = score === option.score;
@@ -73,7 +75,7 @@ export function MoodMiniForm({ onSuccess, onBack }: MoodMiniFormProps) {
               ]}
             >
               <Text style={styles.moodEmoji}>{option.emoji}</Text>
-              <Text style={[styles.moodLabel, { color: theme.textSecondary }]}>{option.label}</Text>
+              <Text style={[styles.moodLabel, { color: theme.textSecondary }]}>{t(`actionHub.forms.moods.${option.key}`)}</Text>
             </Pressable>
           );
         })}
@@ -82,7 +84,7 @@ export function MoodMiniForm({ onSuccess, onBack }: MoodMiniFormProps) {
       <TextInput
         value={note}
         onChangeText={setNote}
-        placeholder="Optional note"
+        placeholder={t('common.optional')}
         placeholderTextColor={theme.textMuted}
         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderSubtle }]}
         multiline
@@ -92,7 +94,7 @@ export function MoodMiniForm({ onSuccess, onBack }: MoodMiniFormProps) {
 
       <View style={styles.actions}>
         <Pressable onPress={onBack} style={[styles.secondaryButton, { borderColor: theme.borderSubtle }]}>
-          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>Back</Text>
+          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>{t('actionHub.forms.back')}</Text>
         </Pressable>
         <Pressable
           onPress={() => void handleSave()}
@@ -102,7 +104,7 @@ export function MoodMiniForm({ onSuccess, onBack }: MoodMiniFormProps) {
           {isSubmitting ? (
             <ActivityIndicator color={surfaces.onPrimary} />
           ) : (
-            <Text style={[text.onBrand, styles.primaryText]}>Log Mood</Text>
+            <Text style={[text.onBrand, styles.primaryText]}>{t('actionHub.forms.logMood')}</Text>
           )}
         </Pressable>
       </View>

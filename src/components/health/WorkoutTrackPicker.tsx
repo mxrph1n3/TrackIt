@@ -1,10 +1,12 @@
 import { ChevronRight, Crown } from 'lucide-react-native';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { FREE_BUILTIN_PROGRAM_ID } from '../../constants/workoutFreeTier';
 import { isAppFullyFree } from '../../constants/appAccess';
 import { getWorkoutTracks } from '../../constants/workoutPrograms';
 import { useWorkoutProgramAccess } from '../../hooks/useWorkoutProgramAccess';
+import { tWorkoutProgramField } from '../../i18n/helpers';
 import { triggerHaptic } from '../../lib/platform/haptics';
 import type { WorkoutTrackId } from '../../types/workout';
 import { GlassPanel } from '../GlassPanel';
@@ -15,18 +17,21 @@ type WorkoutTrackPickerProps = {
 };
 
 export function WorkoutTrackPicker({ selectedTrackId, onSelect }: WorkoutTrackPickerProps) {
+  const { t } = useTranslation();
   const { trySelectBuiltinProgram, isProProgram } = useWorkoutProgramAccess();
 
   return (
     <View className="mb-4">
       <Text className="mb-3 px-1 text-[10px] font-bold uppercase tracking-widest text-ethereal-slate">
-        Program
+        {t('health.program')}
       </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
         {getWorkoutTracks().map((track) => {
           const active = track.id === selectedTrackId;
           const locked = isProProgram(track.id);
           const isFreeProgram = track.id === FREE_BUILTIN_PROGRAM_ID;
+          const title = tWorkoutProgramField(t, track.id, 'title', track.title);
+          const description = tWorkoutProgramField(t, track.id, 'description', track.description);
 
           return (
             <Pressable
@@ -52,26 +57,28 @@ export function WorkoutTrackPicker({ selectedTrackId, onSelect }: WorkoutTrackPi
                       className={`flex-1 text-sm font-bold ${active ? 'text-obsidian-primary' : 'text-ethereal-ink'}`}
                       numberOfLines={1}
                     >
-                      {track.title}
+                      {title}
                     </Text>
                     {locked && !isAppFullyFree() ? (
                       <View className="flex-row items-center gap-1 rounded-full bg-ethereal-neon/15 px-2 py-0.5">
                         <Crown color="#775DD8" size={10} strokeWidth={2.4} />
-                        <Text className="text-[9px] font-bold uppercase text-ethereal-neon">Pro</Text>
+                        <Text className="text-[9px] font-bold uppercase text-ethereal-neon">{t('common.pro')}</Text>
                       </View>
                     ) : null}
                     {isFreeProgram && !isAppFullyFree() ? (
                       <View className="rounded-full bg-emerald-500/15 px-2 py-0.5">
-                        <Text className="text-[9px] font-bold uppercase text-emerald-600">Free</Text>
+                        <Text className="text-[9px] font-bold uppercase text-emerald-600">{t('common.free')}</Text>
                       </View>
                     ) : null}
                   </View>
                   <Text className="mt-1 text-xs leading-4 text-ethereal-slate" numberOfLines={2}>
-                    {track.description}
+                    {description}
                   </Text>
                   <View className="mt-3 flex-row items-center justify-between">
                     <Text className="text-[10px] font-semibold uppercase tracking-wider text-ethereal-slate">
-                      {track.durationWeeks === 1 ? '8 days' : `${track.durationWeeks} wk`}
+                      {track.durationWeeks === 1
+                        ? t('health.daysCount', { count: 8 })
+                        : t('health.weeksShort', { count: track.durationWeeks })}
                     </Text>
                     {active ? <ChevronRight color="#775DD8" size={16} /> : null}
                   </View>

@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { CreditCard } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import { formatMoneyCompact } from '../../constants/financeCategories';
@@ -15,14 +16,15 @@ type ZenithPrimeCardProps = {
 };
 
 const QUICK_ACTIONS = [
-  { id: 'habits', label: 'Habit' },
-  { id: 'focus', label: 'Focus' },
-  { id: 'journal', label: 'Journal' },
-  { id: 'stats', label: 'Stats' },
-  { id: 'goals', label: 'Finance' },
+  { id: 'habits', labelKey: 'planner.sections.habits' },
+  { id: 'focus', labelKey: 'focus.title' },
+  { id: 'journal', labelKey: 'journal.title' },
+  { id: 'stats', labelKey: 'planner.sections.stats' },
+  { id: 'goals', labelKey: 'planner.sections.finance' },
 ] as const;
 
 export function ZenithPrimeCard({ overview, cardholder }: ZenithPrimeCardProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const openModule = useProfileModuleStore((s) => s.openModule);
 
@@ -60,7 +62,7 @@ export function ZenithPrimeCard({ overview, cardholder }: ZenithPrimeCardProps) 
         <View className="mb-6 flex-row items-start justify-between">
           <View>
             <Text className="text-[10px] font-bold uppercase tracking-[0.25em] text-indigo-200/70">
-              Zenith Prime
+              {t('finance.zenithPrime')}
             </Text>
             <Text className="mt-1 text-lg font-black text-white">{cardholder}</Text>
           </View>
@@ -81,7 +83,7 @@ export function ZenithPrimeCard({ overview, cardholder }: ZenithPrimeCardProps) 
         <View className="mt-4 flex-row items-end justify-between">
           <View>
             <Text className="text-[9px] font-bold uppercase tracking-widest text-indigo-200/60">
-              Balance
+              {t('common.balance')}
             </Text>
             <Text className="mt-0.5 text-2xl font-black text-white">
               {formatMoneyCompact(overview.balance, overview.displayCurrency)}
@@ -89,7 +91,7 @@ export function ZenithPrimeCard({ overview, cardholder }: ZenithPrimeCardProps) 
           </View>
           <View className="items-end">
             <Text className="text-[9px] font-bold uppercase tracking-widest text-indigo-200/60">
-              Valid Thru
+              {t('finance.validThru')}
             </Text>
             <Text className="mt-0.5 text-sm font-bold text-white/90">12/28</Text>
           </View>
@@ -107,7 +109,7 @@ export function ZenithPrimeCard({ overview, cardholder }: ZenithPrimeCardProps) 
             className="flex-1 items-center active:opacity-80"
           >
             <Text className="text-[10px] font-bold" style={{ color: theme.primary }}>
-              {action.label}
+              {t(action.labelKey)}
             </Text>
           </Pressable>
         ))}

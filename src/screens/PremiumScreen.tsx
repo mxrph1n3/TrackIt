@@ -1,10 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Check, Crown, Sparkles, X } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Linking,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -17,6 +17,7 @@ import { IsolatedScreenLayout } from '../components/layout/IsolatedScreenShell';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
 import {
   FREE_TRIAL_DAYS,
+  ANDROID_TRIAL_DAYS,
   PREMIUM_BENEFITS,
   SUBSCRIPTION_DISPLAY_PRICING,
   SUBSCRIPTION_PRODUCT_IDS,
@@ -31,7 +32,12 @@ import { PREMIUM_FEATURE_META } from '../lib/subscription/features';
 import { IS_WEB } from '../lib/platform/constants';
 import { triggerHaptic } from '../lib/platform/haptics';
 import { isTelegramMiniApp } from '../lib/telegram/telegramWebApp';
-import { isRevenueCatReady, selectHasPaidPro, useSubscriptionStore } from '../stores/useSubscriptionStore';
+import {
+  isRevenueCatReady,
+  selectAndroidTrial,
+  selectHasPaidPro,
+  useSubscriptionStore,
+} from '../stores/useSubscriptionStore';
 import { usePaywallStore } from '../stores/usePaywallStore';
 import { useProfileModuleStore } from '../stores/useProfileModuleStore';
 import { BRAND, RADIUS } from '../theme/designTokens';
@@ -52,12 +58,14 @@ export function PremiumScreen({
   feature = null,
   showHeader = true,
 }: PremiumScreenProps) {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const closeModule = useProfileModuleStore((s) => s.closeModule);
   const closePaywall = usePaywallStore((s) => s.closePaywall);
 
   const hasPaidPro = useSubscriptionStore(selectHasPaidPro);
+  const androidTrial = useSubscriptionStore(selectAndroidTrial);
   const tmaAccess = useSubscriptionStore((s) => s.tmaAccess);
   const isTma = IS_WEB && isTelegramMiniApp();
   const monthlyPriceLabel = getTmaMonthlyPriceLabel();
@@ -71,7 +79,7 @@ export function PremiumScreen({
   const purchaseWithStars = useSubscriptionStore((s) => s.purchaseWithStars);
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionProductId>(
-    SUBSCRIPTION_PRODUCT_IDS.yearly,
+    SUBSCRIPTION_PRODUCT_IDS.monthly,
   );
 
   const handleClose = useCallback(() => {
@@ -323,7 +331,7 @@ export function PremiumScreen({
           onPress={handleClose}
           style={styles.closeButton}
           accessibilityRole="button"
-          accessibilityLabel="Close"
+          accessibilityLabel={t('common.close')}
         >
           <X color={theme.textPrimary} size={18} />
         </Pressable>
@@ -332,12 +340,10 @@ export function PremiumScreen({
       <LinearGradient colors={[...gradientColors]} style={styles.heroGradient}>
         <View style={styles.heroRow}>
           <Crown color={BRAND.primary} size={28} strokeWidth={2.2} />
-          <Text style={styles.heroTitle}>Unlock TrackIt Pro</Text>
+          <Text style={styles.heroTitle}>{t('premium.unlockTitle')}</Text>
           <Sparkles color={BRAND.primaryLight} size={18} />
         </View>
-        <Text style={styles.heroSubtitle}>
-          Your command center across tasks, workouts, nutrition, finance, and habits.
-        </Text>
+        <Text style={styles.heroSubtitle}>{t('premium.unlockSub')}</Text>
         {featureMeta ? (
           <View style={styles.featureCallout}>
             <Text style={styles.featureCalloutTitle}>{featureMeta.title}</Text>
@@ -350,16 +356,16 @@ export function PremiumScreen({
         <GlassPanel borderRadius={RADIUS.inset}>
           <View style={styles.proActiveCard}>
             <Crown color={BRAND.primary} size={40} />
-            <Text style={styles.proActiveTitle}>TrackIt Pro is active</Text>
+            <Text style={styles.proActiveTitle}>{t('premium.proActive')}</Text>
             <Text style={styles.proActiveBody}>
               {tmaAccess.isInTrial
-                ? `Trial active — ${tmaAccess.trialDaysRemaining} day(s) left with full access and reminders.`
+                ? t('premium.trialActiveBody', { days: tmaAccess.trialDaysRemaining })
                 : tmaAccess.hasStarsSubscription
-                  ? `TrackIt Pro subscription active (${monthlyPriceLabel}). Analytics and reminders are unlocked.`
-                  : 'Advanced analytics, cloud sync, and premium themes are unlocked.'}
+                  ? t('premium.starsActiveBody', { price: monthlyPriceLabel })
+                  : t('premium.proActiveBody')}
             </Text>
             <Pressable onPress={() => void refresh()} style={styles.secondaryButton}>
-              <Text style={styles.secondaryLabel}>Refresh subscription status</Text>
+              <Text style={styles.secondaryLabel}>{t('premium.refreshStatus')}</Text>
             </Pressable>
           </View>
         </GlassPanel>
@@ -375,11 +381,31 @@ export function PremiumScreen({
               marginBottom: 10,
             }}
           >
-            {IS_WEB ? 'Subscription' : 'Choose a plan'}
+            {IS_WEB ? t('premium.subscription') : t('premium.choosePlan')}
           </Text>
 
           {!IS_WEB ? (
             <>
+              {androidTrial.isInTrial ? (
+                <GlassPanel borderRadius={RADIUS.inset} style={{ marginBottom: 12 }}>
+                  <View style={{ padding: 16 }}>
+                    <Text style={styles.planLabel}>
+                      {t('premium.trialActive', { days: ANDROID_TRIAL_DAYS })}
+                    </Text>
+                    <Text style={[styles.planMeta, { marginTop: 6 }]}>
+                      {t('premium.trialLeft', {
+                        remaining: androidTrial.trialDaysRemaining,
+                        price: monthlyPrice,
+                      })}
+                    </Text>
+                  </View>
+                </GlassPanel>
+              ) : androidTrial.isExpired ? (
+                <Text style={[styles.planMeta, { marginBottom: 12 }]}>
+                  {t('premium.trialEnded', { days: ANDROID_TRIAL_DAYS })}
+                </Text>
+              ) : null}
+
               <Pressable
                 onPress={() => setSelectedPlan(SUBSCRIPTION_PRODUCT_IDS.monthly)}
                 style={[
@@ -388,12 +414,12 @@ export function PremiumScreen({
                 ]}
               >
                 <View style={styles.planRow}>
-                  <Text style={styles.planLabel}>{SUBSCRIPTION_DISPLAY_PRICING.monthly.label}</Text>
+                  <Text style={styles.planLabel}>{t('premium.monthly')}</Text>
                   <Text style={styles.planPrice}>
-                    {monthlyPrice}/{SUBSCRIPTION_DISPLAY_PRICING.monthly.period}
+                    {monthlyPrice}/{t('premium.month')}
                   </Text>
                 </View>
-                <Text style={styles.planMeta}>Flexible monthly billing</Text>
+                <Text style={styles.planMeta}>{t('premium.flexibleMonthly')}</Text>
               </Pressable>
 
               <Pressable
@@ -404,15 +430,13 @@ export function PremiumScreen({
                 ]}
               >
                 <View style={styles.planRow}>
-                  <Text style={styles.planLabel}>{SUBSCRIPTION_DISPLAY_PRICING.yearly.label}</Text>
+                  <Text style={styles.planLabel}>{t('premium.yearly')}</Text>
                   <Text style={styles.planPrice}>
-                    {yearlyPrice}/{SUBSCRIPTION_DISPLAY_PRICING.yearly.period}
+                    {yearlyPrice}/{t('premium.year')}
                   </Text>
                 </View>
                 <View style={styles.savingsBadge}>
-                  <Text style={styles.savingsText}>
-                    {SUBSCRIPTION_DISPLAY_PRICING.yearly.savingsLabel}
-                  </Text>
+                  <Text style={styles.savingsText}>{t('premium.savingsLabel')}</Text>
                 </View>
               </Pressable>
             </>
@@ -422,18 +446,19 @@ export function PremiumScreen({
                 <GlassPanel borderRadius={RADIUS.inset} style={{ marginBottom: 12 }}>
                   <View style={{ padding: 16 }}>
                     <Text style={styles.planLabel}>
-                      {TMA_TRIAL_DAYS}-day trial active
+                      {t('premium.trialActive', { days: TMA_TRIAL_DAYS })}
                     </Text>
                     <Text style={[styles.planMeta, { marginTop: 6 }]}>
-                      {tmaAccess.trialDaysRemaining} day(s) left — full Pro access and Telegram
-                      reminders included. Subscribe now to keep access after the trial.
+                      {t('premium.trialLeft', {
+                        remaining: tmaAccess.trialDaysRemaining,
+                        price: monthlyPriceLabel,
+                      })}
                     </Text>
                   </View>
                 </GlassPanel>
               ) : (
                 <Text style={[styles.planMeta, { marginBottom: 12 }]}>
-                  Your {TMA_TRIAL_DAYS}-day trial has ended. Subscribe at {monthlyPriceLabel} to keep
-                  Pro features and smart reminders.
+                  {t('premium.trialEnded', { days: TMA_TRIAL_DAYS })}
                 </Text>
               )}
 
@@ -447,24 +472,23 @@ export function PremiumScreen({
                 ) : (
                   <Text style={styles.primaryButtonLabel}>
                     {tmaAccess.isInTrial
-                      ? `Subscribe — ${monthlyPriceLabel}`
-                      : `Unlock Pro — ${monthlyPriceLabel}`}
+                      ? t('premium.subscribeNow', { price: monthlyPriceLabel })
+                      : t('premium.upgradeCta', { price: monthlyPriceLabel })}
                   </Text>
                 )}
               </Pressable>
 
               <Pressable onPress={() => void refresh()} style={styles.secondaryButton}>
-                <Text style={styles.secondaryLabel}>Refresh access status</Text>
+                <Text style={styles.secondaryLabel}>{t('premium.refreshStatus')}</Text>
               </Pressable>
 
               <Text style={[styles.configNote, { marginTop: 8 }]}>
-                Billed at {monthlyPriceLabel} via Telegram Stars at checkout. Subscription renews
-                automatically; cancel in Telegram → Settings → Stars.
+                {t('premium.tmaBillingNote', { price: monthlyPriceLabel })}
               </Text>
             </>
           ) : (
             <Text style={[styles.planMeta, { marginBottom: 12 }]}>
-              Subscribe on the iOS or Android app, then sync your Pro status here.
+              {t('premium.subscribeNativeThenSync')}
             </Text>
           )}
 
@@ -480,12 +504,12 @@ export function PremiumScreen({
                   marginBottom: 4,
                 }}
               >
-                What&apos;s included
+                {t('premium.whatsIncluded')}
               </Text>
-              {PREMIUM_BENEFITS.map((benefit) => (
-                <View key={benefit} style={styles.benefitRow}>
+              {PREMIUM_BENEFITS.map((_, index) => (
+                <View key={`b${index + 1}`} style={styles.benefitRow}>
                   <Check color={BRAND.primary} size={16} strokeWidth={2.5} />
-                  <Text style={styles.benefitText}>{benefit}</Text>
+                  <Text style={styles.benefitText}>{t(`premium.benefits.b${index + 1}`)}</Text>
                 </View>
               ))}
             </View>
@@ -505,8 +529,10 @@ export function PremiumScreen({
               ) : (
                 <Text style={styles.primaryButtonLabel}>
                   {FREE_TRIAL_DAYS > 0
-                    ? `Start ${FREE_TRIAL_DAYS}-day free trial`
-                    : 'Upgrade to Pro'}
+                    ? t('premium.startTrial', { days: FREE_TRIAL_DAYS })
+                    : androidTrial.isInTrial
+                      ? t('premium.subscribeNow', { price: `${monthlyPrice}/mo` })
+                      : t('premium.upgradeCta', { price: `${monthlyPrice}/mo` })}
                 </Text>
               )}
             </Pressable>
@@ -519,50 +545,36 @@ export function PremiumScreen({
               {isPurchasing ? (
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Text style={styles.primaryButtonLabel}>Sync subscription</Text>
+                <Text style={styles.primaryButtonLabel}>{t('premium.syncSubscription')}</Text>
               )}
             </Pressable>
           )}
 
           {!IS_WEB ? (
             <Pressable onPress={() => void handleRestore()} style={styles.secondaryButton}>
-              <Text style={styles.secondaryLabel}>Restore purchases</Text>
+              <Text style={styles.secondaryLabel}>{t('common.restorePurchases')}</Text>
             </Pressable>
           ) : null}
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           {!isRevenueCatReady() && !IS_WEB ? (
-            <Text style={styles.configNote}>
-              Store billing is not configured in this build. Add EXPO_PUBLIC_REVENUECAT_APPLE_KEY
-              and EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY, then create products trackit_pro_monthly and
-              trackit_pro_yearly in App Store Connect and Google Play Console.
-            </Text>
+            <Text style={styles.configNote}>{t('premium.storeNotConfigured')}</Text>
           ) : null}
 
           {!IS_WEB ? (
-            <Text style={styles.configNote}>
-              {FREE_TRIAL_DAYS > 0
-                ? `After the ${FREE_TRIAL_DAYS}-day free trial, payment is charged to your ${Platform.OS === 'ios' ? 'Apple ID' : 'Google Play'} account at ${selectedPlan === SUBSCRIPTION_PRODUCT_IDS.yearly ? `${yearlyPrice}/year` : `${monthlyPrice}/month`}. `
-                : ''}
-              The subscription renews automatically unless cancelled at least 24 hours before the
-              end of the current period. Manage or cancel anytime in{' '}
-              {Platform.OS === 'ios'
-                ? 'Settings → Apple ID → Subscriptions'
-                : 'Google Play → Subscriptions'}
-              .
-            </Text>
+            <Text style={styles.configNote}>{t('premium.storeLegal')}</Text>
           ) : null}
         </>
       )}
 
       <View style={styles.legalRow}>
         <Pressable onPress={() => void Linking.openURL(PRIVACY_POLICY_URL)}>
-          <Text style={styles.legalLink}>Privacy Policy</Text>
+          <Text style={styles.legalLink}>{t('premium.privacy')}</Text>
         </Pressable>
         <Text style={styles.legalDivider}>·</Text>
         <Pressable onPress={() => void Linking.openURL(TERMS_OF_SERVICE_URL)}>
-          <Text style={styles.legalLink}>Terms of Service</Text>
+          <Text style={styles.legalLink}>{t('premium.terms')}</Text>
         </Pressable>
       </View>
     </>
@@ -586,7 +598,11 @@ export function PremiumScreen({
   return (
     <IsolatedScreenLayout
       header={
-        <ScreenHeader title="TRACKIT PRO" subtitle="Your life OS" onBack={handleClose} />
+        <ScreenHeader
+          title={t('premium.headerTitle')}
+          subtitle={t('premium.headerSub')}
+          onBack={handleClose}
+        />
       }
     >
       {content}

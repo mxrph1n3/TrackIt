@@ -1,44 +1,45 @@
-# TrackIt — готовый пакет к выпуску (App Store)
+# TrackIt — готовый пакет к выпуску (App Store + Google Play)
 
-Одно окно: что уже вшито в билд, что заполняется в App Store Connect, и в каком порядке отдавать публикатору.
+Одно окно для публикатора: билд, монетизация, тексты листинга (EN/RU/ES/DE), ревью.
 
----
-
-## Важно: что НЕ живёт в IPA
-
-В Xcode **нет** полей «категория / описание / keywords» для стора.  
-Это метаданные **App Store Connect** (браузер или `eas metadata:push`).
-
-| Где | Что |
-|-----|-----|
-| **IPA / Xcode** | Display Name, Bundle ID, Version, Build, иконка, entitlements, encryption flag |
-| **App Store Connect** | Name, Subtitle, Category, Description, Keywords, Screenshots, Privacy, Age Rating, Review notes |
-
-Готовый текст для Connect уже лежит в корне репо: **`store.config.json`**  
-(и ниже — те же значения для ручного копирования).
+**Старт:** [`../../START_HERE_PUBLISHER_RU.md`](../../START_HERE_PUBLISHER_RU.md)  
+**iOS:** [`FOR_PUBLISHER_RU.md`](./FOR_PUBLISHER_RU.md) · [`XCODE_ARCHIVE.md`](./XCODE_ARCHIVE.md)  
+**Android:** [`FOR_PUBLISHER_ANDROID_RU.md`](./FOR_PUBLISHER_ANDROID_RU.md)  
+**Машинный файл:** [`../../store.config.json`](../../store.config.json)
 
 ---
 
-## Уже вшито в билд (проверено)
+## Модель (не путать со старым «fully free»)
+
+| | |
+|--|--|
+| Тип | Free download + **auto-renewable subscription** |
+| Soft-trial | **3 дня** полного Pro (в приложении, iOS + Android) |
+| Products | `trackit_pro_monthly` · `trackit_pro_yearly` |
+| Цена (fallback) | **$5.00 / month** · **$50 / year** |
+| Entitlement | RevenueCat **`pro`** |
+| UI languages | English, Русский, Español, Deutsch |
+
+В сторах приложение остаётся **Free** (цена загрузки 0), монетизация — через IAP/Subscriptions.
+
+---
+
+## Уже вшито в билд
 
 | Поле | Значение |
 |------|----------|
-| Display Name (на домашнем экране) | **TrackIt** |
-| Bundle ID | **com.trackit.lifeos** |
-| Version (CFBundleShortVersionString) | **1.0.0** |
-| Build (CFBundleVersion) | **1** |
-| Category hint (Info.plist) | Health & Fitness (`public.app-category.healthcare-fitness`) |
-| Encryption export | `ITSAppUsesNonExemptEncryption = false` |
-| Push (opt-in) | entitlements `aps-environment` |
-| Push | `aps-environment = production` |
-| Цена / IAP в бинарнике | нет покупок (fully free) |
-
-Unsigned IPA (локально, если собирали): `dist-ios/TrackIt-unsigned.ipa`  
-Публикатор всё равно должен **переподписать** своим Apple Developer Team (или собрать заново через EAS / Archive).
+| Display Name | TrackIt |
+| Bundle / Package | `com.trackit.lifeos` |
+| Version | **1.0.0** |
+| iOS Build | **1** (EAS может autoIncrement) |
+| Encryption export (iOS) | `ITSAppUsesNonExemptEncryption = false` |
+| Billing flags | `IOS_BILLING_ENABLED` / `ANDROID_BILLING_ENABLED` = **true** |
 
 ---
 
-## Создать приложение в App Store Connect
+## Создать приложение
+
+### App Store Connect
 
 | Поле | Значение |
 |------|----------|
@@ -47,38 +48,63 @@ Unsigned IPA (локально, если собирали): `dist-ios/TrackIt-un
 | Primary language | English (U.S.) |
 | Bundle ID | com.trackit.lifeos |
 | SKU | trackit-lifeos-001 |
-| User Access | Full Access |
 
----
+Дополнительно загрузить локали: **Russian**, **Spanish**, **German** (тексты ниже / `store.config.json`).
 
-## App Information
+### Google Play
 
 | Поле | Значение |
 |------|----------|
-| Name | TrackIt |
-| Subtitle (≤30) | Tasks, health & habits OS |
-| Primary Category | **Health & Fitness** |
-| Secondary Category | **Productivity** |
-| Content Rights | Does not contain third-party content (или по факту) |
-| Age Rating | анкета все None → **4+** (см. `store.config.json` → `advisory`) |
-| Price | Free (0) |
-| In-App Purchases | **не создавать** |
-
-**Privacy Policy URL:** https://track-it-umber-psi.vercel.app/privacy  
-**License / Terms (если спросят):** https://track-it-umber-psi.vercel.app/terms
+| App name | TrackIt |
+| Package | com.trackit.lifeos |
+| Default language | English (United States) |
+| Category | Health & Fitness |
 
 ---
 
-## Version 1.0.0 — What’s New / Description
+## In-App Purchases / Subscriptions (обязательно)
 
-**Promotional Text:**
+Создать **до** или сразу после первого билда:
+
+| Product ID | Тип | Ориентир цены |
+|------------|-----|----------------|
+| `trackit_pro_monthly` | Auto-renewable | $4.99–5.00 / month |
+| `trackit_pro_yearly` | Auto-renewable | $49.99–50 / year |
+
+Подписочная группа: например **TrackIt Pro**.  
+RevenueCat: entitlement `pro`, offering `default`.
+
+---
+
+## App Information / листинг
+
+| Поле | EN | |
+|------|----|--|
+| Subtitle (≤30) | Tasks, health & habits OS | |
+| Primary Category | Health & Fitness | |
+| Secondary | Productivity | |
+| Age | **4+** / Play: Everyone (или по анкете) | |
+| Price (download) | Free | |
+
+**Privacy Policy:** https://track-it-umber-psi.vercel.app/privacy  
+**Terms:** https://track-it-umber-psi.vercel.app/terms  
+**Support:** https://track-it-umber-psi.vercel.app/support  
+**Marketing:** https://track-it-umber-psi.vercel.app  
+
+---
+
+## Тексты — English (U.S.)
+
+**Promotional text:**
 ```
-One free app for tasks, workouts, nutrition, finance, and habits — with XP and streaks.
+Plan tasks, train, eat, budget, and build habits — with a 3-day Pro trial, then TrackIt Pro.
 ```
 
 **Description:**
 ```
-TrackIt is your daily command center: plan tasks, train with structured programs, log meals and water, track spending, and build habits — all synced in the cloud. TrackIt is completely free with all features unlocked.
+TrackIt is your daily command center: plan tasks, train with structured programs, log meals and water, track spending, and build habits — all synced in the cloud.
+
+Start with a 3-day Pro trial (full access). After the trial, unlock TrackIt Pro with an auto-renewable subscription to keep advanced programs, analytics, reminders, and premium themes.
 
 What you can do
 - Planner with tasks, subtasks, and focus sessions
@@ -87,21 +113,115 @@ What you can do
 - Finance overview, subscriptions tracker, and insights
 - Habits, journal, and gamification (XP, levels, leaderboard)
 - Smart reminders (optional; enable in Settings)
+- App language: English, Russian, Spanish, German (Settings → Language)
 
 Health features are for general wellness only — not medical or financial advice.
+Subscriptions are billed through your Apple ID / Google Play account and renew automatically unless cancelled at least 24 hours before the end of the period.
 ```
 
-**Keywords (одной строкой, ≤100 символов):**
+**Keywords (≤100):**
 ```
-tasks,habits,workout,nutrition,finance,planner,fitness,tracker,streaks,gamification
+tasks,habits,workout,nutrition,finance,planner,fitness,tracker,streaks,pro
 ```
-
-**Support URL:** https://track-it-umber-psi.vercel.app/support  
-**Marketing URL:** https://track-it-umber-psi.vercel.app  
 
 **What’s New:**
 ```
-Initial release. TrackIt is completely free — all features unlocked, no in-app purchases.
+Initial release. Includes a 3-day Pro trial, then TrackIt Pro subscription. Languages: English, Russian, Spanish, German.
+```
+
+---
+
+## Тексты — Русский
+
+**Subtitle:** Задачи, здоровье и привычки  
+
+**Promotional:**
+```
+Задачи, тренировки, питание и финансы — 3 дня Pro, затем подписка TrackIt Pro.
+```
+
+**Description:**
+```
+TrackIt — ежедневный центр управления: задачи, тренировки, питание, финансы и привычки в одном приложении с облачной синхронизацией.
+
+Первые 3 дня — полный доступ Pro. Дальше оформите подписку TrackIt Pro, чтобы сохранить программы, аналитику, напоминания и премиум-темы.
+
+Возможности
+- Планировщик: задачи, подзадачи, фокус-сессии
+- Программы тренировок и свои программы
+- Цели по питанию (оценка BMR/TDEE)
+- Финансы, подписки и инсайты
+- Привычки, дневник, XP и уровни
+- Умные напоминания (по желанию в Настройках)
+- Язык: русский, English, Español, Deutsch (Настройки → Язык)
+
+Функции здоровья — для общего wellness, не медицинский и не финансовый совет.
+Подписка списывается через App Store / Google Play и продлевается автоматически, если не отменить минимум за 24 часа до конца периода.
+```
+
+**What’s New:**
+```
+Первый релиз. 3 дня Pro-триала, затем подписка TrackIt Pro. Языки: RU, EN, ES, DE.
+```
+
+---
+
+## Тексты — Español
+
+**Subtitle:** Tareas, salud y hábitos  
+
+**Promotional:**
+```
+Tareas, entreno, nutrición y finanzas — 3 días Pro, luego suscripción TrackIt Pro.
+```
+
+**Description:**
+```
+TrackIt es tu centro de mando diario: tareas, entrenamientos, comidas, gastos y hábitos, con sincronización en la nube.
+
+Prueba Pro de 3 días con acceso completo. Después, suscríbete a TrackIt Pro para mantener programas, analítica, recordatorios y temas premium.
+
+Qué puedes hacer
+- Planner con tareas, subtareas y modo Focus
+- Programas de entrenamiento y programas propios
+- Objetivos de nutrición (estimación BMR/TDEE)
+- Finanzas, suscripciones e insights
+- Hábitos, diario y gamificación (XP, niveles)
+- Recordatorios opcionales (Ajustes)
+- Idioma: español, inglés, ruso, alemán (Ajustes → Idioma)
+
+Las funciones de salud son de bienestar general, no consejo médico ni financiero.
+La suscripción se cobra con tu cuenta de Apple / Google Play y se renueva sola salvo cancelación al menos 24 h antes del fin del periodo.
+```
+
+---
+
+## Тексты — Deutsch
+
+**Subtitle:** Tasks, Health & Habits  
+
+**Promotional:**
+```
+Tasks, Training, Ernährung & Finanzen — 3 Tage Pro, danach TrackIt-Pro-Abo.
+```
+
+**Description:**
+```
+TrackIt ist dein tägliches Command Center: Tasks, Workouts, Ernährung, Finanzen und Habits — mit Cloud-Sync.
+
+3 Tage Pro-Test mit vollem Zugriff. Danach TrackIt Pro abonnieren, um Programme, Analysen, Reminder und Premium-Themes zu behalten.
+
+Funktionen
+- Planner mit Tasks, Subtasks und Focus
+- Trainingsprogramme und eigene Programme
+- Ernährungsziele (BMR/TDEE-Schätzung)
+- Finanzen, Abos und Insights
+- Habits, Journal und Gamification (XP, Level)
+- Optionale Reminder (Einstellungen)
+- Sprache: Deutsch, English, Русский, Español (Einstellungen → Sprache)
+
+Health-Funktionen dienen dem allgemeinen Wellness — keine medizinische oder Finanzberatung.
+Das Abo wird über Apple ID / Google Play abgerechnet und verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Periodenende gekündigt wird.
 ```
 
 ---
@@ -111,82 +231,69 @@ Initial release. TrackIt is completely free — all features unlocked, no in-app
 | Актив | Путь |
 |-------|------|
 | App icon 1024×1024 | `store/handoff/app-icon-1024.png` |
-| iPhone 6.9" (обязательно) | `store/handoff/screenshots/6.9-inch/` → 01…06 |
-| iPhone 6.5" (если спросит) | `store/handoff/screenshots/6.5-inch/` → 01…06 |
+| iPhone 6.9" | `store/handoff/screenshots/6.9-inch/` → 01…06 |
+| iPhone 6.5" | `store/handoff/screenshots/6.5-inch/` → 01…06 |
+| Android phone | те же 01…06 (+ `store/feature-graphic.png` если есть) |
 
-Порядок загрузки: `01-dashboard` → `02-planner` → `03-workouts` → `04-nutrition` → `05-finance` → `06-analytics`.
+Порядок: dashboard → planner → workouts → nutrition → finance → analytics.
 
 ---
 
-## App Privacy (labels)
+## App Privacy (iOS labels) / Play Data safety
 
-- Data used to track you: **No**
-- Linked to you:
-  - Contact Info → Email Address (App Functionality)
-  - Health & Fitness → Fitness (App Functionality)
-  - User Content → Other User Content (App Functionality)
-  - Identifiers → User ID (App Functionality)
+- Tracking you: **No**
+- Linked to you: Contact (email), Health & Fitness, User Content, User ID — App Functionality
 - Third-party advertising: **No**
 
 ---
 
-## App Review
+## App Review / Play review
 
-Перед submit:
+| | |
+|--|--|
+| Demo email | `review@trackit.app` |
+| Demo password | `trackit` |
+| Contact | mxrphin3work@gmail.com |
+| Phone | подставить E.164 в `store.config.json` → `apple.review.phone` |
 
-1. **Телефон** контакта (E.164) — заменить в `store.config.json` → `apple.review.phone`
-2. **Демо-аккаунт для App Review** (уже задан):
-   - Email: `review@trackit.app`
-   - Password: `trackit`
-
-Аккаунт должен существовать в Supabase Auth до ревью.
-
-**Review notes** (уже в `store.config.json`):
+**Review notes:**
 ```
-TrackIt is a free app with no in-app purchases or subscriptions.
-All features (analytics, workouts, reminders) are unlocked for every signed-in user.
+TrackIt includes a 3-day soft trial with full Pro access on first launch (iOS/Android).
+After the trial, Pro features require an auto-renewable subscription:
+trackit_pro_monthly / trackit_pro_yearly (RevenueCat entitlement "pro").
 
-Sign in: email and password only (no Google / Apple).
+Sign in: email and password only (no Google / Apple Sign-In).
 Account deletion: Settings → Account → Delete account.
-Push notifications: opt-in only — disabled by default; the OS permission prompt appears only after the user enables Smart reminders in Settings.
+Push: opt-in only — enable Smart reminders in Settings.
+
+In-app languages: English, Russian, Spanish, German (Settings → Language).
 
 Privacy: https://track-it-umber-psi.vercel.app/privacy
 Terms: https://track-it-umber-psi.vercel.app/terms
 ```
 
-Contact email: mxrphin3work@gmail.com
-
 ---
 
-## Как залить метаданные автоматически (после IPA в TestFlight)
+## Чеклист Submit
 
-1. Подставить телефон в `store.config.json` (demo password уже `trackit`)
-2. Загрузить билд (EAS или Xcode Archive)
-3. Когда билд обработан:
-
-```bash
-npx --yes eas-cli metadata:push
-```
-
-Либо вручную скопировать таблицы выше в App Store Connect.
-
----
-
-## Чеклист «можно Submit for Review»
-
-- [ ] App создан с Bundle ID `com.trackit.lifeos`
-- [ ] Категории Health & Fitness + Productivity
-- [ ] Описание / subtitle / keywords / URLs вставлены
-- [ ] Скриншоты 6.9" загружены (6 шт.)
-- [ ] Иконка 1024 загружена (если не из билда)
-- [ ] Privacy labels заполнены
-- [ ] Age Rating 4+
-- [ ] Билд 1.0.0 (1) выбран в версии
-- [ ] Export Compliance: uses non-exempt encryption = **No** (уже в Info.plist)
-- [ ] Demo login/password указаны
-- [ ] IAP / subscriptions **не** созданы
+### iOS
+- [ ] App создан, Bundle ID `com.trackit.lifeos`
+- [ ] Подписки `trackit_pro_monthly` / `yearly` созданы и в Review
+- [ ] Paid Apps Agreement + banking/tax OK
+- [ ] Локали EN (+ RU/ES/DE по возможности)
+- [ ] Скриншоты 6.9" (6 шт.)
+- [ ] Privacy labels
+- [ ] Билд выбран, Export Compliance = No
+- [ ] Demo login в Review Information
 - [ ] Submit for Review
 
-Контакты владельца: mxrphin3work@gmail.com  
-Подробный Debug vs Archive: `FOR_PUBLISHER_RU.md`  
-Archive пошагово: `XCODE_ARCHIVE.md`
+### Android
+- [ ] App `com.trackit.lifeos`
+- [ ] Подписки созданы и активны
+- [ ] AAB загружен (internal → production)
+- [ ] Листинг + Data safety
+- [ ] Feature graphic / screenshots
+- [ ] Content rating questionnaire
+- [ ] Send for review
+
+Контакт владельца: mxrphin3work@gmail.com

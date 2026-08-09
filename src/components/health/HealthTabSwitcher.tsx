@@ -1,5 +1,6 @@
 import { CalendarDays } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
@@ -7,10 +8,7 @@ import { triggerHaptic } from '../../lib/platform/haptics';
 import type { HealthTabId } from '../../types/health';
 import { MenuHeaderButton } from '../navigation/MenuHeaderButton';
 
-const TABS: { id: HealthTabId; label: string }[] = [
-  { id: 'workouts', label: 'Workouts' },
-  { id: 'nutrition', label: 'Nutrition' },
-];
+const TABS: HealthTabId[] = ['workouts', 'nutrition'];
 
 type HealthTabSwitcherProps = {
   activeTab: HealthTabId;
@@ -25,8 +23,9 @@ export function HealthTabSwitcher({
   onCalendarPress,
   onMenuPress,
 }: HealthTabSwitcherProps) {
+  const { t } = useTranslation();
   const healthTheme = useHealthTheme();
-  const styles = useHealthStyles((t) => ({
+  const styles = useHealthStyles((ht) => ({
     wrap: {
       marginBottom: 8,
     },
@@ -47,32 +46,32 @@ export function HealthTabSwitcher({
     screenTitle: {
       fontSize: 32,
       fontWeight: '900',
-      color: t.ink,
+      color: ht.ink,
       letterSpacing: -0.8,
       marginBottom: 4,
     },
     screenSubtitle: {
       fontSize: 15,
       fontWeight: '500',
-      color: t.slate,
+      color: ht.slate,
     },
     calendarBtn: {
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: t.card,
+      backgroundColor: ht.card,
       borderWidth: 1,
-      borderColor: t.cardBorder,
+      borderColor: ht.cardBorder,
       alignItems: 'center',
       justifyContent: 'center',
     },
     tabs: {
       flexDirection: 'row',
-      backgroundColor: t.card,
+      backgroundColor: ht.card,
       borderRadius: 16,
       padding: 4,
       borderWidth: 1,
-      borderColor: t.cardBorder,
+      borderColor: ht.cardBorder,
       marginBottom: 4,
     },
     tab: {
@@ -82,15 +81,15 @@ export function HealthTabSwitcher({
       alignItems: 'center',
     },
     tabActive: {
-      backgroundColor: t.accentSoft,
+      backgroundColor: ht.accentSoft,
     },
     tabText: {
       fontSize: 13,
       fontWeight: '700',
-      color: t.slate,
+      color: ht.slate,
     },
     tabTextActive: {
-      color: t.ink,
+      color: ht.ink,
     },
   }));
 
@@ -102,10 +101,10 @@ export function HealthTabSwitcher({
         </View>
         <View style={styles.titleCopy}>
           <Text style={styles.screenTitle}>
-            {activeTab === 'workouts' ? 'Workouts' : 'Nutrition'}
+            {activeTab === 'workouts' ? t('health.workouts') : t('health.nutrition')}
           </Text>
           <Text style={styles.screenSubtitle}>
-            {activeTab === 'workouts' ? "Today's training" : "Today's summary"}
+            {activeTab === 'workouts' ? t('health.todaysTraining') : t('health.todaysSummary')}
           </Text>
         </View>
         {activeTab === 'nutrition' ? (
@@ -125,20 +124,22 @@ export function HealthTabSwitcher({
       </View>
 
       <View style={styles.tabs}>
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.id;
+        {TABS.map((tabId) => {
+          const isActive = activeTab === tabId;
           return (
             <Pressable
-              key={tab.id}
+              key={tabId}
               onPress={() => {
                 void triggerHaptic('selection');
-                onTabChange(tab.id);
+                onTabChange(tabId);
               }}
               style={[styles.tab, isActive && styles.tabActive]}
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive }}
             >
-              <Text style={[styles.tabText, isActive && styles.tabTextActive]}>{tab.label}</Text>
+              <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
+                {tabId === 'workouts' ? t('health.workouts') : t('health.nutrition')}
+              </Text>
             </Pressable>
           );
         })}

@@ -16,7 +16,7 @@ export type HabitWithWeek = {
   week: HabitDayCell[];
 };
 
-const DAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const DAY_LABELS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
 function buildLastSevenDays(reference = new Date()): HabitDayCell[] {
   const days: HabitDayCell[] = [];

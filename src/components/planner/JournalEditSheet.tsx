@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Modal,
@@ -25,6 +26,7 @@ export function JournalEditSheet({
   onClose,
   onSave,
 }: JournalEditSheetProps) {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme } = usePlannerTheme();
   const [body, setBody] = useState(initialBody);
@@ -117,7 +119,7 @@ export function JournalEditSheet({
   const handleSave = async () => {
     const trimmed = body.trim();
     if (!trimmed || isSaving) {
-      setError('Write something before saving.');
+      setError(t('planner.writeBeforeSaving'));
       return;
     }
 
@@ -127,7 +129,7 @@ export function JournalEditSheet({
       await onSave(trimmed);
       onClose();
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Could not save journal entry.');
+      setError(saveError instanceof Error ? saveError.message : t('planner.couldNotSave'));
     } finally {
       setIsSaving(false);
     }
@@ -137,11 +139,11 @@ export function JournalEditSheet({
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
-          <Text style={styles.title}>Journal Entry</Text>
+          <Text style={styles.title}>{t('planner.journalEntry')}</Text>
           <TextInput
             value={body}
             onChangeText={setBody}
-            placeholder="Reflect on your day..."
+            placeholder={t('planner.reflectPlaceholder')}
             placeholderTextColor={theme.textMuted}
             multiline
             textAlignVertical="top"
@@ -150,7 +152,7 @@ export function JournalEditSheet({
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <View style={styles.actions}>
             <Pressable onPress={onClose} style={styles.secondaryBtn}>
-              <Text style={styles.secondaryLabel}>Cancel</Text>
+              <Text style={styles.secondaryLabel}>{t('common.cancel')}</Text>
             </Pressable>
             <Pressable
               onPress={() => void handleSave()}
@@ -160,7 +162,7 @@ export function JournalEditSheet({
               {isSaving ? (
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
-                <Text style={styles.primaryLabel}>Save</Text>
+                <Text style={styles.primaryLabel}>{t('common.save')}</Text>
               )}
             </Pressable>
           </View>

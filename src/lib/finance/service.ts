@@ -4,6 +4,7 @@ import type {
   FinanceGoal,
   FinanceOverview,
   FinanceSubscription,
+  FinanceTip,
   FinanceTransaction,
   FinancialRating,
   MetricDelta,
@@ -414,16 +415,16 @@ function buildFinanceTips(
   month: { income: number; expense: number; delta: number },
   categories: ExpenseCategoryStat[],
   goals: FinanceGoal[],
-): string[] {
-  const insights: string[] = [];
+): FinanceTip[] {
+  const insights: FinanceTip[] = [];
 
   if (month.expense > month.income && month.income > 0) {
-    insights.push('Spending exceeded income this month — review discretionary categories.');
+    insights.push({ id: 'overspending' });
   }
 
   const top = categories[0];
   if (top && top.percentage >= 30) {
-    insights.push(`${top.name} accounts for ${top.percentage}% of your expenses this month.`);
+    insights.push({ id: 'top_category', categoryId: top.id, percentage: top.percentage });
   }
 
   const nearestGoal = goals.find((g) => g.percent > 0 && g.percent < 100);
@@ -431,13 +432,11 @@ function buildFinanceTips(
     const monthsLeft = Math.ceil(
       (nearestGoal.targetAmount - nearestGoal.savedAmount) / Math.max(month.delta, 1),
     );
-    insights.push(
-      `At your current pace, "${nearestGoal.name}" could be reached in ~${monthsLeft} months.`,
-    );
+    insights.push({ id: 'goal_pace', goalName: nearestGoal.name, months: monthsLeft });
   }
 
   if (insights.length === 0) {
-    insights.push('Log transactions with [+] to unlock personalized spending tips.');
+    insights.push({ id: 'log_to_unlock' });
   }
 
   return insights;
@@ -467,7 +466,7 @@ export function emptyFinanceOverview(): FinanceOverview {
     todaySpent: 0,
     budgetRemainingToday: 0,
     lastTransaction: null,
-    financeTips: ['Log your first transaction with [+] to start tracking.'],
+    financeTips: [{ id: 'first_transaction' }],
     shieldStrengthPercent: 100,
     shieldStatus: 'no_budget',
     bossProgressPercent: 0,

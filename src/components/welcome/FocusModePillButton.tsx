@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react-native';
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   type AnimatedStyle,
@@ -30,6 +31,7 @@ export function FocusModePillButton({
   entryStyle,
   entranceDelay = 0,
 }: FocusModePillButtonProps) {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
   const pressScale = useSharedValue(1);
@@ -145,11 +147,11 @@ export function FocusModePillButton({
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         accessibilityRole="button"
-        accessibilityLabel="Enter focus mode"
+        accessibilityLabel={t('welcome.enterFocusMode')}
         style={[styles.pill, pressStyle]}
       >
         <Text style={styles.label} numberOfLines={1}>
-          ENTER FOCUS MODE
+          {t('welcome.enterFocusMode')}
         </Text>
 
         <Animated.View style={[styles.bullet, bulletStyle]}>

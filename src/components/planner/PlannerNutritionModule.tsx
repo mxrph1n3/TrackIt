@@ -1,5 +1,6 @@
 import { Droplets, UtensilsCrossed } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -10,7 +11,7 @@ import { navigateTab } from '../../navigation/navigationRef';
 import { BRAND, SEMANTIC } from '../../theme/designTokens';
 import { PlannerPremiumCard } from './PlannerPremiumCard';
 import { PlannerSectionHeader } from './PlannerSectionHeader';
-import { PLANNER_COPY } from './plannerTheme';
+import { usePlannerCopy } from './plannerTheme';
 
 const RING_SIZE = 72;
 const STROKE = 7;
@@ -18,6 +19,8 @@ const RADIUS = (RING_SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export function PlannerNutritionModule() {
+  const { t } = useTranslation();
+  const copy = usePlannerCopy();
   const { styles: plannerStyles, theme, surfaces } = usePlannerTheme();
   const { consumedMacros: consumed, dietPlan, waterTargetLiters } = useTodayNutrition();
   const calorieTarget = dietPlan.calories;
@@ -104,9 +107,9 @@ export function PlannerNutritionModule() {
       <PlannerPremiumCard>
         <View style={plannerStyles.moduleInner}>
           <PlannerSectionHeader
-            title={PLANNER_COPY.nutrition}
-            subtitle={`${consumed.calories} / ${calorieTarget} kcal`}
-            actionLabel={PLANNER_COPY.open}
+            title={copy.nutrition}
+            subtitle={`${consumed.calories} / ${calorieTarget} ${t('common.kcal')}`}
+            actionLabel={copy.open}
             onAction={() => navigateTab('Health')}
           />
 
@@ -141,21 +144,21 @@ export function PlannerNutritionModule() {
             </View>
 
             <View style={styles.macros}>
-              <MacroLine label="Protein" value={`${consumed.protein} / ${proteinTarget} g`} styles={styles} />
-              <MacroLine label="Fat" value={`${consumed.fat} / ${fatTarget} g`} styles={styles} />
-              <MacroLine label="Carbs" value={`${consumed.carbs} / ${carbsTarget} g`} styles={styles} />
+              <MacroLine label={t('common.protein')} value={`${consumed.protein} / ${proteinTarget} g`} styles={styles} />
+              <MacroLine label={t('common.fat')} value={`${consumed.fat} / ${fatTarget} g`} styles={styles} />
+              <MacroLine label={t('common.carbs')} value={`${consumed.carbs} / ${carbsTarget} g`} styles={styles} />
             </View>
           </View>
 
           <View style={styles.timeline}>
             <View style={styles.timelineItem}>
               <UtensilsCrossed color={BRAND.primary} size={16} />
-              <Text style={styles.timelineText}>Meal timeline in Health</Text>
+              <Text style={styles.timelineText}>{t('tabs.Health')}</Text>
             </View>
             <View style={styles.timelineItem}>
               <Droplets color={SEMANTIC.incomeSoft} size={16} />
               <Text style={styles.timelineText}>
-                Water {waterLiters.toFixed(1)} / {waterTargetLiters.toFixed(1)} L ({Math.round(waterProgress * 100)}%)
+                {t('common.water')} {waterLiters.toFixed(1)} / {waterTargetLiters.toFixed(1)} L ({Math.round(waterProgress * 100)}%)
               </Text>
             </View>
           </View>

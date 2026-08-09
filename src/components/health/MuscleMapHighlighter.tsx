@@ -1,6 +1,7 @@
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { BodyView as MuscleDiagramView } from '@musclemap/assets';
 
 import { highlightToMuscleMapValues } from '../../lib/health/muscleMapAdapter';
@@ -28,6 +29,7 @@ export function MuscleMapHighlighter({
   layout = 'toggle',
   centerContent,
 }: MuscleMapHighlighterProps) {
+  const { t } = useTranslation();
   const [view, setView] = useState<MuscleDiagramView>('FRONT');
   const { width: screenWidth } = useWindowDimensions();
   const isDark = useHealthIsDark();
@@ -144,7 +146,7 @@ export function MuscleMapHighlighter({
                   { color: isActive ? healthTheme.accent : healthTheme.slate },
                 ]}
               >
-                {side === 'FRONT' ? 'Front' : 'Back'}
+                {side === 'FRONT' ? t('health.front') : t('health.back')}
               </Text>
             </Pressable>
           );

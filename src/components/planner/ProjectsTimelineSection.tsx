@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { CalendarRange, Check } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
@@ -8,7 +9,7 @@ import { BRAND } from '../../theme/designTokens';
 import type { PlannerProjectTimeline, PlannerTimelineDay } from '../../types/planner';
 import { PlannerPremiumCard } from './PlannerPremiumCard';
 import { PlannerSectionHeader } from './PlannerSectionHeader';
-import { PLANNER_COPY } from './plannerTheme';
+import { usePlannerCopy } from './plannerTheme';
 
 const DAY_ACCENTS = ['#7C5CFC', '#6366F1', '#38BDF8', '#34D399'] as const;
 
@@ -286,6 +287,8 @@ export function ProjectsTimelineSection({
   days,
   onViewAll,
 }: ProjectsTimelineSectionProps) {
+  const { t } = useTranslation();
+  const copy = usePlannerCopy();
   const { theme, surfaces, isDark } = usePlannerTheme();
   const styles = useMemo(() => createStyles(theme, surfaces, isDark), [isDark, surfaces, theme]);
 
@@ -302,16 +305,16 @@ export function ProjectsTimelineSection({
 
   const subtitle =
     projects.length === 0
-      ? 'Your next few days at a glance'
-      : `${activeCount} active · ${completedCount} done`;
+      ? t('planner.projectsHint')
+      : `${activeCount} · ${completedCount} ${t('common.completed').toLowerCase()}`;
 
   return (
     <PlannerPremiumCard>
       <View style={styles.inner}>
         <PlannerSectionHeader
-          title={PLANNER_COPY.projects}
+          title={copy.projects}
           subtitle={subtitle}
-          actionLabel={onViewAll ? PLANNER_COPY.viewAll : undefined}
+          actionLabel={onViewAll ? copy.viewAll : undefined}
           onAction={onViewAll}
         />
 
@@ -329,7 +332,7 @@ export function ProjectsTimelineSection({
                 <Text style={styles.dayNumber}>{day.dayNumber}</Text>
                 {day.isToday ? (
                   <View style={styles.todayPill}>
-                    <Text style={styles.todayPillText}>Today</Text>
+                    <Text style={styles.todayPillText}>{t('common.today')}</Text>
                   </View>
                 ) : count > 0 ? (
                   <View style={styles.taskCount}>
@@ -346,10 +349,8 @@ export function ProjectsTimelineSection({
             <View style={styles.emptyIconWrap}>
               <CalendarRange color={BRAND.primaryLight} size={22} strokeWidth={2.2} />
             </View>
-            <Text style={styles.emptyTitle}>{PLANNER_COPY.noProjects}</Text>
-            <Text style={styles.emptyBody}>
-              Tasks due in the next four days show up here with clear progress and due dates.
-            </Text>
+            <Text style={styles.emptyTitle}>{copy.noProjects}</Text>
+            <Text style={styles.emptyBody}>{t('planner.empty.projects')}</Text>
           </View>
         ) : (
           <View style={styles.taskList}>

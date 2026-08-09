@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
@@ -9,6 +10,7 @@ type SchemaStatusBannerProps = {
 };
 
 export function SchemaStatusBanner({ enabled = true }: SchemaStatusBannerProps) {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { isChecking, isHealthy, message, refresh } = useSchemaHealth(enabled);
 
@@ -19,10 +21,10 @@ export function SchemaStatusBanner({ enabled = true }: SchemaStatusBannerProps) 
   return (
     <View style={[styles.wrap, { paddingTop: insets.top + 6 }]}>
       <View style={styles.banner}>
-        <Text style={styles.title}>Database setup required</Text>
-        <Text style={styles.body}>{message}</Text>
+        <Text style={styles.title}>{t('system.schemaRequired')}</Text>
+        <Text style={styles.body}>{t(message)}</Text>
         <Pressable onPress={() => void refresh()} style={styles.button}>
-          <Text style={styles.buttonLabel}>Recheck</Text>
+          <Text style={styles.buttonLabel}>{t('system.recheck')}</Text>
         </Pressable>
       </View>
     </View>

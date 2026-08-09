@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Text, View } from 'react-native';
 import Svg, { Circle, Line, Polyline, Text as SvgText } from 'react-native-svg';
 
@@ -17,6 +18,7 @@ function normalize(values: number[], minPad = 0.08) {
 }
 
 export function HealthDualLineChart() {
+  const { t } = useTranslation();
   const { data, isLoading } = useAnalyticsHealth();
   const { theme } = useTheme();
   const series = data.series;
@@ -44,12 +46,12 @@ export function HealthDualLineChart() {
     <GlassPanel borderRadius={24}>
       <View className="p-5">
         <Text className="mb-1 text-[10px] font-bold uppercase tracking-widest text-ethereal-slate">
-          Nutrition Trends
+          {t('analytics.nutritionTrends')}
         </Text>
         <Text className="mb-4 text-xs text-ethereal-slate">
           {data.hasWeightData
-            ? 'Daily calorie intake vs body weight (7-day view)'
-            : 'Daily calorie intake (7-day view)'}
+            ? t('analytics.calorieVsWeight')
+            : t('analytics.calorieOnly')}
         </Text>
 
         {isLoading && !data.isLive ? (
@@ -152,12 +154,12 @@ export function HealthDualLineChart() {
             <View className="mt-3 flex-row items-center justify-center gap-6">
               <View className="flex-row items-center gap-2">
                 <View className="h-2 w-5 rounded-full bg-obsidian-primary" />
-                <Text className="text-xs font-semibold text-slate-300">Calorie Intake</Text>
+                <Text className="text-xs font-semibold text-slate-300">{t('analytics.calorieIntake')}</Text>
               </View>
               {data.hasWeightData ? (
                 <View className="flex-row items-center gap-2">
                   <View className="h-2 w-5 rounded-full" style={{ backgroundColor: '#94A3B8' }} />
-                  <Text className="text-xs font-semibold text-slate-300">Body Weight</Text>
+                  <Text className="text-xs font-semibold text-slate-300">{t('analytics.bodyWeight')}</Text>
                 </View>
               ) : null}
             </View>
@@ -165,20 +167,22 @@ export function HealthDualLineChart() {
             <View className="mt-4 flex-row justify-between border-t border-white/5 pt-4">
               <View>
                 <Text className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                  Avg Calories
+                  {t('analytics.avgCalories')}
                 </Text>
                 <Text className="mt-1 text-base font-bold text-ethereal-ink">
-                  {data.avgCalories > 0 ? `${data.avgCalories.toLocaleString()} kcal` : '—'}
+                  {data.avgCalories > 0
+                    ? `${data.avgCalories.toLocaleString()} ${t('common.kcal')}`
+                    : '—'}
                 </Text>
               </View>
               <View className="items-end">
                 <Text className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                  Weight Tracking
+                  {t('analytics.charts.weight')}
                 </Text>
                 <Text className="mt-1 text-base font-bold text-slate-300">
                   {data.hasWeightData && data.weightDelta != null
-                    ? `${data.weightDelta > 0 ? '+' : ''}${data.weightDelta} kg`
-                    : 'Not logged yet'}
+                    ? `${data.weightDelta > 0 ? '+' : ''}${data.weightDelta} ${t('common.kg')}`
+                    : t('analytics.notLoggedYet')}
                 </Text>
               </View>
             </View>

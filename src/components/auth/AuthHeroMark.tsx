@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
@@ -17,6 +18,7 @@ import { AuthBrandCrystal } from './AuthBrandCrystal';
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
 export function AuthHeroMark() {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
   const floatY = useSharedValue(0);
   const ringRotate = useSharedValue(0);
@@ -81,7 +83,7 @@ export function AuthHeroMark() {
           <Text style={[styles.wordmark, { color: theme.ink }]}>Track</Text>
           <Text style={[styles.wordmark, styles.wordmarkAccent, { color: theme.primary }]}>It</Text>
         </View>
-        <Text style={[styles.tagline, { color: theme.textSecondary }]}>Your personal Life OS</Text>
+        <Text style={[styles.tagline, { color: theme.textSecondary }]}>{t('auth.tagline')}</Text>
         <View style={styles.pillRow}>
           {['Focus', 'Health', 'Clarity'].map((item) => (
             <View

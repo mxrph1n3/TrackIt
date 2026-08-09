@@ -1,19 +1,14 @@
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, RefreshControl, Text, View } from 'react-native';
 
 import { GlassPanel } from '../components/GlassPanel';
 import { IsolatedScreenLayout } from '../components/layout/IsolatedScreenShell';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
 import type { MissionMilestoneStatus } from '../constants/missionRoadmap';
-import { MISSION_DAILY_REMINDER } from '../constants/missionRoadmap';
 import { useMissionRoadmap } from '../hooks/useMissionRoadmap';
+import { tMissionField } from '../i18n/helpers';
 import { useProfileModuleStore } from '../stores/useProfileModuleStore';
 import { useTheme } from '../theme/ThemeContext';
-
-const STATUS_LABEL: Record<MissionMilestoneStatus, string> = {
-  completed: 'Completed',
-  active: 'In progress',
-  locked: 'Locked',
-};
 
 const STATUS_COLOR: Record<MissionMilestoneStatus, string> = {
   completed: '#10B981',
@@ -22,6 +17,7 @@ const STATUS_COLOR: Record<MissionMilestoneStatus, string> = {
 };
 
 export function MissionRoadmapScreen() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const closeModule = useProfileModuleStore((state) => state.closeModule);
   const { snapshot, isLoading, refresh } = useMissionRoadmap();
@@ -29,7 +25,7 @@ export function MissionRoadmapScreen() {
   return (
     <IsolatedScreenLayout
       header={
-        <ScreenHeader title="MISSION ROADMAP" subtitle="Become Unstoppable" onBack={closeModule} />
+        <ScreenHeader title={t('mission.title')} subtitle={t('mission.subtitle')} onBack={closeModule} />
       }
       scrollProps={{
         refreshControl: (
@@ -40,7 +36,7 @@ export function MissionRoadmapScreen() {
       <GlassPanel borderRadius={26} style={{ marginBottom: 16 }}>
         <View className="gap-3 p-5">
           <Text className="text-xs font-bold uppercase tracking-[0.24em] text-ethereal-slate">
-            Mission progress
+            {t('mission.progress')}
           </Text>
           <Text className="text-4xl font-black text-ethereal-ink">{snapshot.overallPercent}%</Text>
           <View className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -58,9 +54,9 @@ export function MissionRoadmapScreen() {
       <GlassPanel borderRadius={22} style={{ marginBottom: 16 }}>
         <View className="gap-2 p-4">
           <Text className="text-[10px] font-bold uppercase tracking-[0.18em] text-ethereal-slate">
-            Daily reminder
+            {t('mission.dailyReminder')}
           </Text>
-          <Text className="text-sm leading-6 text-ethereal-ink">{MISSION_DAILY_REMINDER}</Text>
+          <Text className="text-sm leading-6 text-ethereal-ink">{t('mission.dailyReminderText')}</Text>
         </View>
       </GlassPanel>
 
@@ -74,8 +70,12 @@ export function MissionRoadmapScreen() {
             <View className="gap-3 p-4">
               <View className="flex-row items-start justify-between gap-3">
                 <View className="flex-1">
-                  <Text className="text-base font-bold text-ethereal-ink">{milestone.title}</Text>
-                  <Text className="mt-1 text-sm leading-5 text-ethereal-slate">{milestone.subtitle}</Text>
+                  <Text className="text-base font-bold text-ethereal-ink">
+                    {tMissionField(t, milestone.id, 'title', milestone.title)}
+                  </Text>
+                  <Text className="mt-1 text-sm leading-5 text-ethereal-slate">
+                    {tMissionField(t, milestone.id, 'subtitle', milestone.subtitle)}
+                  </Text>
                 </View>
                 <View
                   className="rounded-full px-2.5 py-1"
@@ -85,7 +85,11 @@ export function MissionRoadmapScreen() {
                     className="text-[10px] font-bold uppercase tracking-[0.12em]"
                     style={{ color: STATUS_COLOR[milestone.status] }}
                   >
-                    {STATUS_LABEL[milestone.status]}
+                    {milestone.status === 'completed'
+                      ? t('mission.completed')
+                      : milestone.status === 'active'
+                        ? t('mission.inProgress')
+                        : t('mission.locked')}
                   </Text>
                 </View>
               </View>

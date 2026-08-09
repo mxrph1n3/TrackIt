@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -13,10 +14,12 @@ import { IsolatedScreenLayout } from '../components/layout/IsolatedScreenShell';
 import { DismissibleOverlay } from '../components/ui/DismissibleOverlay';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { useAchievements } from '../hooks/useAchievements';
+import { tAchievementField } from '../i18n/helpers';
 import { useProfileModuleStore } from '../stores/useProfileModuleStore';
 import { useTheme } from '../theme/ThemeContext';
 
 export function AchievementsScreen() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const closeModule = useProfileModuleStore((s) => s.closeModule);
   const {
@@ -43,7 +46,7 @@ export function AchievementsScreen() {
   return (
     <>
       <IsolatedScreenLayout
-        header={<ScreenHeader title="ACHIEVEMENTS" subtitle="RPG Trophy Vault" onBack={closeModule} />}
+        header={<ScreenHeader title={t('achievements.title')} subtitle={t('achievements.subtitle')} onBack={closeModule} />}
         scrollProps={{
           refreshControl: (
             <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} tintColor={theme.primary} />
@@ -88,7 +91,7 @@ export function AchievementsScreen() {
                       className="mt-2 text-center text-[10px] font-bold uppercase tracking-wide"
                       style={{ color: theme.textPrimary }}
                     >
-                      {item.title}
+                      {tAchievementField(t, item.id, 'title', item.title)}
                     </Text>
                   </View>
                 </GlassPanel>
@@ -111,10 +114,10 @@ export function AchievementsScreen() {
             <View className="p-6">
               <TrackItIcon name={selected.icon} size={48} color={theme.primary} badge badgeSize={72} />
               <Text className="mt-4 text-2xl font-black" style={{ color: theme.textPrimary }}>
-                {selected.title}
+                {tAchievementField(t, selected.id, 'title', selected.title)}
               </Text>
               <Text className="mt-2 text-sm" style={{ color: theme.textSecondary }}>
-                {selected.description}
+                {tAchievementField(t, selected.id, 'description', selected.description)}
               </Text>
 
               <View className="mt-5 h-2 overflow-hidden rounded-full" style={{ backgroundColor: theme.ringTrack }}>
@@ -127,13 +130,17 @@ export function AchievementsScreen() {
                 />
               </View>
               <Text className="mt-2 text-xs font-semibold" style={{ color: theme.textMuted }}>
-                Progress: {selected.progress} / {selected.targetValue}
+                {t('achievements.progress', { current: selected.progress, target: selected.targetValue })}
               </Text>
 
               <View className="mt-5 rounded-2xl px-4 py-3" style={{ backgroundColor: `${theme.primary}16` }}>
                 <Text className="text-sm font-bold" style={{ color: theme.primary }}>
-                  Reward: +{selected.xpReward} EXP
-                  {selected.titleReward ? ` · Title: ${selected.titleReward}` : ''}
+                  {t('achievements.reward', { xp: selected.xpReward })}
+                  {selected.titleReward
+                    ? t('achievements.titleReward', {
+                        title: tAchievementField(t, selected.id, 'titleReward', selected.titleReward),
+                      })
+                    : ''}
                 </Text>
               </View>
 
@@ -147,7 +154,7 @@ export function AchievementsScreen() {
                   className="mt-5 items-center rounded-2xl py-4 active:opacity-90"
                   style={{ backgroundColor: theme.primary }}
                 >
-                  <Text className="font-bold text-white">Collect Reward</Text>
+                  <Text className="font-bold text-white">{t('achievements.collectReward')}</Text>
                 </Pressable>
               ) : null}
             </View>

@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Image,
   StyleSheet,
@@ -43,6 +44,7 @@ type WelcomeGateScreenProps = {
 };
 
 export function WelcomeGateScreen({ onEnter }: WelcomeGateScreenProps) {
+  const { t } = useTranslation();
   const { theme, mode } = useTheme();
   const insets = useAppSafeAreaInsets();
   const { width, height } = useWindowDimensions();
@@ -171,10 +173,10 @@ export function WelcomeGateScreen({ onEnter }: WelcomeGateScreenProps) {
         <Animated.View style={[styles.quoteBlock, quoteStyle]}>
           <Text style={[styles.quoteMark, { color: promoQuoteMark }]}>“</Text>
           <Text style={[styles.quoteLine, { color: quoteInk }]}>
-            {'THE GRIND\nLOOKS LONELY\nBEFORE IT LOOKS\n'}
-            <Text style={[styles.legendary, { color: PROMO_VIOLET }]}>LEGENDARY.</Text>
+            {t('welcome.grindLine')}
+            <Text style={[styles.legendary, { color: PROMO_VIOLET }]}>{t('welcome.legendary')}</Text>
           </Text>
-          <Text style={[styles.quoteSub, { color: promoSlate }]}>— KEEP BUILDING.</Text>
+          <Text style={[styles.quoteSub, { color: promoSlate }]}>— {t('welcome.keepBuilding')}</Text>
         </Animated.View>
 
         <View style={styles.ctaShell}>
@@ -183,7 +185,7 @@ export function WelcomeGateScreen({ onEnter }: WelcomeGateScreenProps) {
 
         <Animated.View style={[styles.progressCard, cardStyle, { backgroundColor: theme.cardFrosted, borderColor: theme.border }]}>
           <View style={styles.progressHeader}>
-            <Text style={[styles.progressLabel, { color: promoSlate }]}>WEEKLY PROGRESS</Text>
+            <Text style={[styles.progressLabel, { color: promoSlate }]}>{t('welcome.weeklyProgress')}</Text>
             <Text style={[styles.progressValue, { color: quoteInk }]}>{weekly.averagePercent}%</Text>
           </View>
           <WeeklyProgressChart days={weekly.days} accentColor={PROMO_VIOLET} />

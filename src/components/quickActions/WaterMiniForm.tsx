@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useProgression } from '../../hooks/useProgression';
@@ -13,14 +14,15 @@ type WaterMiniFormProps = {
   onBack: () => void;
 };
 
-function formatPresetLabel(amountMl: number): string {
+function formatPresetLabel(amountMl: number, oneLiter: string, ml: string): string {
   if (amountMl >= 1000) {
-    return '1 L';
+    return oneLiter;
   }
-  return `${amountMl} ml`;
+  return `${amountMl} ${ml}`;
 }
 
 export function WaterMiniForm({ onSuccess, onBack }: WaterMiniFormProps) {
+  const { t } = useTranslation();
   const [activePreset, setActivePreset] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,9 +49,9 @@ export function WaterMiniForm({ onSuccess, onBack }: WaterMiniFormProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.kicker}>Quick Water</Text>
-      <Text style={styles.heading}>Log hydration</Text>
-      <Text style={styles.subtitle}>Tap a preset to save instantly.</Text>
+      <Text style={styles.kicker}>{t('actionHub.forms.quickWater')}</Text>
+      <Text style={styles.heading}>{t('actionHub.forms.logHydration')}</Text>
+      <Text style={styles.subtitle}>{t('actionHub.forms.tapPreset')}</Text>
 
       <View style={styles.presetRow}>
         {WATER_PRESETS_ML.map((amountMl) => {
@@ -65,7 +67,7 @@ export function WaterMiniForm({ onSuccess, onBack }: WaterMiniFormProps) {
               {isSaving ? (
                 <ActivityIndicator color={ObsidianTheme.primary} size="small" />
               ) : (
-                <Text style={styles.presetText}>{formatPresetLabel(amountMl)}</Text>
+                <Text style={styles.presetText}>{formatPresetLabel(amountMl, t('actionHub.forms.oneLiter'), t('common.ml'))}</Text>
               )}
             </Pressable>
           );
@@ -75,7 +77,7 @@ export function WaterMiniForm({ onSuccess, onBack }: WaterMiniFormProps) {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <Pressable onPress={onBack} style={styles.backButton}>
-        <Text style={styles.backText}>Back</Text>
+        <Text style={styles.backText}>{t('actionHub.forms.back')}</Text>
       </Pressable>
     </View>
   );

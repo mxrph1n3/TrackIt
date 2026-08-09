@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 
 import { formatMoney } from '../../constants/financeCategories';
@@ -14,6 +15,7 @@ type MonthlyBudgetSectionProps = {
 };
 
 export function MonthlyBudgetSection({ overview, onUpdated }: MonthlyBudgetSectionProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const [isEditing, setIsEditing] = useState(!overview.hasBudget);
   const [draftLimit, setDraftLimit] = useState(
@@ -24,18 +26,18 @@ export function MonthlyBudgetSection({ overview, onUpdated }: MonthlyBudgetSecti
   const handleSave = async () => {
     const parsed = Number.parseFloat(draftLimit.replace(',', '.'));
     if (!Number.isFinite(parsed) || parsed <= 0) {
-      reportSyncError('Finance', new Error('invalid budget'), 'Enter a positive monthly budget.');
+      reportSyncError('Finance', new Error('invalid budget'), t('toasts.budgetInvalid'));
       return;
     }
 
     setIsSaving(true);
     try {
       await upsertMonthlyBudget(parsed);
-      reportSyncSuccess('Monthly budget saved.');
+      reportSyncSuccess(t('toasts.budgetSaved'));
       setIsEditing(false);
       onUpdated?.();
     } catch (error) {
-      reportSyncError('Finance', error, 'Could not save monthly budget.');
+      reportSyncError('Finance', error, t('toasts.budgetSaveError'));
     } finally {
       setIsSaving(false);
     }
@@ -47,10 +49,10 @@ export function MonthlyBudgetSection({ overview, onUpdated }: MonthlyBudgetSecti
       await deleteMonthlyBudget();
       setDraftLimit('');
       setIsEditing(true);
-      reportSyncSuccess('Monthly budget cleared.');
+      reportSyncSuccess(t('toasts.budgetCleared'));
       onUpdated?.();
     } catch (error) {
-      reportSyncError('Finance', error, 'Could not clear monthly budget.');
+      reportSyncError('Finance', error, t('toasts.budgetClearError'));
     } finally {
       setIsSaving(false);
     }
@@ -63,14 +65,16 @@ export function MonthlyBudgetSection({ overview, onUpdated }: MonthlyBudgetSecti
           <View className="mb-2 flex-row items-end justify-between">
             <View>
               <Text className="text-xs font-semibold uppercase tracking-wider text-ethereal-slate">
-                Monthly limit
+                {t('finance.monthlyLimit')}
               </Text>
               <Text className="mt-1 text-2xl font-black text-ethereal-ink">
                 {formatMoney(overview.monthlyBudget, overview.displayCurrency)}
               </Text>
             </View>
             <Text className="text-sm font-semibold text-ethereal-slate">
-              Spent {formatMoney(overview.expenses.amount, overview.displayCurrency)}
+              {t('finance.spentAmount', {
+                amount: formatMoney(overview.expenses.amount, overview.displayCurrency),
+              })}
             </Text>
           </View>
 
@@ -80,7 +84,7 @@ export function MonthlyBudgetSection({ overview, onUpdated }: MonthlyBudgetSecti
           />
 
           <Text className="mt-3 text-xs leading-5 text-ethereal-slate">
-            Shield strength and XP multiplier depend on staying within this budget.
+            {t('finance.budgetShieldHint')}
           </Text>
 
           <View className="mt-4 flex-row gap-2">
@@ -90,7 +94,7 @@ export function MonthlyBudgetSection({ overview, onUpdated }: MonthlyBudgetSecti
               style={{ backgroundColor: `${theme.primary}18`, borderWidth: 1, borderColor: theme.borderSubtle }}
             >
               <Text className="text-center text-sm font-bold" style={{ color: theme.primary }}>
-                Edit budget
+                {t('finance.editBudget')}
               </Text>
             </Pressable>
             <Pressable
@@ -100,7 +104,7 @@ export function MonthlyBudgetSection({ overview, onUpdated }: MonthlyBudgetSecti
               style={{ borderWidth: 1, borderColor: theme.borderSubtle }}
             >
               <Text className="text-center text-sm font-semibold" style={{ color: theme.textMuted }}>
-                Clear
+                {t('common.clear')}
               </Text>
             </Pressable>
           </View>
@@ -108,15 +112,14 @@ export function MonthlyBudgetSection({ overview, onUpdated }: MonthlyBudgetSecti
       ) : (
         <View>
           <Text className="text-sm leading-6 text-ethereal-slate">
-            Set a monthly spending cap for your profile. It powers shield tracking, boss debuffs,
-            and XP multipliers — account linking comes later.
+            {t('finance.budgetSetupDescription')}
           </Text>
 
           <TextInput
             value={draftLimit}
             onChangeText={setDraftLimit}
             keyboardType="decimal-pad"
-            placeholder="Monthly limit"
+            placeholder={t('finance.monthlyLimit')}
             placeholderTextColor={theme.textMuted}
             className="mt-4 rounded-2xl border px-4 py-3 text-base font-semibold"
             style={{
@@ -135,7 +138,7 @@ export function MonthlyBudgetSection({ overview, onUpdated }: MonthlyBudgetSecti
             {isSaving ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text className="text-center text-sm font-bold text-white">Save monthly budget</Text>
+              <Text className="text-center text-sm font-bold text-white">{t('finance.saveMonthlyBudget')}</Text>
             )}
           </Pressable>
         </View>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useLeaderboard } from '../../hooks/useLeaderboard';
@@ -7,6 +8,7 @@ import { useTheme } from '../../theme/ThemeContext';
 import { CurrentUserRankCard, LeaderboardRow } from './GlobalLeaderboard';
 
 export function LeaderboardOverviewSection() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const openLeaderboard = useAnalyticsNavigationStore((state) => state.openLeaderboard);
   const { topUsers, currentUser, isLoading, error } = useLeaderboard();
@@ -16,15 +18,15 @@ export function LeaderboardOverviewSection() {
   return (
     <View style={styles.wrap}>
       <View style={styles.headerRow}>
-        <Text style={[styles.kicker, { color: theme.textMuted }]}>Global Leaderboard</Text>
+        <Text style={[styles.kicker, { color: theme.textMuted }]}>{t('analytics.globalLeaderboard')}</Text>
         <Pressable onPress={openLeaderboard} hitSlop={8}>
-          <Text style={[styles.viewAll, { color: BRAND.primary }]}>View All</Text>
+          <Text style={[styles.viewAll, { color: BRAND.primary }]}>{t('analytics.viewAll')}</Text>
         </Pressable>
       </View>
 
       <CurrentUserRankCard currentUser={currentUser} isLoading={isLoading} error={error} />
 
-      <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Top Players</Text>
+      <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{t('analytics.topPlayers')}</Text>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -34,7 +36,7 @@ export function LeaderboardOverviewSection() {
         </View>
       ) : previewUsers.length === 0 ? (
         <Text style={[styles.empty, { color: theme.textSecondary }]}>
-          No ranked players yet. Complete tasks and workouts to earn XP.
+          {t('analytics.emptyPreview')}
         </Text>
       ) : (
         <View style={styles.list}>

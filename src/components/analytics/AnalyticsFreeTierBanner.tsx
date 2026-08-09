@@ -1,4 +1,5 @@
 import { Crown } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import { FREE_ANALYTICS_DAYS } from '../../constants/workoutFreeTier';
@@ -10,6 +11,7 @@ import { useTheme } from '../../theme/ThemeContext';
 import { GlassPanel } from '../GlassPanel';
 
 export function AnalyticsFreeTierBanner() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const isPro = useSubscriptionStore(selectIsPro);
   const openPaywall = usePaywallStore((s) => s.openPaywall);
@@ -38,13 +40,13 @@ export function AnalyticsFreeTierBanner() {
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 13, fontWeight: '800', color: theme.textPrimary }}>
-            Free analytics · last {FREE_ANALYTICS_DAYS} days
+            {t('analytics.freeBanner', { days: FREE_ANALYTICS_DAYS })}
           </Text>
           <Text style={{ marginTop: 2, fontSize: 12, lineHeight: 17, color: theme.textSecondary }}>
-            Upgrade to Pro for 4-week heatmaps, full history, and advanced insights.
+            {t('analytics.upgradeBanner')}
           </Text>
         </View>
-        <Text style={{ fontSize: 12, fontWeight: '800', color: theme.primary }}>Pro</Text>
+        <Text style={{ fontSize: 12, fontWeight: '800', color: theme.primary }}>{t('common.pro')}</Text>
       </Pressable>
     </GlassPanel>
   );

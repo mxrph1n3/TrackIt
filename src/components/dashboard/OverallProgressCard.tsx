@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
   useAnimatedProps,
@@ -75,7 +76,10 @@ function TierCapsule({ level }: { level: number }) {
 }
 
 function MetricRow({ category }: { category: ProgressCategory }) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
+  const categoryKey = `dashboard.categories.${category.id}` as const;
+  const label = t(categoryKey, { defaultValue: category.label });
 
   return (
     <View style={styles.metricRow}>
@@ -87,7 +91,7 @@ function MetricRow({ category }: { category: ProgressCategory }) {
           ]}
         />
         <Text style={[styles.metricLabel, { color: theme.textPrimary }]} numberOfLines={1}>
-          {category.label}
+          {label}
         </Text>
         <Text style={[styles.metricValue, { color: theme.textPrimary }]}>{category.percent}%</Text>
       </View>
@@ -140,6 +144,7 @@ function ProgressRing({
   radius: number;
   circumference: number;
 }) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const percentFontSize = overallPercent >= 100 ? 28 : 32;
 
@@ -208,7 +213,7 @@ function ProgressRing({
         >
           {overallPercent}%
         </Text>
-        <Text style={[styles.ringCaption, { color: theme.textPrimary }]}>Complete</Text>
+        <Text style={[styles.ringCaption, { color: theme.textPrimary }]}>{t('dashboard.complete')}</Text>
       </View>
     </View>
   );
@@ -265,6 +270,7 @@ export function OverallProgressCard({
   progress,
   isLoading = false,
 }: OverallProgressCardProps) {
+  const { t } = useTranslation();
   const { width: windowWidth } = useWindowDimensions();
   const { theme } = useTheme();
   const ringSize = Math.min(Math.max(Math.round(windowWidth * 0.3), 104), 124);
@@ -300,7 +306,7 @@ export function OverallProgressCard({
     <GlassPanel borderRadius={26} style={{ marginBottom: 14 }}>
       <View style={styles.content}>
         <View style={styles.headerRow}>
-          <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>Overall Progress</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>{t('dashboard.overallProgress')}</Text>
           <TierCapsule level={level} />
         </View>
 

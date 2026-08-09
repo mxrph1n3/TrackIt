@@ -1,7 +1,7 @@
 import { Crown, X } from 'lucide-react-native';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { HEALTH_DISCLAIMER } from '../../constants/disclaimers';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
 import { WORKOUT_GOAL_OPTIONS } from '../../constants/workoutGoals';
 import { FREE_BUILTIN_PROGRAM_ID } from '../../constants/workoutFreeTier';
@@ -17,7 +17,14 @@ import { getThemedSurfaces } from '../../theme/themedSurfaces';
 import { useTheme } from '../../theme/ThemeContext';
 import { GlassPanel } from '../GlassPanel';
 
+const GOAL_I18N: Record<WorkoutTrackId, { title: string; subtitle: string }> = {
+  mass_gain: { title: 'health.goals.massGain', subtitle: 'health.goals.massGainSub' },
+  maintenance: { title: 'health.goals.fullBodyBeginner', subtitle: 'health.goals.fullBodyBeginnerSub' },
+  fat_loss: { title: 'health.goals.fatLoss', subtitle: 'health.goals.fatLossSub' },
+};
+
 export function WorkoutGoalPickerModal() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const healthTheme = useHealthTheme();
@@ -51,18 +58,17 @@ export function WorkoutGoalPickerModal() {
         >
           <View style={styles.headerRow}>
             <View style={styles.headerCopy}>
-              <Text style={[styles.kicker, { color: healthTheme.slate }]}>Before you start</Text>
-              <Text style={[styles.title, { color: healthTheme.ink }]}>Workout goal</Text>
+              <Text style={[styles.kicker, { color: healthTheme.slate }]}>{t('health.beforeYouStart')}</Text>
+              <Text style={[styles.title, { color: healthTheme.ink }]}>{t('health.workoutGoal')}</Text>
               <Text style={[styles.subtitle, { color: healthTheme.slate }]}>
-                Choose what this session is focused on — program and exercises will match your
-                goal.
+                {t('health.chooseSession')}
               </Text>
-              <Text style={[styles.disclaimer, { color: healthTheme.slate }]}>{HEALTH_DISCLAIMER}</Text>
+              <Text style={[styles.disclaimer, { color: healthTheme.slate }]}>{t('health.disclaimer')}</Text>
             </View>
             <Pressable
               onPress={closeWorkoutGoalPicker}
               accessibilityRole="button"
-              accessibilityLabel="Close"
+              accessibilityLabel={t('common.close')}
               style={[
                 styles.closeButton,
                 {
@@ -82,6 +88,7 @@ export function WorkoutGoalPickerModal() {
               const requiresPro = isProProgram(option.id);
               const isFreeProgram = option.id === FREE_BUILTIN_PROGRAM_ID;
               const GoalIcon = option.icon;
+              const i18nKeys = GOAL_I18N[option.id];
 
               return (
                 <Pressable
@@ -106,7 +113,7 @@ export function WorkoutGoalPickerModal() {
                       <View style={styles.optionCopy}>
                         <View style={styles.titleRow}>
                           <Text style={[styles.optionTitle, { color: healthTheme.ink }]}>
-                            {option.title}
+                            {i18nKeys ? t(i18nKeys.title) : option.title}
                           </Text>
                           {requiresPro && !isAppFullyFree() ? (
                             <View
@@ -114,21 +121,24 @@ export function WorkoutGoalPickerModal() {
                             >
                               <Crown color={healthTheme.accent} size={10} strokeWidth={2.4} />
                               <Text style={[styles.proBadgeText, { color: healthTheme.accent }]}>
-                                Pro
+                                {t('common.pro')}
                               </Text>
                             </View>
                           ) : null}
                           {isFreeProgram && !isAppFullyFree() ? (
                             <View style={styles.freeBadge}>
-                              <Text style={styles.freeBadgeText}>Free</Text>
+                              <Text style={styles.freeBadgeText}>{t('common.free')}</Text>
                             </View>
                           ) : null}
                         </View>
                         <Text style={[styles.optionSubtitle, { color: healthTheme.slate }]}>
-                          {option.subtitle}
+                          {i18nKeys ? t(i18nKeys.subtitle) : option.subtitle}
                         </Text>
                         <Text style={[styles.optionMeta, { color: healthTheme.muted }]}>
-                          {track.title} · {track.durationWeeks === 1 ? '8 days' : `${track.durationWeeks} wk`}
+                          {track.title} ·{' '}
+                          {track.durationWeeks === 1
+                            ? t('health.daysCount', { count: 8 })
+                            : `${track.durationWeeks} wk`}
                         </Text>
                       </View>
                       {isSuggested ? (
@@ -136,7 +146,7 @@ export function WorkoutGoalPickerModal() {
                           style={[styles.lastBadge, { backgroundColor: healthTheme.accentSoft }]}
                         >
                           <Text style={[styles.lastBadgeText, { color: healthTheme.accent }]}>
-                            Last
+                            {t('common.last')}
                           </Text>
                         </View>
                       ) : null}
@@ -148,7 +158,7 @@ export function WorkoutGoalPickerModal() {
           </View>
 
           <Pressable onPress={closeWorkoutGoalPicker} style={styles.dismiss}>
-            <Text style={[styles.dismissText, { color: healthTheme.slate }]}>Not now</Text>
+            <Text style={[styles.dismissText, { color: healthTheme.slate }]}>{t('common.notNow')}</Text>
           </Pressable>
         </View>
       </View>

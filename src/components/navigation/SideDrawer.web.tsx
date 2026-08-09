@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dimensions, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
@@ -7,6 +8,7 @@ import { useProfileStore } from '../../stores/useProfileStore';
 import { useSideDrawerStore } from '../../stores/useSideDrawerStore';
 import type { ProfileModuleId } from '../../types/profile';
 import { useTheme } from '../../theme/ThemeContext';
+import { LanguagePicker } from '../i18n/LanguagePicker';
 import { LifeOsStatsRow } from '../profile/LifeOsStatsRow';
 import { ProfileHero } from '../profile/ProfileHero';
 import { ProfileNavMenu } from '../profile/ProfileNavMenu';
@@ -23,6 +25,7 @@ const DRAWER_SCROLL_BOTTOM_PADDING = 72;
 
 /** Web/TMA drawer — static layout (Reanimated style updates fail on RN Web). */
 export function SideDrawer() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme } = useTheme();
   const isOpen = useSideDrawerStore((s) => s.isOpen);
@@ -91,9 +94,19 @@ export function SideDrawer() {
             className="mb-2 px-4 text-[10px] font-bold uppercase tracking-widest"
             style={{ color: theme.textMuted }}
           >
-            Navigation
+            {t('profile.navigation')}
           </Text>
           <ProfileNavMenu onModulePress={handleModulePress} />
+
+          <Text
+            className="mb-2 mt-5 px-4 text-[10px] font-bold uppercase tracking-widest"
+            style={{ color: theme.textMuted }}
+          >
+            {t('settings.language')}
+          </Text>
+          <View className="px-4 pb-2">
+            <LanguagePicker compact />
+          </View>
         </ScrollView>
       </View>
     </View>

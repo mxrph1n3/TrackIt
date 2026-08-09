@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -23,6 +24,7 @@ type WeightMiniFormProps = {
 };
 
 export function WeightMiniForm({ onSuccess, onBack, initialWeight = '' }: WeightMiniFormProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { text, surfaces } = useThemedStyles();
   const currentWeight = useHealthStore((s) => s.bodyStats.weightKg);
@@ -33,7 +35,7 @@ export function WeightMiniForm({ onSuccess, onBack, initialWeight = '' }: Weight
   const handleSave = async () => {
     const parsed = Number.parseFloat(weight.replace(',', '.'));
     if (!Number.isFinite(parsed) || parsed <= 0 || isSubmitting) {
-      setError('Enter a valid weight in kg.');
+      setError(t('actionHub.forms.weightError'));
       return;
     }
 
@@ -43,7 +45,7 @@ export function WeightMiniForm({ onSuccess, onBack, initialWeight = '' }: Weight
     try {
       const userId = useGamificationStore.getState().profile?.id;
       if (!userId) {
-        throw new Error('You must be signed in to log weight.');
+        throw new Error(t('actionHub.forms.weightSignInError'));
       }
 
       await logWeight(userId, parsed);
@@ -66,7 +68,7 @@ export function WeightMiniForm({ onSuccess, onBack, initialWeight = '' }: Weight
       <TextInput
         value={weight}
         onChangeText={setWeight}
-        placeholder="Weight (kg)"
+        placeholder={t('actionHub.forms.weightPlaceholder')}
         placeholderTextColor={theme.textMuted}
         keyboardType="decimal-pad"
         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderSubtle }]}
@@ -76,7 +78,7 @@ export function WeightMiniForm({ onSuccess, onBack, initialWeight = '' }: Weight
 
       <View style={styles.actions}>
         <Pressable onPress={onBack} style={[styles.secondaryButton, { borderColor: theme.borderSubtle }]}>
-          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>Back</Text>
+          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>{t('actionHub.forms.back')}</Text>
         </Pressable>
         <Pressable
           onPress={() => void handleSave()}
@@ -86,7 +88,7 @@ export function WeightMiniForm({ onSuccess, onBack, initialWeight = '' }: Weight
           {isSubmitting ? (
             <ActivityIndicator color={surfaces.onPrimary} />
           ) : (
-            <Text style={[text.onBrand, styles.primaryText]}>Save</Text>
+            <Text style={[text.onBrand, styles.primaryText]}>{t('actionHub.forms.save')}</Text>
           )}
         </Pressable>
       </View>

@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
@@ -25,6 +26,7 @@ export function PlannerMonthCalendar({
   onPreviousMonth,
   onNextMonth,
 }: PlannerMonthCalendarProps) {
+  const { t } = useTranslation();
   const { theme, isDark } = usePlannerTheme();
 
   const styles = useMemo(
@@ -117,7 +119,7 @@ export function PlannerMonthCalendar({
             }}
             hitSlop={10}
             style={styles.navButton}
-            accessibilityLabel="Previous month"
+            accessibilityLabel={t('planner.prevMonth')}
           >
             <ChevronLeft color={theme.textSecondary} size={20} strokeWidth={2} />
           </Pressable>
@@ -129,7 +131,7 @@ export function PlannerMonthCalendar({
             }}
             hitSlop={10}
             style={styles.navButton}
-            accessibilityLabel="Next month"
+            accessibilityLabel={t('planner.nextMonth')}
           >
             <ChevronRight color={theme.textSecondary} size={20} strokeWidth={2} />
           </Pressable>

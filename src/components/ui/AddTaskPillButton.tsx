@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
@@ -20,10 +21,12 @@ type AddTaskPillButtonProps = {
 
 export function AddTaskPillButton({
   onPress,
-  label = 'Add task',
+  label,
   fullWidth = false,
   accessibilityLabel,
 }: AddTaskPillButtonProps) {
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t('dashboard.addTask');
   const { theme, isDark } = useTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
   const scale = useSharedValue(1);
@@ -97,7 +100,7 @@ export function AddTaskPillButton({
   return (
     <AnimatedPressable
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityLabel={accessibilityLabel ?? resolvedLabel}
       onPress={handlePress}
       onPressIn={() => {
         scale.value = withSpring(0.97, pressInSpring);
@@ -108,7 +111,7 @@ export function AddTaskPillButton({
       style={[styles.pill, fullWidth && styles.pillFull, pressStyle]}
     >
       <Text style={styles.label} numberOfLines={1}>
-        {label}
+        {resolvedLabel}
       </Text>
       <View style={styles.bullet}>
         <Plus color={surfaces.onPrimary} size={17} strokeWidth={2.6} />

@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '../../theme/ThemeContext';
 
 export function ActionHubExpandedHeader() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
 
   const styles = useMemo(
@@ -34,8 +36,8 @@ export function ActionHubExpandedHeader() {
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>Action Hub</Text>
-      <Text style={styles.subtitle}>Expanded</Text>
+      <Text style={styles.title}>{t('actionHub.title')}</Text>
+      <Text style={styles.subtitle}>{t('actionHub.expanded')}</Text>
     </View>
   );
 }

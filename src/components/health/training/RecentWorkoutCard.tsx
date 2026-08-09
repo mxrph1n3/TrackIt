@@ -1,8 +1,11 @@
 import { Sparkles } from 'lucide-react-native';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useHealthAssets } from '../../../lib/healthAssets';
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
+import { getWorkoutTracks } from '../../../constants/workoutPrograms';
+import { tRelativeDay, tWorkoutFocusName } from '../../../i18n/helpers';
 import { useHealthStore } from '../../../stores/useHealthStore';
 import { PremiumCard } from '../ui/PremiumCard';
 
@@ -24,6 +27,7 @@ function StatBlock({
 }
 
 export function RecentWorkoutCard() {
+  const { t } = useTranslation();
   const lastSession = useHealthStore((s) => s.lastSession);
   const { workoutHero } = useHealthAssets();
   const healthTheme = useHealthTheme();
@@ -32,11 +36,20 @@ export function RecentWorkoutCard() {
     return null;
   }
 
-  const metaLine = `${lastSession.relativeDay} · ${lastSession.durationMinutes} min`;
+  let localizedTitle = lastSession.title;
+  for (const track of getWorkoutTracks()) {
+    const translated = tWorkoutFocusName(t, lastSession.title, track.days, track.id);
+    if (translated !== lastSession.title) {
+      localizedTitle = translated;
+      break;
+    }
+  }
+
+  const metaLine = `${tRelativeDay(t, lastSession.relativeDay)} · ${lastSession.durationMinutes} ${t('common.min')}`;
   const volume =
     lastSession.tonnageKg >= 1000
       ? `${(lastSession.tonnageKg / 1000).toFixed(1)}t`
-      : `${lastSession.tonnageKg.toLocaleString('en-US')} kg`;
+      : `${lastSession.tonnageKg.toLocaleString()} ${t('common.kg')}`;
 
   return (
     <PremiumCard>
@@ -48,19 +61,33 @@ export function RecentWorkoutCard() {
           resizeMode="cover"
         />
         <View style={styles.copy}>
-          <Text style={[styles.title, { color: healthTheme.ink }]}>{lastSession.title}</Text>
+          <Text style={[styles.title, { color: healthTheme.ink }]}>{localizedTitle}</Text>
           <Text style={[styles.meta, { color: healthTheme.muted }]}>{metaLine}</Text>
         </View>
         <View style={[styles.xpBadge, { backgroundColor: healthTheme.accentSoft }]}>
           <Sparkles color={healthTheme.accent} size={14} />
-          <Text style={[styles.xp, { color: healthTheme.accent }]}>+{lastSession.xpEarned} XP</Text>
+          <Text style={[styles.xp, { color: healthTheme.accent }]}>
+            {t('health.xpGain', { xp: lastSession.xpEarned })}
+          </Text>
         </View>
       </View>
 
       <View style={[styles.statsRow, { borderTopColor: healthTheme.cardBorder }]}>
-        <StatBlock label="Exercises" value={String(lastSession.exerciseCount)} color={healthTheme} />
-        <StatBlock label="Sets" value={String(lastSession.setCount)} color={healthTheme} />
-        <StatBlock label="Volume" value={volume} color={healthTheme} />
+        <StatBlock
+          label={t('health.stats.exercises')}
+          value={String(lastSession.exerciseCount)}
+          color={healthTheme}
+        />
+        <StatBlock
+          label={t('health.stats.sets')}
+          value={String(lastSession.setCount)}
+          color={healthTheme}
+        />
+        <StatBlock
+          label={t('health.stats.volume')}
+          value={volume}
+          color={healthTheme}
+        />
       </View>
     </PremiumCard>
   );

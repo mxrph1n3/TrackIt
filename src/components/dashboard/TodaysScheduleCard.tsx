@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ScheduleItem } from '../../types/dashboard';
@@ -18,6 +19,7 @@ type TodaysScheduleCardProps = {
 };
 
 export function TodaysScheduleCard({ schedule, isEmpty, onToggleItem }: TodaysScheduleCardProps) {
+  const { t } = useTranslation();
   const openTaskSheet = usePlannerStore((s) => s.openTaskSheet);
   const openAllTasks = usePlannerNavigationStore((s) => s.openAllTasks);
   const { theme } = useTheme();
@@ -60,18 +62,18 @@ export function TodaysScheduleCard({ schedule, isEmpty, onToggleItem }: TodaysSc
       <View className="p-5">
         <View className="mb-4 flex-row items-center justify-between gap-2">
           <Text className="flex-1 text-[11px] font-bold uppercase tracking-[0.22em] text-ethereal-ink">
-            Today&apos;s Schedule
+            {t('dashboard.todaysSchedule')}
           </Text>
 
           {!isEmpty ? (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="View all schedule items"
+              accessibilityLabel={t('common.viewAll')}
               onPress={handleViewAll}
               style={({ pressed }) => [styles.viewAllButton, pressed && styles.pressed]}
               className="active:opacity-70"
             >
-              <Text style={styles.viewAllLabel}>View All</Text>
+              <Text style={styles.viewAllLabel}>{t('common.viewAll')}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -85,10 +87,14 @@ export function TodaysScheduleCard({ schedule, isEmpty, onToggleItem }: TodaysSc
             }}
           >
             <Text className="text-center text-sm leading-6 text-ethereal-ink/45">
-              Your schedule is clear for today. Add a task to plan your focus blocks.
+              {t('dashboard.scheduleEmpty')}
             </Text>
             <View style={styles.addTaskCenter}>
-              <AddTaskPillButton fullWidth onPress={handleAddTask} />
+              <AddTaskPillButton
+                fullWidth
+                onPress={handleAddTask}
+                label={t('dashboard.addTask')}
+              />
             </View>
           </View>
         ) : (
@@ -126,7 +132,7 @@ export function TodaysScheduleCard({ schedule, isEmpty, onToggleItem }: TodaysSc
             </View>
 
             <View style={styles.addTaskCenter}>
-              <AddTaskPillButton onPress={handleAddTask} />
+              <AddTaskPillButton onPress={handleAddTask} label={t('dashboard.addTask')} />
             </View>
           </View>
         )}

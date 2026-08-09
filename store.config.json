@@ -30,7 +30,7 @@
       "en-US": {
         "title": "TrackIt",
         "subtitle": "Tasks, health & habits OS",
-        "description": "TrackIt is your daily command center: plan tasks, train with structured programs, log meals and water, track spending, and build habits — all synced in the cloud. TrackIt is completely free with all features unlocked.\n\nWhat you can do\n- Planner with tasks, subtasks, and focus sessions\n- Structured workout programs (maintenance, fat loss, mass gain) plus custom programs\n- Nutrition targets from your profile (BMR/TDEE estimates)\n- Finance overview, subscriptions tracker, and insights\n- Habits, journal, and gamification (XP, levels, leaderboard)\n- Smart reminders (optional; enable in Settings)\n\nHealth features are for general wellness only — not medical or financial advice.",
+        "description": "TrackIt is your daily command center: plan tasks, train with structured programs, log meals and water, track spending, and build habits — all synced in the cloud.\n\nStart with a 3-day Pro trial (full access). After the trial, unlock TrackIt Pro with an auto-renewable subscription to keep advanced programs, analytics, reminders, and premium themes.\n\nWhat you can do\n- Planner with tasks, subtasks, and focus sessions\n- Structured workout programs (maintenance, fat loss, mass gain) plus custom programs\n- Nutrition targets from your profile (BMR/TDEE estimates)\n- Finance overview, subscriptions tracker, and insights\n- Habits, journal, and gamification (XP, levels, leaderboard)\n- Smart reminders (optional; enable in Settings)\n- App language: English, Russian, Spanish, German (Settings → Language)\n\nHealth features are for general wellness only — not medical or financial advice.\nSubscriptions are billed through your Apple ID / Google Play account and renew automatically unless cancelled at least 24 hours before the end of the period.",
         "keywords": [
           "tasks",
           "habits",
@@ -41,10 +41,76 @@
           "fitness",
           "tracker",
           "streaks",
-          "gamification"
+          "pro"
         ],
-        "promoText": "One free app for tasks, workouts, nutrition, finance, and habits — with XP and streaks.",
-        "releaseNotes": "Initial release. TrackIt is completely free — all features unlocked, no in-app purchases.",
+        "promoText": "Plan tasks, train, eat, budget, and build habits — with a 3-day Pro trial, then TrackIt Pro.",
+        "releaseNotes": "Initial release. Includes a 3-day Pro trial, then TrackIt Pro subscription. Languages: English, Russian, Spanish, German.",
+        "marketingUrl": "https://track-it-umber-psi.vercel.app",
+        "supportUrl": "https://track-it-umber-psi.vercel.app/support",
+        "privacyPolicyUrl": "https://track-it-umber-psi.vercel.app/privacy"
+      },
+      "ru": {
+        "title": "TrackIt",
+        "subtitle": "Задачи, здоровье и привычки",
+        "description": "TrackIt — ежедневный центр управления: задачи, тренировки, питание, финансы и привычки в одном приложении с облачной синхронизацией.\n\nПервые 3 дня — полный доступ Pro. Дальше оформите подписку TrackIt Pro, чтобы сохранить программы, аналитику, напоминания и премиум-темы.\n\nВозможности\n- Планировщик: задачи, подзадачи, фокус-сессии\n- Программы тренировок и свои программы\n- Цели по питанию (оценка BMR/TDEE)\n- Финансы, подписки и инсайты\n- Привычки, дневник, XP и уровни\n- Умные напоминания (по желанию в Настройках)\n- Язык: русский, English, Español, Deutsch (Настройки → Язык)\n\nФункции здоровья — для общего wellness, не медицинский и не финансовый совет.\nПодписка списывается через App Store / Google Play и продлевается автоматически, если не отменить минимум за 24 часа до конца периода.",
+        "keywords": [
+          "задачи",
+          "привычки",
+          "тренировки",
+          "питание",
+          "финансы",
+          "планер",
+          "фитнес",
+          "трекер",
+          "про",
+          "фокус"
+        ],
+        "promoText": "Задачи, тренировки, питание и финансы — 3 дня Pro, затем подписка TrackIt Pro.",
+        "releaseNotes": "Первый релиз. 3 дня Pro-триала, затем подписка TrackIt Pro. Языки: RU, EN, ES, DE.",
+        "marketingUrl": "https://track-it-umber-psi.vercel.app",
+        "supportUrl": "https://track-it-umber-psi.vercel.app/support",
+        "privacyPolicyUrl": "https://track-it-umber-psi.vercel.app/privacy"
+      },
+      "es-ES": {
+        "title": "TrackIt",
+        "subtitle": "Tareas, salud y hábitos",
+        "description": "TrackIt es tu centro de mando diario: tareas, entrenamientos, comidas, gastos y hábitos, con sincronización en la nube.\n\nPrueba Pro de 3 días con acceso completo. Después, suscríbete a TrackIt Pro para mantener programas, analítica, recordatorios y temas premium.\n\nQué puedes hacer\n- Planner con tareas, subtareas y modo Focus\n- Programas de entrenamiento y programas propios\n- Objetivos de nutrición (estimación BMR/TDEE)\n- Finanzas, suscripciones e insights\n- Hábitos, diario y gamificación (XP, niveles)\n- Recordatorios opcionales (Ajustes)\n- Idioma: español, inglés, ruso, alemán (Ajustes → Idioma)\n\nLas funciones de salud son de bienestar general, no consejo médico ni financiero.\nLa suscripción se cobra con tu cuenta de Apple / Google Play y se renueva sola salvo cancelación al menos 24 h antes del fin del periodo.",
+        "keywords": [
+          "tareas",
+          "habitos",
+          "entrenamiento",
+          "nutricion",
+          "finanzas",
+          "planner",
+          "fitness",
+          "tracker",
+          "pro",
+          "focus"
+        ],
+        "promoText": "Tareas, entreno, nutrición y finanzas — 3 días Pro, luego suscripción TrackIt Pro.",
+        "releaseNotes": "Primera versión. Prueba Pro de 3 días y suscripción TrackIt Pro. Idiomas: ES, EN, RU, DE.",
+        "marketingUrl": "https://track-it-umber-psi.vercel.app",
+        "supportUrl": "https://track-it-umber-psi.vercel.app/support",
+        "privacyPolicyUrl": "https://track-it-umber-psi.vercel.app/privacy"
+      },
+      "de-DE": {
+        "title": "TrackIt",
+        "subtitle": "Tasks, Health & Habits",
+        "description": "TrackIt ist dein tägliches Command Center: Tasks, Workouts, Ernährung, Finanzen und Habits — mit Cloud-Sync.\n\n3 Tage Pro-Test mit vollem Zugriff. Danach TrackIt Pro abonnieren, um Programme, Analysen, Reminder und Premium-Themes zu behalten.\n\nFunktionen\n- Planner mit Tasks, Subtasks und Focus\n- Trainingsprogramme und eigene Programme\n- Ernährungsziele (BMR/TDEE-Schätzung)\n- Finanzen, Abos und Insights\n- Habits, Journal und Gamification (XP, Level)\n- Optionale Reminder (Einstellungen)\n- Sprache: Deutsch, English, Русский, Español (Einstellungen → Sprache)\n\nHealth-Funktionen dienen dem allgemeinen Wellness — keine medizinische oder Finanzberatung.\nDas Abo wird über Apple ID / Google Play abgerechnet und verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Periodenende gekündigt wird.",
+        "keywords": [
+          "aufgaben",
+          "gewohnheiten",
+          "workout",
+          "ernaehrung",
+          "finanzen",
+          "planer",
+          "fitness",
+          "tracker",
+          "pro",
+          "fokus"
+        ],
+        "promoText": "Tasks, Training, Ernährung & Finanzen — 3 Tage Pro, danach TrackIt-Pro-Abo.",
+        "releaseNotes": "Erstes Release. 3-Tage-Pro-Test, danach TrackIt-Pro-Abo. Sprachen: DE, EN, RU, ES.",
         "marketingUrl": "https://track-it-umber-psi.vercel.app",
         "supportUrl": "https://track-it-umber-psi.vercel.app/support",
         "privacyPolicyUrl": "https://track-it-umber-psi.vercel.app/privacy"
@@ -58,7 +124,7 @@
       "demoRequired": true,
       "demoUsername": "review@trackit.app",
       "demoPassword": "trackit",
-      "notes": "TrackIt is a free app with no in-app purchases or subscriptions.\nAll features (analytics, workouts, reminders) are unlocked for every signed-in user.\n\nSign in: email and password only (no Google / Apple).\nAccount deletion: Settings → Account → Delete account.\nPush notifications: opt-in only — disabled by default; the OS permission prompt appears only after the user enables Smart reminders in Settings.\n\nPrivacy: https://track-it-umber-psi.vercel.app/privacy\nTerms: https://track-it-umber-psi.vercel.app/terms"
+      "notes": "TrackIt includes a 3-day soft trial with full Pro access on first launch (iOS/Android).\nAfter the trial, Pro features require an auto-renewable subscription:\ntrackit_pro_monthly / trackit_pro_yearly (RevenueCat entitlement \"pro\").\n\nSign in: email and password only (no Google / Apple Sign-In).\nAccount deletion: Settings → Account → Delete account.\nPush: opt-in only — enable Smart reminders in Settings.\n\nIn-app languages: English, Russian, Spanish, German (Settings → Language).\n\nPrivacy: https://track-it-umber-psi.vercel.app/privacy\nTerms: https://track-it-umber-psi.vercel.app/terms"
     }
   }
 }

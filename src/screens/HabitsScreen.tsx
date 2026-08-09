@@ -1,5 +1,6 @@
 import { Target } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -19,6 +20,7 @@ import { reportSyncError } from '../lib/sync/reportSyncError';
 import { useTheme } from '../theme/ThemeContext';
 
 export function HabitsScreen() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const closeModule = useProfileModuleStore((s) => s.closeModule);
   const { habits, isLoading, isMutating, refresh, toggleDay, addHabit } = useHabits();
@@ -33,19 +35,19 @@ export function HabitsScreen() {
       await addHabit(draftTitle);
       setDraftTitle('');
     } catch (error) {
-      reportSyncError('Habits', error, 'Could not create habit.');
+      reportSyncError('Habits', error, t('toasts.habitCreateError'));
     }
   }, [addHabit, draftTitle]);
 
   const handleRefresh = () => {
     void refresh().catch((error) => {
-      reportSyncError('Habits', error, 'Could not refresh habits.');
+      reportSyncError('Habits', error, t('toasts.habitRefreshError'));
     });
   };
 
   return (
     <IsolatedScreenLayout
-      header={<ScreenHeader title="HABITS" subtitle="Discipline Engine" onBack={closeModule} />}
+      header={<ScreenHeader title={t('habits.title')} subtitle={t('habits.subtitle')} onBack={closeModule} />}
       scrollProps={{
         refreshControl: (
           <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} tintColor={theme.primary} />
@@ -57,7 +59,7 @@ export function HabitsScreen() {
           <TextInput
             value={draftTitle}
             onChangeText={setDraftTitle}
-            placeholder="New habit title…"
+            placeholder={t('habits.placeholder')}
             placeholderTextColor={theme.textMuted}
             className="flex-1 px-3 py-3 text-base font-semibold"
             style={{ color: theme.textPrimary }}
@@ -68,7 +70,7 @@ export function HabitsScreen() {
             className="rounded-2xl px-4 py-3 active:opacity-85"
             style={{ backgroundColor: theme.primary }}
           >
-            <Text className="text-sm font-bold text-ethereal-ink">Add</Text>
+            <Text className="text-sm font-bold text-ethereal-ink">{t('habits.add')}</Text>
           </Pressable>
         </View>
       </GlassPanel>
@@ -84,10 +86,7 @@ export function HabitsScreen() {
           <View className="items-center p-8">
             <Target color={theme.primary} size={40} strokeWidth={2} />
             <Text className="mt-4 text-center text-base font-semibold" style={{ color: theme.textPrimary }}>
-              No habits yet
-            </Text>
-            <Text className="mt-2 text-center text-sm" style={{ color: theme.textMuted }}>
-              Create your first habit and earn +25 EXP for each daily check-in.
+              {t('habits.empty')}
             </Text>
           </View>
         </GlassPanel>

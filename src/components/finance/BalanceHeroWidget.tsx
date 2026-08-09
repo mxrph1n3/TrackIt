@@ -1,4 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
 import { formatMoney, formatSignedMoney } from '../../constants/financeCategories';
@@ -14,6 +15,7 @@ type BalanceHeroWidgetProps = {
 };
 
 export function BalanceHeroWidget({ overview }: BalanceHeroWidgetProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const changePrefix = overview.balanceChangePercent >= 0 ? '+' : '';
   const changeColor = overview.balanceChangePercent >= 0 ? '#34D399' : '#F87171';
@@ -36,7 +38,7 @@ export function BalanceHeroWidget({ overview }: BalanceHeroWidgetProps) {
           className="text-[10px] font-bold uppercase tracking-[2px]"
           style={{ color: theme.textMuted }}
         >
-          Total Balance
+          {t('common.totalBalance')}
         </Text>
 
         <AnimatedBalanceText
@@ -56,8 +58,9 @@ export function BalanceHeroWidget({ overview }: BalanceHeroWidgetProps) {
                 }}
               >
                 <Text className="text-xs font-bold" style={{ color: changeColor }}>
-                  {changePrefix}
-                  {overview.balanceChangePercent}% vs last month
+                  {t('finance.vsLastMonth', {
+                    percent: `${changePrefix}${overview.balanceChangePercent}`,
+                  })}
                 </Text>
               </View>
             </View>
@@ -88,7 +91,9 @@ export function BalanceHeroWidget({ overview }: BalanceHeroWidgetProps) {
         ) : null}
 
         <Text className="mt-3 text-xs font-semibold" style={{ color: theme.textMuted }}>
-          This month · {formatSignedMoney(overview.monthlyDelta, overview.displayCurrency)}
+          {t('finance.thisMonthDelta', {
+            amount: formatSignedMoney(overview.monthlyDelta, overview.displayCurrency),
+          })}
         </Text>
       </LinearGradient>
     </GlassPanel>

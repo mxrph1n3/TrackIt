@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
 import { useProgression } from '../../hooks/useProgression';
@@ -29,26 +30,25 @@ function formatFocusHours(hours: number) {
   return hours.toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
 
-const LABELS = {
-  profile: {
-    days: 'Days in App',
-    habits: 'Active Habits',
-    focus: 'Focus Hours',
-  },
-  drawer: {
-    days: 'Days',
-    habits: 'Habits',
-    focus: 'Focus Hrs',
-  },
-} as const;
-
 type LifeOsStatsRowProps = {
-  variant?: keyof typeof LABELS;
+  variant?: 'profile' | 'drawer';
 };
 
 export function LifeOsStatsRow({ variant = 'profile' }: LifeOsStatsRowProps) {
+  const { t } = useTranslation();
   const { profileStats } = useProgression();
-  const labels = LABELS[variant];
+  const labels =
+    variant === 'drawer'
+      ? {
+          days: t('profile.stats.daysShort'),
+          habits: t('profile.stats.habitsShort'),
+          focus: t('profile.stats.focusHoursShort'),
+        }
+      : {
+          days: t('profile.stats.daysInApp'),
+          habits: t('profile.stats.activeHabits'),
+          focus: t('profile.stats.focusHours'),
+        };
 
   return (
     <View className="mx-1 mb-6 flex-row rounded-2xl border border-obsidian-border bg-white/[0.03] py-5">

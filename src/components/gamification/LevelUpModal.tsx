@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Sparkles } from 'lucide-react-native';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
@@ -13,6 +14,7 @@ const LIGHT_PANEL_GRADIENT = ['rgba(255,255,255,0.98)', 'rgba(243,245,250,0.96)'
 const DARK_PANEL_GRADIENT = ['rgba(28, 24, 48, 0.98)', 'rgba(22, 18, 38, 0.96)', '#12101F'] as const;
 
 export function LevelUpModal() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { isDark } = useTheme();
   const celebration = useGamificationStore((s) => s.levelUpCelebration);
@@ -53,7 +55,7 @@ export function LevelUpModal() {
             </View>
 
             <Text className="text-[11px] font-bold uppercase tracking-[0.4em] text-obsidian-primary">
-              Level Up
+              {t('gamification.levelUp')}
             </Text>
             <Text
               className="mt-3 text-center text-4xl font-black text-ethereal-ink"
@@ -63,10 +65,10 @@ export function LevelUpModal() {
                 textShadowRadius: 12,
               }}
             >
-              LEVEL {celebration.newLevel}
+              {t('gamification.levelLabel', { level: celebration.newLevel })}
             </Text>
             <Text className="mt-3 text-center text-sm text-ethereal-slate">
-              {celebration.actionName} pushed you to the next tier.
+              {t('gamification.pushedTier', { action: celebration.actionName })}
             </Text>
 
             <Pressable
@@ -85,7 +87,7 @@ export function LevelUpModal() {
                   alignItems: 'center',
                 }}
               >
-                <Text className="text-sm font-bold text-white">Continue</Text>
+                <Text className="text-sm font-bold text-white">{t('gamification.continue')}</Text>
               </LinearGradient>
             </Pressable>
           </View>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import Svg, { Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
 
@@ -38,6 +39,7 @@ type LifeRadarChartProps = {
 };
 
 export function LifeRadarChart({ attributes: attributesOverride }: LifeRadarChartProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { progress } = useDashboardMetrics();
 
@@ -45,7 +47,11 @@ export function LifeRadarChart({ attributes: attributesOverride }: LifeRadarChar
     attributesOverride ??
     progress.categories.map((category) => ({
       id: category.id,
-      label: category.label,
+      label: (() => {
+        const key = `dashboard.categories.${category.id}`;
+        const translated = t(key);
+        return translated === key ? category.label : translated;
+      })(),
       value: category.percent,
       color: DASHBOARD_CATEGORY_COLORS[category.id as keyof typeof DASHBOARD_CATEGORY_COLORS],
     }));
@@ -59,7 +65,7 @@ export function LifeRadarChart({ attributes: attributesOverride }: LifeRadarChar
           className="mb-4 self-start text-[10px] font-bold uppercase tracking-widest"
           style={{ color: theme.textMuted }}
         >
-          RPG Skill Hexagon
+          {t('analytics.rpgHexagon')}
         </Text>
 
         <Svg width={SIZE} height={SIZE}>
@@ -131,6 +137,7 @@ export function LifeRadarChart({ attributes: attributesOverride }: LifeRadarChar
 }
 
 export function PerformanceRankCard() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { fetchGlobalLeaderboard, globalRank, isLoading } = useGamification();
 
@@ -142,9 +149,9 @@ export function PerformanceRankCard() {
   const percentileLabel = globalRank
     ? getTopPercentileLabel(globalRank.percentile)
     : isLoading
-      ? 'Loading…'
+      ? t('common.loading')
       : '—';
-  const tierLabel = globalRank?.tierLabel ?? 'Sync your profile to unlock rank';
+  const tierLabel = globalRank?.tierLabel ?? t('analytics.syncRank');
 
   return (
     <GlassPanel borderRadius={24}>
@@ -154,10 +161,10 @@ export function PerformanceRankCard() {
             className="text-[10px] font-bold uppercase tracking-widest"
             style={{ color: theme.textMuted }}
           >
-            Performance Ranking
+            {t('analytics.performanceRanking')}
           </Text>
           <Text className="mt-2 text-sm" style={{ color: theme.textSecondary }}>
-            Global #{globalRank?.rankPosition ?? '—'}
+            {t('analytics.globalRank', { rank: globalRank?.rankPosition ?? '—' })}
           </Text>
           <Text
             className="mt-1 text-3xl font-black"

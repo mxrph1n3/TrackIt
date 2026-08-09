@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import { formatMoney, formatSignedMoney, SUPPORTED_CURRENCIES } from '../../constants/financeCategories';
@@ -10,9 +11,9 @@ import { GlassPanel } from '../GlassPanel';
 import { TrackItIcon } from '../ui/TrackItIcon';
 
 const ACCOUNT_PRESETS = [
-  { icon: 'credit-card', label: 'Card', color: '#775DD8' },
-  { icon: 'banknote', label: 'Cash', color: '#34D399' },
-  { icon: 'landmark', label: 'Savings', color: '#6366F1' },
+  { icon: 'credit-card', id: 'card' as const, color: '#775DD8' },
+  { icon: 'banknote', id: 'cash' as const, color: '#34D399' },
+  { icon: 'landmark', id: 'savings' as const, color: '#6366F1' },
 ];
 
 type AccountCardsRowProps = {
@@ -21,6 +22,7 @@ type AccountCardsRowProps = {
 };
 
 export function AccountCardsRow({ accounts, onCreated }: AccountCardsRowProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const [isAdding, setIsAdding] = useState(false);
   const [name, setName] = useState('');
@@ -50,14 +52,14 @@ export function AccountCardsRow({ accounts, onCreated }: AccountCardsRowProps) {
         <View className="items-center p-6">
           <TrackItIcon name="credit-card" size={28} color={theme.primary} badge badgeSize={52} />
           <Text className="mt-2 text-sm font-semibold" style={{ color: theme.textPrimary }}>
-            No accounts yet
+            {t('finance.noAccounts')}
           </Text>
           <Pressable
             onPress={() => setIsAdding(true)}
             className="mt-4 rounded-xl px-4 py-2 active:opacity-85"
             style={{ backgroundColor: theme.primary }}
           >
-            <Text className="text-sm font-bold text-ethereal-ink">Add Account</Text>
+            <Text className="text-sm font-bold text-ethereal-ink">{t('finance.addAccount')}</Text>
           </Pressable>
         </View>
       </GlassPanel>
@@ -99,7 +101,7 @@ export function AccountCardsRow({ accounts, onCreated }: AccountCardsRowProps) {
             <View className="flex-1 items-center justify-center p-4">
               <Text className="text-2xl">+</Text>
               <Text className="mt-1 text-xs font-bold" style={{ color: theme.primary }}>
-                Add
+                {t('common.add')}
               </Text>
             </View>
           </GlassPanel>
@@ -114,7 +116,7 @@ export function AccountCardsRow({ accounts, onCreated }: AccountCardsRowProps) {
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="Account name"
+            placeholder={t('finance.accountName')}
             placeholderTextColor={theme.textMuted}
             className="mb-3 rounded-xl border px-4 py-3 text-sm font-semibold"
             style={{ color: theme.textPrimary, borderColor: theme.borderSubtle }}
@@ -122,24 +124,24 @@ export function AccountCardsRow({ accounts, onCreated }: AccountCardsRowProps) {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             {ACCOUNT_PRESETS.map((item) => (
               <Pressable
-                key={item.label}
+                key={item.id}
                 onPress={() => setPreset(item)}
                 className="rounded-full px-3 py-2 active:opacity-85"
                 style={{
-                  backgroundColor: preset.label === item.label ? `${item.color}33` : `${theme.primary}10`,
+                  backgroundColor: preset.id === item.id ? `${item.color}33` : `${theme.primary}10`,
                   borderWidth: 1,
-                  borderColor: preset.label === item.label ? item.color : theme.borderSubtle,
+                  borderColor: preset.id === item.id ? item.color : theme.borderSubtle,
                 }}
               >
                 <View className="flex-row items-center gap-1.5">
                   <TrackItIcon name={item.icon} size={14} color={item.color} />
-                  <Text style={{ color: theme.textPrimary }}>{item.label}</Text>
+                  <Text style={{ color: theme.textPrimary }}>{t(`finance.${item.id}`)}</Text>
                 </View>
               </Pressable>
             ))}
           </ScrollView>
           <Text className="mb-2 mt-1 text-[10px] font-bold uppercase tracking-[1px]" style={{ color: theme.textMuted }}>
-            Currency
+            {t('finance.currency')}
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             {SUPPORTED_CURRENCIES.map((item) => (
@@ -168,7 +170,7 @@ export function AccountCardsRow({ accounts, onCreated }: AccountCardsRowProps) {
             {isSaving ? (
               <ActivityIndicator color={theme.textPrimary} />
             ) : (
-              <Text className="font-bold text-ethereal-ink">Create Account</Text>
+              <Text className="font-bold text-ethereal-ink">{t('finance.createAccount')}</Text>
             )}
           </Pressable>
         </View>

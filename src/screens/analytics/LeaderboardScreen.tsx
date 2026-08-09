@@ -1,5 +1,6 @@
 import { ChevronLeft } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 
@@ -10,6 +11,7 @@ import { getThemedSurfaces } from '../../theme/themedSurfaces';
 import { useTheme } from '../../theme/ThemeContext';
 
 export function LeaderboardScreen() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
@@ -60,7 +62,7 @@ export function LeaderboardScreen() {
         <Pressable onPress={closeLeaderboard} hitSlop={12} style={styles.backButton}>
           <ChevronLeft color={theme.textPrimary} size={22} />
         </Pressable>
-        <Text style={styles.headerTitle}>Leaderboard</Text>
+        <Text style={styles.headerTitle}>{t('analytics.leaderboard')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 

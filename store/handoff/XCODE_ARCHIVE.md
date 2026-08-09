@@ -33,7 +33,7 @@ npm run setup:ios
 
 4. В Organizer: **Distribute App → App Store Connect → Upload**
 
-Готово — IPA уйдёт в App Store Connect. Дальше метаданные и Submit: см. `INSTRUCTIONS_RU.md`.
+Готово — IPA уйдёт в App Store Connect. Дальше метаданные, подписки Pro и Submit: см. `RELEASE_READY_RU.md` и `INSTRUCTIONS_RU.md`.
 
 ## Env (логин / Supabase)
 

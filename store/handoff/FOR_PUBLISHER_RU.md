@@ -6,7 +6,12 @@
 **Bundle ID:** `com.trackit.lifeos`  
 **Имя приложения:** TrackIt  
 
-**Expo / EAS не обязательны.** Достаточно Mac + Xcode + Node + CocoaPods.
+**Модель:** free download + подписка TrackIt Pro (`trackit_pro_monthly` / `trackit_pro_yearly`), soft-триал **3 дня**.  
+**Языки UI:** EN / RU / ES / DE.  
+**Старт + Android:** [`../../START_HERE_PUBLISHER_RU.md`](../../START_HERE_PUBLISHER_RU.md) · [`FOR_PUBLISHER_ANDROID_RU.md`](./FOR_PUBLISHER_ANDROID_RU.md)  
+**Листинг / IAP / тексты:** [`RELEASE_READY_RU.md`](./RELEASE_READY_RU.md)
+
+**Expo / EAS не обязательны** для Archive. Достаточно Mac + Xcode + Node + CocoaPods.
 
 ---
 
@@ -183,14 +188,18 @@ Bundle ID: `com.trackit.lifeos`. Сначала выполните блок **«
    - SKU: `trackit-lifeos-001`  
    - Primary category: **Health & Fitness** · Secondary: **Productivity**
 
-2. Метаданные + скриншоты + Privacy:  
+2. Создать подписки **`trackit_pro_monthly`** и **`trackit_pro_yearly`** (см. `RELEASE_READY_RU.md`).  
+   Paid Apps Agreement + banking/tax должны быть активны.
+
+3. Метаданные + скриншоты + Privacy (+ локали RU/ES/DE):  
    **`RELEASE_READY_RU.md`** · **`INSTRUCTIONS_RU.md`** · **`screenshots/`**  
    Машинный файл: корневой **`store.config.json`**
 
-3. Privacy Policy: https://track-it-umber-psi.vercel.app/privacy  
+4. Privacy Policy: https://track-it-umber-psi.vercel.app/privacy  
    Support: https://track-it-umber-psi.vercel.app/support  
 
-4. Дождаться билда в TestFlight → версия **1.0.0** → выбрать Build → **Submit for Review**.
+5. Дождаться билда в TestFlight → версия **1.0.0** → выбрать Build → **Submit for Review**.  
+   В Review notes: 3-дневный Pro-trial + подписка; демо `review@trackit.app` / `trackit`.
 
 ---
 

@@ -1,7 +1,9 @@
 import { CalendarDays } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { i18n } from '../../i18n';
 import { triggerHaptic } from '../../lib/platform/haptics';
 import { BRAND } from '../../theme/designTokens';
 import { getThemedSurfaces } from '../../theme/themedSurfaces';
@@ -25,7 +27,7 @@ type ScheduleDay = {
 
 type QuickPick = {
   key: string;
-  label: string;
+  labelKey: string;
   dayKey: string;
 };
 
@@ -61,10 +63,10 @@ function buildQuickPicks(today: Date): QuickPick[] {
   const weekendKey = toDayKey(addDays(today, daysUntilSaturday === 0 ? 7 : daysUntilSaturday));
 
   return [
-    { key: 'today', label: 'Today', dayKey: todayKey },
-    { key: 'tomorrow', label: 'Tomorrow', dayKey: tomorrowKey },
-    { key: 'weekend', label: 'Weekend', dayKey: weekendKey },
-    { key: 'next-week', label: 'In 1 week', dayKey: nextWeekKey },
+    { key: 'today', labelKey: 'planner.schedule.today', dayKey: todayKey },
+    { key: 'tomorrow', labelKey: 'planner.schedule.tomorrow', dayKey: tomorrowKey },
+    { key: 'weekend', labelKey: 'planner.schedule.weekend', dayKey: weekendKey },
+    { key: 'next-week', labelKey: 'planner.schedule.in1Week', dayKey: nextWeekKey },
   ];
 }
 
@@ -74,13 +76,13 @@ function formatScheduleSummary(dayKey: string): string {
   const tomorrowKey = toDayKey(addDays(new Date(), 1));
 
   if (dayKey === todayKey) {
-    return 'Today';
+    return i18n.t('planner.schedule.today');
   }
   if (dayKey === tomorrowKey) {
-    return 'Tomorrow';
+    return i18n.t('planner.schedule.tomorrow');
   }
 
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(i18n.language, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -94,6 +96,7 @@ type TaskSchedulePickerProps = {
 };
 
 export function TaskSchedulePicker({ value, onChange }: TaskSchedulePickerProps) {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
   const surfaces = getThemedSurfaces(theme, isDark);
   const scrollRef = useRef<ScrollView>(null);
@@ -266,14 +269,14 @@ export function TaskSchedulePicker({ value, onChange }: TaskSchedulePickerProps)
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.label}>Schedule for</Text>
+      <Text style={styles.label}>{t('planner.schedule.scheduleFor')}</Text>
 
       <View style={styles.summaryCard}>
         <View style={styles.summaryIcon}>
           <CalendarDays color={BRAND.primary} size={18} strokeWidth={2.2} />
         </View>
         <View style={styles.summaryCopy}>
-          <Text style={styles.summaryKicker}>Due date</Text>
+          <Text style={styles.summaryKicker}>{t('planner.schedule.dueDate')}</Text>
           <Text style={styles.summaryValue}>{summary}</Text>
         </View>
       </View>
@@ -290,14 +293,14 @@ export function TaskSchedulePicker({ value, onChange }: TaskSchedulePickerProps)
               accessibilityState={{ selected: isActive }}
             >
               <Text style={[styles.quickChipLabel, isActive && styles.quickChipLabelActive]}>
-                {pick.label}
+                {t(pick.labelKey)}
               </Text>
             </Pressable>
           );
         })}
       </View>
 
-      <Text style={styles.ribbonLabel}>Or pick a day</Text>
+      <Text style={styles.ribbonLabel}>{t('planner.schedule.scheduleFor')}</Text>
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -326,7 +329,7 @@ export function TaskSchedulePicker({ value, onChange }: TaskSchedulePickerProps)
               accessibilityLabel={`${day.weekday} ${day.monthShort} ${day.dayNumber}`}
             >
               <Text style={[styles.dayWeekday, isSelected && styles.dayTextActive]}>
-                {day.isToday ? 'TODAY' : day.isTomorrow ? 'TOM' : day.weekday}
+                {day.isToday ? t('planner.schedule.todayShort') : day.isTomorrow ? t('planner.schedule.tomorrowShort') : day.weekday}
               </Text>
               <Text style={[styles.dayNumber, isSelected && styles.dayTextActive]}>
                 {day.dayNumber}
@@ -339,18 +342,22 @@ export function TaskSchedulePicker({ value, onChange }: TaskSchedulePickerProps)
         })}
       </ScrollView>
 
-      <Text style={styles.hint}>Swipe the row to plan weeks ahead — each chip is one day.</Text>
+      <Text style={styles.hint}>{t('planner.projectsHint')}</Text>
     </View>
   );
 }
 
 export function formatTaskScheduleLabel(dayKey: string): string {
-  const summary = formatScheduleSummary(dayKey);
-  if (summary === 'Today' || summary === 'Tomorrow') {
-    return summary.toLowerCase();
+  const todayKey = toDayKey(new Date());
+  const tomorrowKey = toDayKey(addDays(new Date(), 1));
+  if (dayKey === todayKey) {
+    return i18n.t('planner.schedule.today');
+  }
+  if (dayKey === tomorrowKey) {
+    return i18n.t('planner.schedule.tomorrow');
   }
   const date = parseDayKey(dayKey);
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(i18n.language, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',

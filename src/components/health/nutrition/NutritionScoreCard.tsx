@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Svg, { Circle } from 'react-native-svg';
 
 import { useHealthStyles } from '../../../hooks/useHealthStyles';
@@ -15,9 +16,10 @@ function clampPercent(value: number, target: number): number {
 }
 
 export function NutritionScoreCard() {
+  const { t } = useTranslation();
   const { dietPlan, consumedMacros: consumed, mealLog } = useTodayNutrition();
   const healthTheme = useHealthTheme();
-  const styles = useHealthStyles((t) => ({
+  const styles = useHealthStyles((ht) => ({
     row: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -31,19 +33,19 @@ export function NutritionScoreCard() {
       fontWeight: '700',
       letterSpacing: 2,
       textTransform: 'uppercase',
-      color: t.slate,
+      color: ht.slate,
       marginBottom: 8,
     },
     headline: {
       fontSize: 17,
       fontWeight: '800',
-      color: t.ink,
+      color: ht.ink,
       marginBottom: 8,
     },
     tip: {
       fontSize: 13,
       fontWeight: '500',
-      color: t.muted,
+      color: ht.muted,
       lineHeight: 20,
     },
     ringWrap: {
@@ -57,12 +59,12 @@ export function NutritionScoreCard() {
     score: {
       fontSize: 22,
       fontWeight: '900',
-      color: t.ink,
+      color: ht.ink,
     },
     scoreMax: {
       fontSize: 11,
       fontWeight: '600',
-      color: t.slate,
+      color: ht.slate,
     },
   }));
 
@@ -75,16 +77,18 @@ export function NutritionScoreCard() {
     const macroAvg = Math.round((proteinPct + fatPct + carbPct) / 3);
     const mealPct = Math.round((mealCompleted / MEAL_TARGET) * 100);
 
-    const computed = Math.round((calPct * 0.35 + macroAvg * 0.4 + mealPct * 0.25));
+    const computed = Math.round(calPct * 0.35 + macroAvg * 0.4 + mealPct * 0.25);
 
     const hints: string[] = [];
-    if (proteinPct >= 80) hints.push('Protein goal on track');
-    if (calPct >= 70 && calPct <= 105) hints.push('Calories within target range');
-    if (mealCompleted >= 3) hints.push(`${mealCompleted} meals logged today`);
-    if (hints.length === 0) hints.push('Log meals to improve your score');
+    if (proteinPct >= 80) hints.push(t('nutrition.hintProtein'));
+    if (calPct >= 70 && calPct <= 105) hints.push(t('nutrition.hintCalories'));
+    if (mealCompleted >= 3) {
+      hints.push(t('nutrition.mealsCompleted', { done: mealCompleted, total: MEAL_TARGET }));
+    }
+    if (hints.length === 0) hints.push(t('nutrition.hintLogMeals'));
 
     return { score: computed, tips: hints.slice(0, 3) };
-  }, [consumed, dietPlan, mealLog]);
+  }, [consumed, dietPlan, mealLog, t]);
 
   const size = 88;
   const stroke = 8;
@@ -96,9 +100,9 @@ export function NutritionScoreCard() {
     <PremiumCard>
       <View style={styles.row}>
         <View style={styles.copy}>
-          <Text style={styles.kicker}>Nutrition Score</Text>
+          <Text style={styles.kicker}>{t('nutrition.nutritionScore')}</Text>
           <Text style={styles.headline}>
-            {score >= 75 ? 'Good job! Keep going!' : 'Room to improve today'}
+            {score >= 75 ? t('nutrition.scoreGood') : t('nutrition.scoreImprove')}
           </Text>
           {tips.map((tip) => (
             <Text key={tip} style={styles.tip}>

@@ -1,4 +1,3 @@
-import { toErrorMessage } from '../leaderboardMappers';
 import { isSupabaseConfigured, supabase } from '../supabase';
 import {
   mapUsernameUpdateError,
@@ -8,7 +7,8 @@ import {
 
 export type UpdateUsernameResult = {
   success: boolean;
-  error: string | null;
+  errorKey: string | null;
+  errorParams?: Record<string, number | string>;
   username?: string;
 };
 
@@ -26,7 +26,11 @@ export async function updateProfileUsername(
 ): Promise<UpdateUsernameResult> {
   const validation = validateUsername(rawUsername);
   if (!validation.valid) {
-    return { success: false, error: validation.error };
+    return {
+      success: false,
+      errorKey: validation.errorKey,
+      errorParams: validation.errorParams,
+    };
   }
 
   assertSupabaseConfigured();
@@ -39,14 +43,15 @@ export async function updateProfileUsername(
     .maybeSingle();
 
   if (error) {
-    return { success: false, error: mapUsernameUpdateError(error) };
+    const mapped = mapUsernameUpdateError(error);
+    return { success: false, errorKey: mapped.errorKey, errorParams: mapped.errorParams };
   }
 
   if (!data?.username) {
-    return { success: false, error: toErrorMessage(new Error('Profile update returned no data.')) };
+    return { success: false, errorKey: 'profile.usernameErrors.updateFailed' };
   }
 
-  return { success: true, error: null, username: String(data.username) };
+  return { success: true, errorKey: null, username: String(data.username) };
 }
 
 export { validateUsername, type UsernameValidationResult };

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -19,10 +20,10 @@ import { useThemedStyles } from '../../hooks/useThemedStyles';
 import { useTheme } from '../../theme/ThemeContext';
 
 const MEAL_SLOTS = [
-  { id: 'breakfast', label: 'Breakfast' },
-  { id: 'lunch', label: 'Lunch' },
-  { id: 'dinner', label: 'Dinner' },
-  { id: 'snack', label: 'Snack' },
+  { id: 'breakfast' },
+  { id: 'lunch' },
+  { id: 'dinner' },
+  { id: 'snack' },
 ] as const;
 
 type MealMiniFormProps = {
@@ -38,6 +39,7 @@ export function MealMiniForm({
   initialMealName = '',
   initialCalories = '',
 }: MealMiniFormProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { text, surfaces } = useThemedStyles();
   const [slot, setSlot] = useState<(typeof MEAL_SLOTS)[number]['id']>('breakfast');
@@ -50,7 +52,7 @@ export function MealMiniForm({
     const trimmed = mealName.trim();
     const parsedCalories = Number.parseInt(calories, 10);
     if (!trimmed || !Number.isFinite(parsedCalories) || parsedCalories <= 0 || isSubmitting) {
-      setError('Enter a meal name and calories.');
+      setError(t('actionHub.forms.mealError'));
       return;
     }
 
@@ -96,7 +98,7 @@ export function MealMiniForm({
               ]}
             >
               <Text style={{ color: active ? theme.primary : theme.textSecondary, fontWeight: '600', fontSize: 13 }}>
-                {item.label}
+                {t(`health.mealTypes.${item.id}`)}
               </Text>
             </Pressable>
           );
@@ -106,7 +108,7 @@ export function MealMiniForm({
       <TextInput
         value={mealName}
         onChangeText={setMealName}
-        placeholder="Meal name"
+        placeholder={t('common.name')}
         placeholderTextColor={theme.textMuted}
         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderSubtle }]}
       />
@@ -114,7 +116,7 @@ export function MealMiniForm({
       <TextInput
         value={calories}
         onChangeText={setCalories}
-        placeholder="Calories"
+        placeholder={t('common.calories')}
         placeholderTextColor={theme.textMuted}
         keyboardType="number-pad"
         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderSubtle }]}
@@ -124,7 +126,7 @@ export function MealMiniForm({
 
       <View style={styles.actions}>
         <Pressable onPress={onBack} style={[styles.secondaryButton, { borderColor: theme.borderSubtle }]}>
-          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>Back</Text>
+          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>{t('actionHub.forms.back')}</Text>
         </Pressable>
         <Pressable
           onPress={() => void handleSave()}
@@ -134,7 +136,7 @@ export function MealMiniForm({
           {isSubmitting ? (
             <ActivityIndicator color={surfaces.onPrimary} />
           ) : (
-            <Text style={[text.onBrand, styles.primaryText]}>Add</Text>
+            <Text style={[text.onBrand, styles.primaryText]}>{t('common.add')}</Text>
           )}
         </Pressable>
       </View>

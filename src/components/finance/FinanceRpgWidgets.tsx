@@ -1,7 +1,9 @@
 import { ArrowDownRight, ArrowUpRight, Plus } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import { formatMoney } from '../../constants/financeCategories';
+import { tFinanceCategory } from '../../i18n/helpers';
 import { triggerHaptic } from '../../lib/platform/haptics';
 import type { FinanceOverview } from '../../types/finance';
 import { useTheme } from '../../theme/ThemeContext';
@@ -12,6 +14,8 @@ type FinanceCashFlowCardsProps = {
 };
 
 export function FinanceCashFlowCards({ overview }: FinanceCashFlowCardsProps) {
+  const { t } = useTranslation();
+
   return (
     <View className="mb-4 flex-row gap-3">
       <GlassPanel borderRadius={20} style={{ flex: 1 }}>
@@ -19,7 +23,7 @@ export function FinanceCashFlowCards({ overview }: FinanceCashFlowCardsProps) {
           <View className="mb-2 flex-row items-center gap-1">
             <ArrowUpRight color="#34D399" size={14} strokeWidth={2.4} />
             <Text className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-              Income
+              {t('finance.income')}
             </Text>
           </View>
           <Text className="text-xl font-black text-emerald-400">
@@ -33,7 +37,7 @@ export function FinanceCashFlowCards({ overview }: FinanceCashFlowCardsProps) {
           <View className="mb-2 flex-row items-center gap-1">
             <ArrowDownRight color="#F87171" size={14} strokeWidth={2.4} />
             <Text className="text-[10px] font-bold uppercase tracking-wider text-red-400">
-              Expenses
+              {t('finance.expenses')}
             </Text>
           </View>
           <Text className="text-xl font-black text-red-400">
@@ -51,6 +55,7 @@ type FinanceQuickControlBarProps = {
 };
 
 export function FinanceQuickControlBar({ onIncome, onExpense }: FinanceQuickControlBarProps) {
+  const { t } = useTranslation();
   const openIncome = () => {
     void triggerHaptic('medium');
     onIncome();
@@ -69,7 +74,7 @@ export function FinanceQuickControlBar({ onIncome, onExpense }: FinanceQuickCont
           style={{ backgroundColor: 'rgba(52, 211, 153, 0.92)' }}
         >
           <Plus color="#fff" size={18} strokeWidth={2.5} />
-          <Text className="text-sm font-black text-white">Income</Text>
+          <Text className="text-sm font-black text-white">{t('finance.income')}</Text>
         </View>
       </Pressable>
       <Pressable onPress={openExpense} className="flex-1 active:opacity-90">
@@ -78,7 +83,7 @@ export function FinanceQuickControlBar({ onIncome, onExpense }: FinanceQuickCont
           style={{ backgroundColor: 'rgba(248, 113, 113, 0.92)' }}
         >
           <Plus color="#fff" size={18} strokeWidth={2.5} />
-          <Text className="text-sm font-black text-white">Expense</Text>
+          <Text className="text-sm font-black text-white">{t('finance.expense')}</Text>
         </View>
       </Pressable>
     </View>
@@ -90,6 +95,7 @@ type FinanceLastTransactionCardProps = {
 };
 
 export function FinanceLastTransactionCard({ overview }: FinanceLastTransactionCardProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const tx = overview.lastTransaction;
 
@@ -104,7 +110,7 @@ export function FinanceLastTransactionCard({ overview }: FinanceLastTransactionC
           className="mb-3 text-[10px] font-bold uppercase tracking-[2px]"
           style={{ color: theme.textMuted }}
         >
-          Last Transaction
+          {t('finance.lastTransaction')}
         </Text>
         <View className="flex-row items-center justify-between">
           <View className="flex-1 pr-3">
@@ -112,7 +118,7 @@ export function FinanceLastTransactionCard({ overview }: FinanceLastTransactionC
               {tx.label}
             </Text>
             <Text className="mt-0.5 text-xs font-semibold" style={{ color: theme.textSecondary }}>
-              {tx.categoryLabel} · Recently
+              {tFinanceCategory(t, tx.category, tx.categoryLabel)} · {t('finance.recently')}
             </Text>
           </View>
           <Text

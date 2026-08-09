@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -30,6 +31,7 @@ export function SubtaskMiniForm({
   onBack,
   initialTitle = '',
 }: SubtaskMiniFormProps) {
+  const { t } = useTranslation();
   const { text, surfaces } = useThemedStyles();
   const userId = useGamificationStore((state) => state.profile?.id);
   const [title, setTitle] = useState(initialTitle);
@@ -91,14 +93,14 @@ export function SubtaskMiniForm({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.kicker}>Quick Subtask</Text>
-      <Text style={styles.heading}>Add to a task</Text>
+      <Text style={styles.kicker}>{t('actionHub.forms.quickSubtask')}</Text>
+      <Text style={styles.heading}>{t('actionHub.forms.createATask')}</Text>
 
-      <Text style={styles.label}>Parent task</Text>
+      <Text style={styles.label}>{t('actionHub.forms.parentTask')}</Text>
       {isLoadingTasks ? (
         <ActivityIndicator color={ObsidianTheme.primary} style={styles.loader} />
       ) : parentTasks.length === 0 ? (
-        <Text style={styles.emptyHint}>No open tasks yet. Create a task first.</Text>
+        <Text style={styles.emptyHint}>{t('actionHub.forms.noParentTasks')}</Text>
       ) : (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
           {parentTasks.map((task) => {
@@ -118,11 +120,11 @@ export function SubtaskMiniForm({
         </ScrollView>
       )}
 
-      <Text style={styles.label}>Subtask</Text>
+      <Text style={styles.label}>{t('actionHub.forms.subtask')}</Text>
       <TextInput
         value={title}
         onChangeText={setTitle}
-        placeholder="What needs to get done?"
+        placeholder={t('planner.taskPlaceholder')}
         placeholderTextColor={ObsidianTheme.textMuted}
         style={styles.input}
         autoFocus
@@ -134,7 +136,7 @@ export function SubtaskMiniForm({
 
       <View style={styles.actions}>
         <Pressable onPress={onBack} style={styles.secondaryButton}>
-          <Text style={styles.secondaryText}>Back</Text>
+          <Text style={styles.secondaryText}>{t('actionHub.forms.back')}</Text>
         </Pressable>
         <Pressable
           onPress={() => void handleCreate()}
@@ -144,7 +146,7 @@ export function SubtaskMiniForm({
           {isSubmitting ? (
             <ActivityIndicator color={surfaces.onPrimary} />
           ) : (
-            <Text style={[text.onBrand, styles.primaryText]}>Create</Text>
+            <Text style={[text.onBrand, styles.primaryText]}>{t('actionHub.forms.create')}</Text>
           )}
         </Pressable>
       </View>

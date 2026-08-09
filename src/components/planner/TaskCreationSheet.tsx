@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { ListTree, Plus, X } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Platform,
@@ -37,6 +38,7 @@ export function TaskCreationSheet({
   onClose,
   onSubmit,
 }: TaskCreationSheetProps) {
+  const { t } = useTranslation();
   const { footerPaddingBottom } = useBottomSheetLayout();
   const { height: windowHeight } = useWindowDimensions();
   const { theme, isDark } = useTheme();
@@ -305,7 +307,7 @@ export function TaskCreationSheet({
   const handleSubmit = async () => {
     const trimmed = title.trim();
     if (!trimmed || isSubmitting) {
-      setError('Enter a task title.');
+      setError(t('planner.enterTaskTitle'));
       return;
     }
 
@@ -315,7 +317,7 @@ export function TaskCreationSheet({
       await onSubmit(trimmed, dueDate, subtasks);
       onClose();
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Could not add task.');
+      setError(submitError instanceof Error ? submitError.message : t('planner.couldNotAdd'));
     } finally {
       setIsSubmitting(false);
     }
@@ -330,7 +332,7 @@ export function TaskCreationSheet({
       blurIntensity={theme.sheetBlurIntensity}
       scrimColor={isDark ? 'rgba(0, 0, 0, 0.82)' : 'rgba(30, 26, 62, 0.52)'}
       disabled={isSubmitting}
-      accessibilityLabel="Close task creator"
+      accessibilityLabel={t("common.close")}
       contentStyle={{ paddingHorizontal: 0 }}
     >
       <KeyboardAvoidingViewCompat behavior="padding" style={{ width: '100%' }}>
@@ -339,15 +341,15 @@ export function TaskCreationSheet({
 
           <View style={styles.header}>
             <View style={styles.headerCopy}>
-              <Text style={styles.headerTitle}>New Task</Text>
-              <Text style={styles.headerSubtitle}>Name it, choose when it&apos;s due, add steps if needed.</Text>
+              <Text style={styles.headerTitle}>{t('planner.newTask')}</Text>
+              <Text style={styles.headerSubtitle}>{t('planner.breakItDown')}</Text>
             </View>
             <Pressable
               onPress={onClose}
               disabled={isSubmitting}
               style={styles.closeButton}
               accessibilityRole="button"
-              accessibilityLabel="Close"
+              accessibilityLabel={t("common.close")}
             >
               <X color={theme.textPrimary} size={18} strokeWidth={2.2} />
             </Pressable>
@@ -360,11 +362,11 @@ export function TaskCreationSheet({
             contentContainerStyle={styles.scrollContent}
             bounces={false}
           >
-            <Text style={styles.sectionLabel}>Task name</Text>
+            <Text style={styles.sectionLabel}>{t('planner.taskName')}</Text>
             <TextInput
               value={title}
               onChangeText={setTitle}
-              placeholder="What needs to get done?"
+              placeholder={t('planner.taskPlaceholder')}
               placeholderTextColor={theme.textMuted}
               style={styles.titleInput}
               autoFocus
@@ -380,13 +382,13 @@ export function TaskCreationSheet({
               <TaskSchedulePicker value={dueDate} onChange={setDueDate} />
             ) : null}
 
-            <Text style={styles.sectionLabel}>Subtasks</Text>
+            <Text style={styles.sectionLabel}>{t('planner.subtasks')}</Text>
             <View style={styles.subtasksCard}>
               <View style={styles.subtasksHeader}>
                 <ListTree color={BRAND.primary} size={16} strokeWidth={2.2} />
-                <Text style={styles.subtasksTitle}>Break it down</Text>
+                <Text style={styles.subtasksTitle}>{t('planner.breakItDown')}</Text>
               </View>
-              <Text style={styles.subtasksHint}>Optional steps to make the task easier to finish.</Text>
+              <Text style={styles.subtasksHint}>{t('common.optional')}</Text>
 
               {subtasks.map((subtask, index) => (
                 <View key={`${subtask}-${index}`} style={styles.subtaskChip}>
@@ -409,7 +411,7 @@ export function TaskCreationSheet({
                   <TextInput
                     value={subtaskDraft}
                     onChangeText={setSubtaskDraft}
-                    placeholder="Subtask title"
+                    placeholder={t('planner.subtaskPlaceholder')}
                     placeholderTextColor={theme.textMuted}
                     style={styles.subtaskInput}
                     autoFocus={subtasks.length === 0}
@@ -421,7 +423,7 @@ export function TaskCreationSheet({
                     disabled={!subtaskDraft.trim()}
                     style={[styles.subtaskAddButton, !subtaskDraft.trim() && { opacity: 0.45 }]}
                   >
-                    <Text style={styles.subtaskAddLabel}>Add</Text>
+                    <Text style={styles.subtaskAddLabel}>{t('common.add')}</Text>
                   </Pressable>
                 </View>
               ) : (
@@ -429,10 +431,10 @@ export function TaskCreationSheet({
                   onPress={() => setIsSubtaskInputOpen(true)}
                   style={styles.addSubtaskButton}
                   accessibilityRole="button"
-                  accessibilityLabel="Add subtask"
+                  accessibilityLabel={t('planner.addSubtask')}
                 >
                   <Plus color={BRAND.primary} size={16} strokeWidth={2.6} />
-                  <Text style={styles.addSubtaskLabel}>Add subtask</Text>
+                  <Text style={styles.addSubtaskLabel}>{t('planner.addSubtask')}</Text>
                 </Pressable>
               )}
             </View>
@@ -446,7 +448,7 @@ export function TaskCreationSheet({
               disabled={!canSave}
               style={[styles.createButton, !canSave && { opacity: 0.5 }]}
               accessibilityRole="button"
-              accessibilityLabel="Create task"
+              accessibilityLabel={t('welcome.createTask')}
             >
               <LinearGradient
                 colors={canSave ? ['#A78BFA', '#775DD8', '#6366F1'] : ['#9CA3AF', '#9CA3AF']}
@@ -459,8 +461,8 @@ export function TaskCreationSheet({
                 ) : (
                   <Text style={styles.createLabel}>
                     {subtasks.length > 0
-                      ? `Create for ${formatTaskScheduleLabel(dueDate)} · ${subtasks.length} steps`
-                      : `Create for ${formatTaskScheduleLabel(dueDate)}`}
+                      ? `${t('planner.createFor')} ${formatTaskScheduleLabel(dueDate)} · ${subtasks.length}`
+                      : `${t('planner.createFor')} ${formatTaskScheduleLabel(dueDate)}`}
                   </Text>
                 )}
               </LinearGradient>

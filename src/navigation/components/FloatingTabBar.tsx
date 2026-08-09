@@ -2,6 +2,7 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { BarChart3, CalendarDays, Dumbbell, LayoutDashboard } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, View, type ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -59,6 +60,7 @@ function TabButton({
   activeDotStyle,
   iconSize,
 }: TabButtonProps) {
+  const { t } = useTranslation();
   const Icon = tab.icon;
   const focus = useSharedValue(isFocused ? 1 : 0);
   const scale = useSharedValue(isFocused ? 1.1 : 1);
@@ -77,7 +79,7 @@ function TabButton({
     <Pressable
       accessibilityRole="button"
       accessibilityState={isFocused ? { selected: true } : {}}
-      accessibilityLabel={tab.name}
+      accessibilityLabel={t(`tabs.${tab.name}`)}
       onPress={onPress}
       style={buttonStyle}
       className="active:opacity-80"

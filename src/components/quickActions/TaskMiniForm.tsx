@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -30,6 +31,7 @@ export function TaskMiniForm({
   initialScheduledTime,
   initialIsToday = true,
 }: TaskMiniFormProps) {
+  const { t } = useTranslation();
   const { text, surfaces } = useThemedStyles();
   const [title, setTitle] = useState(initialTitle);
   const [isToday, setIsToday] = useState(initialIsToday);
@@ -75,21 +77,21 @@ export function TaskMiniForm({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.kicker}>Quick Task</Text>
-      <Text style={styles.heading}>Create a task</Text>
+      <Text style={styles.kicker}>{t('actionHub.forms.quickTask')}</Text>
+      <Text style={styles.heading}>{t('actionHub.forms.createATask')}</Text>
 
-      <Text style={styles.label}>Title</Text>
+      <Text style={styles.label}>{t('actionHub.forms.title')}</Text>
       <TextInput
         value={title}
         onChangeText={setTitle}
-        placeholder="What needs to get done?"
+        placeholder={t('planner.taskPlaceholder')}
         placeholderTextColor={ObsidianTheme.textMuted}
         style={styles.input}
         autoFocus
         returnKeyType="next"
       />
 
-      <Text style={styles.label}>Time</Text>
+      <Text style={styles.label}>{t('actionHub.forms.time')}</Text>
       <TextInput
         value={scheduledTime}
         onChangeText={setScheduledTime}
@@ -100,19 +102,19 @@ export function TaskMiniForm({
         onSubmitEditing={() => void handleCreate()}
       />
 
-      <Text style={styles.label}>Today?</Text>
+      <Text style={styles.label}>{t('actionHub.forms.todayQ')}</Text>
       <View style={styles.toggleRow}>
         <Pressable
           onPress={() => setIsToday(true)}
           style={[styles.toggleChip, isToday && styles.toggleChipActive]}
         >
-          <Text style={[styles.toggleText, isToday && styles.toggleTextActive]}>Yes</Text>
+          <Text style={[styles.toggleText, isToday && styles.toggleTextActive]}>{t('common.yes')}</Text>
         </Pressable>
         <Pressable
           onPress={() => setIsToday(false)}
           style={[styles.toggleChip, !isToday && styles.toggleChipActive]}
         >
-          <Text style={[styles.toggleText, !isToday && styles.toggleTextActive]}>No</Text>
+          <Text style={[styles.toggleText, !isToday && styles.toggleTextActive]}>{t('common.no')}</Text>
         </Pressable>
       </View>
 
@@ -120,7 +122,7 @@ export function TaskMiniForm({
 
       <View style={styles.actions}>
         <Pressable onPress={onBack} style={styles.secondaryButton}>
-          <Text style={styles.secondaryText}>Back</Text>
+          <Text style={styles.secondaryText}>{t('actionHub.forms.back')}</Text>
         </Pressable>
         <Pressable
           onPress={() => void handleCreate()}
@@ -130,7 +132,7 @@ export function TaskMiniForm({
           {isSubmitting ? (
             <ActivityIndicator color={surfaces.onPrimary} />
           ) : (
-            <Text style={[text.onBrand, styles.primaryText]}>Create</Text>
+            <Text style={[text.onBrand, styles.primaryText]}>{t('actionHub.forms.create')}</Text>
           )}
         </Pressable>
       </View>

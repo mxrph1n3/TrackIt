@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Text, View } from 'react-native';
 import Svg, { Circle, Line, Polyline, Text as SvgText } from 'react-native-svg';
 
@@ -14,6 +15,7 @@ function heatmapColor(intensity: number) {
 }
 
 export function FocusHeatmap() {
+  const { t } = useTranslation();
   const { data, isLoading } = useAnalyticsProductivity();
   const { theme } = useTheme();
   const cellSize = 18;
@@ -25,10 +27,10 @@ export function FocusHeatmap() {
     <GlassPanel borderRadius={24} style={{ marginBottom: 16 }}>
       <View className="p-5">
         <Text className="mb-1 text-[10px] font-bold uppercase tracking-widest text-ethereal-slate">
-          Focus Heatmap
+          {t('analytics.focusHeatmap')}
         </Text>
         <Text className="mb-4 text-xs text-ethereal-slate">
-          7 days · 12 focus blocks per day
+          {t('analytics.focusHeatmapSub')}
         </Text>
 
         {isLoading && !data.isLive ? (
@@ -90,11 +92,11 @@ export function FocusHeatmap() {
 
         <View className="mt-4 flex-row items-center gap-3">
           <View className="h-2.5 w-2.5 rounded-sm bg-white/5" />
-          <Text className="text-[10px] text-ethereal-slate">Low</Text>
+          <Text className="text-[10px] text-ethereal-slate">{t('analytics.low')}</Text>
           <View className="h-2.5 w-2.5 rounded-sm bg-indigo-500/40" />
-          <Text className="text-[10px] text-ethereal-slate">Moderate</Text>
+          <Text className="text-[10px] text-ethereal-slate">{t('analytics.moderate')}</Text>
           <View className="h-2.5 w-2.5 rounded-sm bg-obsidian-primary" />
-          <Text className="text-[10px] text-ethereal-slate">Peak Focus</Text>
+          <Text className="text-[10px] text-ethereal-slate">{t('analytics.peakFocus')}</Text>
         </View>
       </View>
     </GlassPanel>
@@ -106,6 +108,7 @@ const CHART_HEIGHT = 160;
 const CHART_PADDING = { top: 16, right: 12, bottom: 28, left: 36 };
 
 export function TaskCompletionChart() {
+  const { t } = useTranslation();
   const { data, isLoading } = useAnalyticsProductivity();
   const { theme } = useTheme();
   const series = data.taskCompletion;
@@ -128,9 +131,9 @@ export function TaskCompletionChart() {
     <GlassPanel borderRadius={24}>
       <View className="p-5">
         <Text className="mb-1 text-[10px] font-bold uppercase tracking-widest text-ethereal-slate">
-          Planner Task Completion
+          {t('analytics.taskCompletion')}
         </Text>
-        <Text className="mb-4 text-xs text-ethereal-slate">Weekly completion rate (%)</Text>
+        <Text className="mb-4 text-xs text-ethereal-slate">{t('analytics.weeklyCompletion')}</Text>
 
         {isLoading && !data.isLive ? (
           <View className="items-center py-10">

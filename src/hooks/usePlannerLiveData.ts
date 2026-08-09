@@ -32,6 +32,7 @@ import {
 } from '../utils/plannerDates';
 import { usePlannerTaskActions } from './usePlannerTaskActions';
 import { useProgression } from './useProgression';
+import { i18n } from '../i18n';
 
 const EMPTY_JOURNAL_BODY =
   'No reflection logged for this day yet. Tap the menu to add a journal entry when you are ready.';
@@ -126,7 +127,7 @@ export function usePlannerLiveData() {
       setHabits(dayHabits);
       setEvents(dayEvents);
     } catch (error) {
-      reportSyncError('Planner', error, 'Could not load planner data.');
+      reportSyncError('Planner', error, i18n.t('toasts.plannerLoadError'));
       setJournal(null);
       setTasks([]);
       setTimelineTasks([]);
@@ -263,7 +264,7 @@ export function usePlannerLiveData() {
           await awardHabitCompletion(userId, habitId);
         }
       } catch (error) {
-        reportSyncError('Planner', error, 'Could not update the habit.');
+        reportSyncError('Planner', error, i18n.t('toasts.habitPlannerUpdateError'));
         setHabits((current) =>
           current.map((habit) =>
             habit.id === habitId ? { ...habit, completed: item.completed } : habit,
@@ -284,9 +285,9 @@ export function usePlannerLiveData() {
       try {
         await upsertJournalEntry(userId, selectedDayKey, body);
         await loadDayData();
-        reportSyncSuccess('Journal saved.');
+        reportSyncSuccess(i18n.t('toasts.journalSaved'));
       } catch (error) {
-        reportSyncError('Planner', error, 'Could not save journal.');
+        reportSyncError('Planner', error, i18n.t('toasts.journalSaveError'));
         throw error;
       }
     },
@@ -304,9 +305,9 @@ export function usePlannerLiveData() {
         await insertSubtask(userId, taskId, title);
         await loadDayData();
         notifyTaskMutation();
-        reportSyncSuccess('Subtask added.');
+        reportSyncSuccess(i18n.t('toasts.subtaskAdded'));
       } catch (error) {
-        reportSyncError('Planner', error, 'Could not add the subtask.');
+        reportSyncError('Planner', error, i18n.t('toasts.subtaskAddError'));
         throw error;
       }
     },

@@ -1,6 +1,7 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -37,6 +38,7 @@ export function ActionHubButton({
   size = SIZE,
   showStateIndicators = true,
 }: ActionHubButtonProps) {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
   const crystalState = useActionHubCrystalState();
   const scale = useSharedValue(1);
@@ -117,7 +119,7 @@ export function ActionHubButton({
         }}
         style={[styles.hitArea, { width: size, height: size }, buttonStyle]}
         accessibilityRole="button"
-        accessibilityLabel={isOpen ? 'Close Action Hub' : 'Open Action Hub'}
+        accessibilityLabel={isOpen ? t('actionHub.closeA11y') : t('actionHub.openA11y')}
       >
         <View
           style={[

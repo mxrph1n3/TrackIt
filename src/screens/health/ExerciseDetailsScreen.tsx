@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 
@@ -6,21 +7,15 @@ import { useHealthNavigation } from '../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBarStyles';
 import type { HealthStackParamList } from '../../navigation/healthTypes';
+import { tExerciseName } from '../../i18n/helpers';
 import { useCurrentProgramDay } from '../../stores/useHealthStore';
 import { HealthScreenHeader } from '../../components/health/ui/HealthScreenHeader';
 import { HealthScrollView, HealthScreenRoot } from '../../components/health/ui/HealthScreenScaffold';
 import { PremiumCard } from '../../components/health/ui/PremiumCard';
 import { MuscleMapHighlighter } from '../../components/health/MuscleMapHighlighter';
 
-const INSTRUCTIONS = [
-  'Set up with stable footing and neutral spine.',
-  'Brace your core before each rep.',
-  'Control the eccentric — 2–3 seconds down.',
-  'Drive through the target muscle on the concentric.',
-  'Maintain full range of motion without compensating.',
-];
-
 export function ExerciseDetailsScreen() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const { pop } = useHealthNavigation();
@@ -28,12 +23,13 @@ export function ExerciseDetailsScreen() {
   const exerciseIndex = route.params?.exerciseIndex ?? null;
   const programDay = useCurrentProgramDay();
   const exercise = exerciseIndex != null ? programDay?.exercises[exerciseIndex] : null;
-  const styles = useHealthStyles((t) => ({
+  const instructions = [1, 2, 3, 4, 5].map((step) => t(`health.instructionSteps.${step}`));
+  const styles = useHealthStyles((ht) => ({
     content: {
       paddingHorizontal: 20,
     },
     empty: {
-      color: t.slate,
+      color: ht.slate,
       fontSize: 15,
       marginTop: 24,
       textAlign: 'center',
@@ -41,7 +37,7 @@ export function ExerciseDetailsScreen() {
     mapLabel: {
       fontSize: 12,
       fontWeight: '600',
-      color: t.slate,
+      color: ht.slate,
       textAlign: 'center',
     },
     metaGrid: {
@@ -54,7 +50,7 @@ export function ExerciseDetailsScreen() {
       fontWeight: '700',
       letterSpacing: 2,
       textTransform: 'uppercase',
-      color: t.slate,
+      color: ht.slate,
       marginVertical: 12,
       paddingHorizontal: 4,
     },
@@ -67,20 +63,20 @@ export function ExerciseDetailsScreen() {
       width: 28,
       height: 28,
       borderRadius: 14,
-      backgroundColor: t.accent,
+      backgroundColor: ht.accent,
       alignItems: 'center',
       justifyContent: 'center',
     },
     stepNumText: {
       fontSize: 13,
       fontWeight: '800',
-      color: t.ink,
+      color: ht.ink,
     },
     stepText: {
       flex: 1,
       fontSize: 15,
       lineHeight: 22,
-      color: t.ink,
+      color: ht.ink,
       fontWeight: '500',
     },
     tipKicker: {
@@ -88,13 +84,13 @@ export function ExerciseDetailsScreen() {
       fontWeight: '700',
       letterSpacing: 2,
       textTransform: 'uppercase',
-      color: t.slate,
+      color: ht.slate,
       marginBottom: 8,
     },
     tipBody: {
       fontSize: 15,
       lineHeight: 22,
-      color: t.ink,
+      color: ht.ink,
       fontWeight: '500',
     },
   }));
@@ -102,8 +98,8 @@ export function ExerciseDetailsScreen() {
   if (!exercise) {
     return (
       <HealthScreenRoot style={{ paddingTop: insets.top + 8, paddingHorizontal: 20 }}>
-        <HealthScreenHeader title="Exercise" onBack={pop} />
-        <Text style={styles.empty}>Exercise not found.</Text>
+        <HealthScreenHeader title={t('health.exercise')} onBack={pop} />
+        <Text style={styles.empty}>{t('health.exerciseNotFound')}</Text>
       </HealthScreenRoot>
     );
   }
@@ -113,7 +109,11 @@ export function ExerciseDetailsScreen() {
       <HealthScrollView
         contentContainerStyle={[styles.content, { paddingBottom: scrollContentPaddingBottom + 16 }]}
       >
-        <HealthScreenHeader title={exercise.name} subtitle="Exercise Details" onBack={pop} />
+        <HealthScreenHeader
+          title={tExerciseName(t, exercise.name)}
+          subtitle={t('health.exerciseDetails')}
+          onBack={pop}
+        />
 
         <PremiumCard padding={12} tone="canvas">
           <MuscleMapHighlighter
@@ -124,26 +124,26 @@ export function ExerciseDetailsScreen() {
             compact
             layout="dual"
             centerContent={
-              <Text style={styles.mapLabel}>Target muscles</Text>
+              <Text style={styles.mapLabel}>{t('health.targetMuscles')}</Text>
             }
           />
         </PremiumCard>
 
         <PremiumCard>
           <View style={styles.metaGrid}>
-            <MetaItem label="Sets" value={String(exercise.setsCount)} />
-            <MetaItem label="Reps" value={exercise.repsTarget} />
+            <MetaItem label={t('health.sets')} value={String(exercise.setsCount)} />
+            <MetaItem label={t('health.reps')} value={exercise.repsTarget} />
             <MetaItem
-              label="Intensity"
+              label={t('health.intensity')}
               value={exercise.intensityPercentage ? `${exercise.intensityPercentage}%` : '—'}
             />
-            <MetaItem label="Rest" value={exercise.restSeconds ? `${exercise.restSeconds}s` : '90s'} />
+            <MetaItem label={t('health.rest')} value={exercise.restSeconds ? `${exercise.restSeconds}s` : '90s'} />
           </View>
         </PremiumCard>
 
-        <Text style={styles.sectionTitle}>Instructions</Text>
-        {INSTRUCTIONS.map((step, index) => (
-          <PremiumCard key={step} padding={16}>
+        <Text style={styles.sectionTitle}>{t('health.instructions')}</Text>
+        {instructions.map((step, index) => (
+          <PremiumCard key={`step-${index}`} padding={16}>
             <View style={styles.stepRow}>
               <View style={styles.stepNum}>
                 <Text style={styles.stepNumText}>{index + 1}</Text>
@@ -154,13 +154,13 @@ export function ExerciseDetailsScreen() {
         ))}
 
         <PremiumCard>
-          <Text style={styles.tipKicker}>Tips</Text>
-          <Text style={styles.tipBody}>Keep shoulders packed and avoid momentum on the last reps.</Text>
+          <Text style={styles.tipKicker}>{t('health.tips')}</Text>
+          <Text style={styles.tipBody}>{t('health.exerciseTip')}</Text>
         </PremiumCard>
 
         <PremiumCard>
-          <Text style={styles.tipKicker}>Breathing</Text>
-          <Text style={styles.tipBody}>Exhale on exertion. Inhale during the eccentric phase.</Text>
+          <Text style={styles.tipKicker}>{t('health.breathing')}</Text>
+          <Text style={styles.tipBody}>{t('health.exerciseBreathing')}</Text>
         </PremiumCard>
       </HealthScrollView>
     </HealthScreenRoot>
@@ -168,11 +168,11 @@ export function ExerciseDetailsScreen() {
 }
 
 function MetaItem({ label, value }: { label: string; value: string }) {
-  const styles = useHealthStyles((t) => ({
+  const styles = useHealthStyles((ht) => ({
     metaItem: {
       width: '47%',
       flexGrow: 1,
-      backgroundColor: t.accentSoft,
+      backgroundColor: ht.accentSoft,
       borderRadius: 14,
       padding: 12,
     },
@@ -181,13 +181,13 @@ function MetaItem({ label, value }: { label: string; value: string }) {
       fontWeight: '700',
       letterSpacing: 1.5,
       textTransform: 'uppercase',
-      color: t.slate,
+      color: ht.slate,
     },
     metaValue: {
       marginTop: 4,
       fontSize: 18,
       fontWeight: '800',
-      color: t.ink,
+      color: ht.ink,
     },
   }));
 

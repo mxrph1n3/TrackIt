@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Droplets, Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
@@ -29,6 +30,7 @@ type WaterAddButtonProps = {
 };
 
 function WaterAddButton({ disabled, onPress, gradient, glow }: WaterAddButtonProps) {
+  const { t } = useTranslation();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -73,7 +75,7 @@ function WaterAddButton({ disabled, onPress, gradient, glow }: WaterAddButtonPro
           </View>
           <View style={styles.addButtonCopy}>
             <Text style={styles.addButtonValue}>+250</Text>
-            <Text style={styles.addButtonUnit}>ml</Text>
+            <Text style={styles.addButtonUnit}>{t('common.ml')}</Text>
           </View>
         </View>
       </LinearGradient>
@@ -113,6 +115,7 @@ function WaterProgressBar({ percent, trackColor, gradient }: WaterProgressBarPro
 }
 
 export function WaterTrackerCard() {
+  const { t } = useTranslation();
   const { waterMl, addWaterOptimistic } = useWaterDailyTotal();
   const waterTargetLiters = useHealthStore((s) => s.waterTargetLiters);
   const [isAdding, setIsAdding] = useState(false);
@@ -271,9 +274,9 @@ export function WaterTrackerCard() {
           <Droplets color={healthTheme.macro.water} size={20} strokeWidth={2.2} />
         </View>
         <View style={themeStyles.headerCopy}>
-          <Text style={themeStyles.kicker}>Hydration</Text>
+          <Text style={themeStyles.kicker}>{t('nutrition.hydration')}</Text>
           <Text style={themeStyles.subtitle}>
-            {filledGlasses} of {totalGlasses} glasses today
+            {filledGlasses} {t('common.of')} {totalGlasses} · {t('nutrition.today')}
           </Text>
         </View>
       </View>
@@ -288,12 +291,12 @@ export function WaterTrackerCard() {
         </View>
         <View style={themeStyles.percentBadge}>
           <Text style={themeStyles.percentValue}>{percent}%</Text>
-          <Text style={themeStyles.percentHint}>goal</Text>
+          <Text style={themeStyles.percentHint}>{t('nutrition.goal')}</Text>
         </View>
       </View>
 
       <Text style={themeStyles.remaining}>
-        {remainingMl > 0 ? `${remainingMl.toLocaleString('en-US')} ml left to hydrate` : 'Daily goal reached'}
+        {remainingMl > 0 ? t('nutrition.mlLeft', { count: remainingMl }) : t('nutrition.dailyGoalReached')}
       </Text>
 
       <WaterProgressBar percent={percent} trackColor={palette.track} gradient={palette.progress} />

@@ -1,12 +1,13 @@
 import { Bell } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
 import { formatPlannerHeaderDate } from '../../utils/plannerDates';
 import { BRAND } from '../../theme/designTokens';
 import { MenuHeaderButton } from '../navigation/MenuHeaderButton';
-import { PLANNER_COPY } from './plannerTheme';
+import { usePlannerCopy } from './plannerTheme';
 
 type PlannerScreenHeaderProps = {
   selectedDayKey: string;
@@ -21,6 +22,8 @@ export function PlannerScreenHeader({
   onNotificationsPress,
   onTodayPress,
 }: PlannerScreenHeaderProps) {
+  const { t } = useTranslation();
+  const copy = usePlannerCopy();
   const { theme, surfaces } = usePlannerTheme();
   const dateLine = formatPlannerHeaderDate(selectedDayKey);
 
@@ -77,14 +80,14 @@ export function PlannerScreenHeader({
           onPress={onNotificationsPress}
           style={styles.iconButton}
           accessibilityRole="button"
-          accessibilityLabel="Notifications"
+          accessibilityLabel={t('settings.notifications.title')}
         >
           <Bell color={BRAND.primary} size={20} strokeWidth={2} />
         </Pressable>
       </View>
 
       <Pressable onPress={onTodayPress} disabled={!onTodayPress} style={styles.titleBlock}>
-        <Text style={styles.screenTitle}>{PLANNER_COPY.screenTitle}</Text>
+        <Text style={styles.screenTitle}>{copy.screenTitle}</Text>
         <Text style={styles.dateLine}>{dateLine}</Text>
       </Pressable>
     </View>

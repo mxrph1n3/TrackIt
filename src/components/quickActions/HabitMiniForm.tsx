@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -20,6 +21,7 @@ type HabitMiniFormProps = {
 };
 
 export function HabitMiniForm({ onSuccess, onBack, initialTitle = '' }: HabitMiniFormProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { text, surfaces } = useThemedStyles();
   const [title, setTitle] = useState(initialTitle);
@@ -45,11 +47,11 @@ export function HabitMiniForm({ onSuccess, onBack, initialTitle = '' }: HabitMin
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: theme.textMuted }]}>Name</Text>
+      <Text style={[styles.label, { color: theme.textMuted }]}>{t('common.name')}</Text>
       <TextInput
         value={title}
         onChangeText={setTitle}
-        placeholder="e.g. Meditation 10 min"
+        placeholder={t('actionHub.forms.habitPlaceholder')}
         placeholderTextColor={theme.textMuted}
         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderSubtle }]}
         autoFocus
@@ -57,7 +59,7 @@ export function HabitMiniForm({ onSuccess, onBack, initialTitle = '' }: HabitMin
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <View style={styles.actions}>
         <Pressable onPress={onBack} style={[styles.secondaryButton, { borderColor: theme.borderSubtle }]}>
-          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>Back</Text>
+          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>{t('actionHub.forms.back')}</Text>
         </Pressable>
         <Pressable
           onPress={() => void handleCreate()}
@@ -67,7 +69,7 @@ export function HabitMiniForm({ onSuccess, onBack, initialTitle = '' }: HabitMin
           {isSubmitting ? (
             <ActivityIndicator color={surfaces.onPrimary} />
           ) : (
-            <Text style={[text.onBrand, styles.primaryText]}>Create</Text>
+            <Text style={[text.onBrand, styles.primaryText]}>{t('actionHub.forms.create')}</Text>
           )}
         </Pressable>
       </View>

@@ -1,5 +1,6 @@
 import { BlurView } from 'expo-blur';
 import type { PropsWithChildren, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -96,8 +97,10 @@ export function DismissibleOverlay({
   placement = 'passThrough',
   contentStyle,
   disabled = false,
-  accessibilityLabel = 'Close overlay',
+  accessibilityLabel,
 }: DismissibleOverlayProps) {
+  const { t } = useTranslation();
+  const resolvedAccessibilityLabel = accessibilityLabel ?? t('common.closeOverlay');
   const { theme, isDark } = useTheme();
   const resolvedBlur = blurIntensity ?? theme.sheetBlurIntensity;
   const resolvedTint = blurTint ?? theme.blurTint;
@@ -113,7 +116,7 @@ export function DismissibleOverlay({
     <OverlayLayers
       onDismiss={onDismiss}
       disabled={disabled}
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={resolvedAccessibilityLabel}
       resolvedBlur={resolvedBlur}
       resolvedTint={resolvedTint}
       resolvedScrim={resolvedScrim}

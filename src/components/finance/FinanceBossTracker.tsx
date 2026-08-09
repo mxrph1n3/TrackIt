@@ -1,5 +1,6 @@
 import { Skull } from 'lucide-react-native';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
@@ -15,6 +16,7 @@ type FinanceBossTrackerProps = {
 };
 
 export function FinanceBossTracker({ overview, onPress }: FinanceBossTrackerProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const progress = useSharedValue(0);
   const goal = overview.activeGoal;
@@ -35,11 +37,11 @@ export function FinanceBossTracker({ overview, onPress }: FinanceBossTrackerProp
           <View className="flex-row items-center gap-2">
             <Skull color={theme.primary} size={18} strokeWidth={2.2} />
             <Text className="text-sm font-black" style={{ color: theme.textPrimary }}>
-              Boss Battle
+              {t('finance.bossBattle')}
             </Text>
           </View>
           <Text className="mt-2 text-sm leading-5" style={{ color: theme.textSecondary }}>
-            Create a savings goal to start a boss battle — every deposit deals damage.
+            {t('finance.bossBattleHint')}
           </Text>
         </Pressable>
       </GlassPanel>
@@ -55,11 +57,11 @@ export function FinanceBossTracker({ overview, onPress }: FinanceBossTrackerProp
           <View className="flex-row items-center gap-2">
             <Skull color={isDefeated ? '#34D399' : '#F87171'} size={18} strokeWidth={2.2} />
             <Text className="text-sm font-black" style={{ color: theme.textPrimary }}>
-              {isDefeated ? 'Boss Defeated!' : 'Boss Battle'}
+              {isDefeated ? t('finance.bossDefeated') : t('finance.bossBattle')}
             </Text>
           </View>
           <Text className="text-xs font-black" style={{ color: theme.primary }}>
-            {goal.percent}% damage
+            {t('finance.damagePercent', { percent: goal.percent })}
           </Text>
         </View>
 

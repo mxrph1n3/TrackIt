@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { AnalyticsFreeTierBanner } from '../AnalyticsFreeTierBanner';
@@ -10,6 +11,7 @@ import { OverallGrowthCard } from './OverallGrowthCard';
 import { STATISTICS_BAR_ACCENTS, StatisticsBarChartCard } from './StatisticsBarChartCard';
 
 export function StatisticsOverviewPanel() {
+  const { t } = useTranslation();
   const { data, isLoading } = useAnalyticsOverview();
   const { theme } = useTheme();
 
@@ -38,8 +40,8 @@ export function StatisticsOverviewPanel() {
       <View style={styles.row}>
         <StatisticsBarChartCard
           flex={1}
-          title="Workouts"
-          subtitle="Weekly sessions (min)"
+          title={t('analytics.charts.workouts')}
+          subtitle={t('analytics.charts.workoutsSub')}
           data={data.workoutSessions}
           accent={STATISTICS_BAR_ACCENTS.workout}
           valueFormatter={(v) => `${v} min`}
@@ -47,19 +49,19 @@ export function StatisticsOverviewPanel() {
         <View style={styles.gap} />
         <StatisticsBarChartCard
           flex={1}
-          title="Nutrition"
-          subtitle="Daily calories"
+          title={t('analytics.charts.nutrition')}
+          subtitle={t('analytics.charts.nutritionSub')}
           data={data.nutritionCalories}
           accent={STATISTICS_BAR_ACCENTS.nutrition}
-          valueFormatter={(v) => `${v} kcal`}
+          valueFormatter={(v) => `${v} ${t('common.kcal')}`}
         />
       </View>
 
       <View style={styles.row}>
         <StatisticsBarChartCard
           flex={1}
-          title="Finance: Expenses"
-          subtitle="Daily spending ($)"
+          title={t('analytics.charts.financeExpenses')}
+          subtitle={t('analytics.charts.financeExpensesSub')}
           data={data.financeExpenses}
           accent={STATISTICS_BAR_ACCENTS.expense}
           valueFormatter={(v) => `$${v}`}
@@ -67,8 +69,8 @@ export function StatisticsOverviewPanel() {
         <View style={styles.gap} />
         <StatisticsBarChartCard
           flex={1}
-          title="Finance: Income"
-          subtitle="Daily income ($)"
+          title={t('analytics.charts.financeIncome')}
+          subtitle={t('analytics.charts.financeIncomeSub')}
           data={data.financeIncome}
           accent={STATISTICS_BAR_ACCENTS.income}
           valueFormatter={(v) => `$${v}`}

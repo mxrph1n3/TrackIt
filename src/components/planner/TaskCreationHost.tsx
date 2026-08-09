@@ -2,6 +2,7 @@ import { TaskCreationSheet } from './TaskCreationSheet';
 import { createPlannerTask } from '../../lib/planner/createTask';
 import { reportSyncError } from '../../lib/sync/reportSyncError';
 import { usePlannerStore } from '../../stores/usePlannerStore';
+import { i18n } from '../../i18n';
 
 export function TaskCreationHost() {
   const isOpen = usePlannerStore((state) => state.isTaskSheetOpen);
@@ -12,7 +13,7 @@ export function TaskCreationHost() {
     try {
       await createPlannerTask({ title, dueDate, subtasks });
     } catch (error) {
-      reportSyncError('Planner', error, 'Could not add the task.');
+      reportSyncError('Planner', error, i18n.t('toasts.taskAddError'));
       throw error instanceof Error ? error : new Error('Could not add the task.');
     }
   };

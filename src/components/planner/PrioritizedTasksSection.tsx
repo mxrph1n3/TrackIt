@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
@@ -11,7 +12,7 @@ import { PlannerPremiumCard } from './PlannerPremiumCard';
 import { PlannerSectionHeader } from './PlannerSectionHeader';
 import { PlannerTaskActionButtons } from './PlannerTaskActionButtons';
 import { SubtaskInlineAdd } from './SubtaskInlineAdd';
-import { PLANNER_COPY } from './plannerTheme';
+import { usePlannerCopy } from './plannerTheme';
 
 type PrioritizedTasksSectionProps = {
   tasks: PlannerPrioritizedTask[];
@@ -50,6 +51,8 @@ export function PrioritizedTasksSection({
   onAddTask,
   onViewAll,
 }: PrioritizedTasksSectionProps) {
+  const { t } = useTranslation();
+  const copy = usePlannerCopy();
   const { theme, surfaces, isDark } = usePlannerTheme();
   const styles = useMemo(
     () =>
@@ -162,25 +165,18 @@ export function PrioritizedTasksSection({
   );
 
   const completedTasks = tasks.filter((task) => task.completed).length;
-  const totalSubtasks = tasks.reduce((sum, task) => sum + (task.subtasks?.length ?? 0), 0);
-  const completedSubtasks = tasks.reduce(
-    (sum, task) => sum + (task.subtasks?.filter((item) => item.completed).length ?? 0),
-    0,
-  );
 
   return (
     <PlannerPremiumCard>
       <View style={styles.inner}>
         <PlannerSectionHeader
-          title={PLANNER_COPY.tasks}
+          title={copy.tasks}
           subtitle={
             tasks.length === 0
-              ? 'Plan your day'
-              : `${completedTasks}/${tasks.length} tasks${
-                  totalSubtasks > 0 ? ` · ${completedSubtasks}/${totalSubtasks} subtasks` : ''
-                }`
+              ? t('planner.planYourDay')
+              : `${completedTasks}/${tasks.length}`
           }
-          actionLabel={onViewAll ? PLANNER_COPY.viewAll : undefined}
+          actionLabel={onViewAll ? copy.viewAll : undefined}
           onAction={onViewAll}
         />
 
@@ -192,10 +188,8 @@ export function PrioritizedTasksSection({
 
         {tasks.length === 0 ? (
           <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>{PLANNER_COPY.noTasks}</Text>
-            <Text style={styles.emptyBody}>
-              Start with one clear task — you can add subtasks while creating it.
-            </Text>
+            <Text style={styles.emptyTitle}>{copy.noTasks}</Text>
+            <Text style={styles.emptyBody}>{t('planner.noTasksOpen')}</Text>
             {onAddTask ? (
               <View style={styles.emptyActions}>
                 <PlannerTaskActionButtons onAddTask={onAddTask} />

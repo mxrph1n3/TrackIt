@@ -1,6 +1,7 @@
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { formatMoneyCompact } from '../../constants/financeCategories';
@@ -10,9 +11,11 @@ import { useProfileModuleStore } from '../../stores/useProfileModuleStore';
 import { BRAND, SEMANTIC } from '../../theme/designTokens';
 import { PlannerPremiumCard } from './PlannerPremiumCard';
 import { PlannerSectionHeader } from './PlannerSectionHeader';
-import { PLANNER_COPY } from './plannerTheme';
+import { usePlannerCopy } from './plannerTheme';
 
 export function PlannerFinanceModule() {
+  const { t } = useTranslation();
+  const copy = usePlannerCopy();
   const { finance, isLoading } = useDashboardFinance();
   const { styles: plannerStyles, theme, surfaces } = usePlannerTheme();
   const openFinance = useProfileModuleStore((s) => s.openModule);
@@ -98,17 +101,17 @@ export function PlannerFinanceModule() {
 
   const flowSubtitle =
     finance.monthlyIncome > 0 || finance.monthlyExpense > 0
-      ? `${formatMoneyCompact(finance.monthlyIncome, finance.displayCurrency)} in · ${formatMoneyCompact(finance.monthlyExpense, finance.displayCurrency)} out`
-      : 'No activity this month';
+      ? `${formatMoneyCompact(finance.monthlyIncome, finance.displayCurrency)} · ${formatMoneyCompact(finance.monthlyExpense, finance.displayCurrency)}`
+      : t('planner.noActivityMonth');
 
   return (
     <Pressable onPress={handleOpen}>
       <PlannerPremiumCard>
         <View style={plannerStyles.moduleInner}>
           <PlannerSectionHeader
-            title={PLANNER_COPY.finance}
+            title={copy.finance}
             subtitle={flowSubtitle}
-            actionLabel={PLANNER_COPY.open}
+            actionLabel={copy.open}
             onAction={handleOpen}
           />
 
@@ -119,19 +122,21 @@ export function PlannerFinanceModule() {
               <Text style={styles.balance}>
                 {formatMoneyCompact(finance.balance, finance.displayCurrency)}
               </Text>
-              <Text style={styles.balanceCaption}>Balance · {finance.cardholder}</Text>
+              <Text style={styles.balanceCaption}>
+                {t('common.balance')} · {finance.cardholder}
+              </Text>
 
               <View style={styles.flowRow}>
                 <FlowPill
                   icon={<TrendingUp color={SEMANTIC.income} size={14} />}
-                  label="Income"
+                  label={t('common.income')}
                   value={formatMoneyCompact(finance.monthlyIncome, finance.displayCurrency)}
                   tone="income"
                   styles={styles}
                 />
                 <FlowPill
                   icon={<TrendingDown color={SEMANTIC.expenseSoft} size={14} />}
-                  label="Expense"
+                  label={t('common.expense')}
                   value={formatMoneyCompact(finance.monthlyExpense, finance.displayCurrency)}
                   tone="expense"
                   styles={styles}
@@ -142,7 +147,7 @@ export function PlannerFinanceModule() {
                 <View style={styles.metaRow}>
                   <Wallet color={BRAND.primary} size={16} />
                   <Text style={styles.metaText}>
-                    Goal {finance.activeGoal.name} · {finance.activeGoal.percent}%
+                    {finance.activeGoal.name} · {finance.activeGoal.percent}%
                   </Text>
                 </View>
               ) : null}

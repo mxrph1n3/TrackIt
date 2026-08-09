@@ -89,7 +89,8 @@
             }
           }
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "extra": {
       "eas": {

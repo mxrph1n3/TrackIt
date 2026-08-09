@@ -1,30 +1,18 @@
-# Free app branch (`free-app`)
+# Free app / paid flags
 
-This branch ships TrackIt with **all features unlocked** and **no billing** (no RevenueCat, no Telegram Stars, no paywalls).
+Paid Pro is **on for both iOS and Android** when:
 
-## Client
+- `IOS_BILLING_ENABLED = true`
+- `ANDROID_BILLING_ENABLED = true`
 
-- `src/constants/appAccess.ts` — `APP_IS_FULLY_FREE = true`
-- Subscription store treats every user as Pro; RevenueCat is not initialized
-- Paywall UI is hidden; profile menu has no "TrackIt Pro" entry
+See **`docs/NATIVE_PAID.md`** and **`docs/GOOGLE_PLAY_PAID.md`**.
 
-## Server (Supabase Edge Functions)
+To ship a fully free store build again, set the matching flag to `false` in `src/constants/appAccess.ts`.
 
-- `supabase/functions/_shared/appAccess.ts` — `APP_FULLY_FREE` env (defaults to enabled on this branch)
-- `ai-coach-analyze` — skips Pro verification when free mode is on
-- `telegramReminders` — sends reminders without premium check when free mode is on
+## Soft trial
 
-Deploy edge functions from this branch. Optional: set `APP_FULLY_FREE=false` in Supabase secrets to restore server-side Pro checks without changing code.
+`NATIVE_SOFT_TRIAL_DAYS = 3` — full access, Subscribe CTA early, then gating.
 
-## Builds
+## Server
 
-Use this branch for store builds where subscriptions are not offered:
-
-```bash
-git checkout free-app
-npm run build:android   # or build:preview:android for APK QA
-```
-
-## Returning to paid app
-
-On `main`, keep `APP_IS_FULLY_FREE = false` (or remove `appAccess.ts` usage). Do not merge `free-app` into `main` without reverting the flag and restoring paywall flows.
+Set Supabase secret `APP_FULLY_FREE=false` so edge functions enforce Pro again.

@@ -21,6 +21,7 @@ create table if not exists public.telegram_stars_payments (
 
 alter table public.telegram_stars_payments enable row level security;
 
+drop policy if exists "Users read own telegram stars payments" on public.telegram_stars_payments;
 create policy "Users read own telegram stars payments"
   on public.telegram_stars_payments for select
   using (auth.uid() = user_id);

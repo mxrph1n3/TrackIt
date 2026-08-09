@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -12,6 +13,7 @@ import {
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../../constants/financeCategories';
 import { useFinanceLiveData } from '../../hooks/useFinanceLiveData';
 import { useGamification } from '../../hooks/useGamification';
+import { tFinanceCategory } from '../../i18n/helpers';
 import {
   createFinanceGoal,
   createFinanceSubscription,
@@ -34,12 +36,7 @@ type FinanceMiniFormProps = {
   initialLabel?: string;
 };
 
-const OPERATIONS: { id: OperationKind; label: string }[] = [
-  { id: 'expense', label: 'Expense' },
-  { id: 'income', label: 'Income' },
-  { id: 'subscription', label: 'Subscription' },
-  { id: 'goal', label: 'Goal' },
-];
+const OPERATION_IDS: OperationKind[] = ['expense', 'income', 'subscription', 'goal'];
 
 export function FinanceMiniForm({
   onSuccess,
@@ -49,7 +46,19 @@ export function FinanceMiniForm({
   initialAmount,
   initialLabel = '',
 }: FinanceMiniFormProps) {
+  const { t } = useTranslation();
   const { theme, text, surfaces } = useThemedStyles();
+  const operations = OPERATION_IDS.map((id) => ({
+    id,
+    label:
+      id === 'expense'
+        ? t('common.expense')
+        : id === 'income'
+          ? t('common.income')
+          : id === 'subscription'
+            ? t('premium.subscription')
+            : t('actionHub.actions.goal'),
+  }));
   const { data } = useFinanceLiveData();
   const amountRef = useRef<TextInput>(null);
   const [operation, setOperation] = useState<OperationKind>(initialType === 'income' ? 'income' : 'expense');
@@ -81,7 +90,7 @@ export function FinanceMiniForm({
   const handleSave = async () => {
     const parsedAmount = Number.parseFloat(amount.replace(',', '.'));
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0 || isSubmitting) {
-      setError('Enter a valid amount greater than zero.');
+      setError(t('actionHub.forms.amountError'));
       return;
     }
 
@@ -89,7 +98,7 @@ export function FinanceMiniForm({
     setError(null);
 
     const categoryDef = categories.find((c) => c.id === category) ?? categories[0];
-    const resolvedLabel = label.trim() || categoryDef.label;
+    const resolvedLabel = label.trim() || tFinanceCategory(t, categoryDef.id, categoryDef.label);
 
     try {
       if (operation === 'subscription') {
@@ -120,11 +129,11 @@ export function FinanceMiniForm({
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.kicker, { color: theme.textMuted }]}>Quick Finance</Text>
-      <Text style={[styles.heading, { color: theme.textPrimary }]}>Log an operation</Text>
+      <Text style={[styles.kicker, { color: theme.textMuted }]}>{t('actionHub.forms.quickFinance')}</Text>
+      <Text style={[styles.heading, { color: theme.textPrimary }]}>{t('actionHub.forms.logOperation')}</Text>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-        {OPERATIONS.map((item) => {
+        {operations.map((item) => {
           const selected = operation === item.id;
           return (
             <Pressable
@@ -159,7 +168,7 @@ export function FinanceMiniForm({
             ]}
           >
             <Text style={{ color: type === 'expense' ? theme.textPrimary : theme.textSecondary, fontWeight: '600' }}>
-              Expense
+              {t('common.expense')}
             </Text>
           </Pressable>
           <Pressable
@@ -175,20 +184,20 @@ export function FinanceMiniForm({
             ]}
           >
             <Text style={{ color: type === 'income' ? theme.textPrimary : theme.textSecondary, fontWeight: '600' }}>
-              Income
+              {t('common.income')}
             </Text>
           </Pressable>
         </View>
       ) : null}
 
       <Text style={[styles.label, { color: theme.textMuted }]}>
-        {operation === 'goal' ? 'Target amount' : 'Amount'}
+        {operation === 'goal' ? t('actionHub.forms.targetAmount') : t('actionHub.forms.amount')}
       </Text>
       <TextInput
         ref={amountRef}
         value={amount}
         onChangeText={setAmount}
-        placeholder="0.00"
+        placeholder={t('actionHub.forms.amountPlaceholder')}
         placeholderTextColor={theme.textMuted}
         style={[styles.input, { borderColor: theme.borderSubtle, color: theme.textPrimary }]}
         keyboardType="decimal-pad"
@@ -196,19 +205,25 @@ export function FinanceMiniForm({
       />
 
       <Text style={[styles.label, { color: theme.textMuted }]}>
-        {operation === 'subscription' ? 'Service name' : operation === 'goal' ? 'Goal name' : 'Label (optional)'}
+        {operation === 'subscription' ? t('actionHub.forms.labelPlaceholder') : operation === 'goal' ? t('actionHub.actions.goal') : t('actionHub.forms.labelPlaceholder')}
       </Text>
       <TextInput
         value={label}
         onChangeText={setLabel}
-        placeholder={operation === 'subscription' ? 'Spotify, Netflix…' : operation === 'goal' ? 'MacBook, Trip…' : 'e.g. KFC, Salary'}
+        placeholder={
+          operation === 'subscription'
+            ? t('actionHub.forms.subscriptionPlaceholder')
+            : operation === 'goal'
+              ? t('actionHub.forms.goalPlaceholder')
+              : t('actionHub.forms.labelExample')
+        }
         placeholderTextColor={theme.textMuted}
         style={[styles.input, { borderColor: theme.borderSubtle, color: theme.textPrimary }]}
       />
 
       {isTransaction ? (
         <>
-          <Text style={[styles.label, { color: theme.textMuted }]}>Category</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>{t('actionHub.forms.category')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
             {categories.map((item) => {
               const selected = category === item.id;
@@ -229,7 +244,7 @@ export function FinanceMiniForm({
                       color={selected ? theme.primary : theme.textSecondary}
                     />
                     <Text style={{ color: selected ? theme.textPrimary : theme.textSecondary, fontWeight: '600' }}>
-                      {item.label}
+                      {tFinanceCategory(t, item.id, item.label)}
                     </Text>
                   </View>
                 </Pressable>
@@ -237,11 +252,13 @@ export function FinanceMiniForm({
             })}
           </ScrollView>
 
-          <Text style={[styles.label, { color: theme.textMuted }]}>Note (optional)</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            {t('common.note')} ({t('common.optional')})
+          </Text>
           <TextInput
             value={note}
             onChangeText={setNote}
-            placeholder="Comment or tags"
+            placeholder={t('actionHub.forms.commentPlaceholder')}
             placeholderTextColor={theme.textMuted}
             style={[styles.input, { borderColor: theme.borderSubtle, color: theme.textPrimary }]}
           />
@@ -252,7 +269,7 @@ export function FinanceMiniForm({
 
       <View style={styles.actions}>
         <Pressable onPress={onBack} style={[styles.secondaryButton, { borderColor: theme.borderSubtle }]}>
-          <Text style={{ color: theme.textSecondary, fontWeight: '600' }}>Back</Text>
+          <Text style={{ color: theme.textSecondary, fontWeight: '600' }}>{t('actionHub.forms.back')}</Text>
         </Pressable>
         <Pressable
           onPress={() => void handleSave()}
@@ -262,14 +279,14 @@ export function FinanceMiniForm({
           {isSubmitting ? (
             <ActivityIndicator color={surfaces.onPrimary} />
           ) : (
-            <Text style={[text.onBrand, styles.primaryText]}>Save</Text>
+            <Text style={[text.onBrand, styles.primaryText]}>{t('actionHub.forms.save')}</Text>
           )}
         </Pressable>
       </View>
 
       {onAdvanced ? (
         <Pressable onPress={onAdvanced} style={styles.advancedButton}>
-          <Text style={{ color: theme.textMuted, fontWeight: '600' }}>Open Finance Hub</Text>
+          <Text style={{ color: theme.textMuted, fontWeight: '600' }}>{t('actionHub.forms.openFinanceHub')}</Text>
         </Pressable>
       ) : null}
     </View>

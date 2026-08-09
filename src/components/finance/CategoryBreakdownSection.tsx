@@ -1,6 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { formatMoney } from '../../constants/financeCategories';
+import { tFinanceCategory } from '../../i18n/helpers';
 import type { ExpenseCategoryStat } from '../../types/finance';
 import { useTheme } from '../../theme/ThemeContext';
 import { GlassPanel } from '../GlassPanel';
@@ -15,6 +17,7 @@ export function CategoryBreakdownSection({
   categories,
   onCategoryPress,
 }: CategoryBreakdownSectionProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
 
   return (
@@ -24,12 +27,12 @@ export function CategoryBreakdownSection({
           className="mb-4 text-[10px] font-bold uppercase tracking-[2px]"
           style={{ color: theme.textMuted }}
         >
-          Spending by Category
+          {t('finance.spendingByCategory')}
         </Text>
 
         {categories.length === 0 ? (
           <Text className="text-center text-sm" style={{ color: theme.textMuted }}>
-            No expenses logged this month.
+            {t('finance.noExpensesMonth')}
           </Text>
         ) : (
           categories.map((cat) => (
@@ -42,7 +45,7 @@ export function CategoryBreakdownSection({
                 <View className="flex-row items-center gap-2">
                   <TrackItIcon name={cat.icon} size={16} color={cat.color} />
                   <Text className="text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                    {cat.name}
+                    {tFinanceCategory(t, cat.id, cat.name)}
                   </Text>
                 </View>
                 <Text className="text-xs font-bold" style={{ color: theme.textMuted }}>

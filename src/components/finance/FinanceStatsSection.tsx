@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 
@@ -8,20 +9,32 @@ import type { FinanceTransaction, FinanceTrendPeriod } from '../../types/finance
 import { useTheme } from '../../theme/ThemeContext';
 import { GlassPanel } from '../GlassPanel';
 
-const PERIODS: { id: FinanceTrendPeriod; label: string }[] = [
-  { id: 'week', label: 'Week' },
-  { id: 'month', label: 'Month' },
-  { id: 'quarter', label: '3 Mo' },
-  { id: 'year', label: 'Year' },
-];
+const PERIOD_IDS = ['week', 'month', 'quarter', 'year'] as const satisfies readonly FinanceTrendPeriod[];
 
 type FinanceStatsSectionProps = {
   transactions: FinanceTransaction[];
 };
 
 export function FinanceStatsSection({ transactions }: FinanceStatsSectionProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const [period, setPeriod] = useState<FinanceTrendPeriod>('month');
+
+  const periods = useMemo(
+    () =>
+      PERIOD_IDS.map((id) => ({
+        id,
+        label:
+          id === 'week'
+            ? t('finance.week')
+            : id === 'month'
+              ? t('finance.month')
+              : id === 'quarter'
+                ? t('finance.quarter')
+                : t('finance.year'),
+      })),
+    [t],
+  );
 
   const trend = useMemo(() => computeFinanceTrend(transactions, period), [period, transactions]);
   const avgTicket = useMemo(() => computeAverageTicket(transactions, period), [period, transactions]);
@@ -42,11 +55,11 @@ export function FinanceStatsSection({ transactions }: FinanceStatsSectionProps) 
           className="mb-3 text-[10px] font-bold uppercase tracking-[2px]"
           style={{ color: theme.textMuted }}
         >
-          Statistics
+          {t('finance.statistics')}
         </Text>
 
         <View className="mb-4 flex-row gap-2">
-          {PERIODS.map((item) => {
+          {periods.map((item) => {
             const active = period === item.id;
             return (
               <Pressable
@@ -70,7 +83,7 @@ export function FinanceStatsSection({ transactions }: FinanceStatsSectionProps) 
 
         {trend.length === 0 ? (
           <Text className="text-center text-sm" style={{ color: theme.textMuted }}>
-            Not enough data for this period.
+            {t('finance.notEnoughData')}
           </Text>
         ) : (
           <>
@@ -94,10 +107,10 @@ export function FinanceStatsSection({ transactions }: FinanceStatsSectionProps) 
             </Svg>
 
             <View className="mt-4 flex-row flex-wrap gap-x-4 gap-y-2">
-              <StatChip label="Income" value={formatMoney(totalIncome)} color="#34D399" />
-              <StatChip label="Expense" value={formatMoney(totalExpense)} color="#F87171" />
-              <StatChip label="Savings" value={formatMoney(totalSavings)} color={theme.primary} />
-              <StatChip label="Avg. ticket" value={formatMoney(avgTicket)} color={theme.textSecondary} />
+              <StatChip label={t('finance.income')} value={formatMoney(totalIncome)} color="#34D399" />
+              <StatChip label={t('finance.expense')} value={formatMoney(totalExpense)} color="#F87171" />
+              <StatChip label={t('finance.savings')} value={formatMoney(totalSavings)} color={theme.primary} />
+              <StatChip label={t('finance.avgTicket')} value={formatMoney(avgTicket)} color={theme.textSecondary} />
             </View>
           </>
         )}

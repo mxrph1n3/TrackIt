@@ -1,4 +1,5 @@
 import { Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useHealthStyles } from '../../../hooks/useHealthStyles';
 import { useHealthStore } from '../../../stores/useHealthStore';
@@ -8,10 +9,11 @@ import { PremiumCard } from '../ui/PremiumCard';
 const WEEKLY_TARGET = 5;
 
 export function WeeklyProgressCard() {
+  const { t } = useTranslation();
   const weeklyPlan = useHealthStore((s) => s.weeklyPlan);
   const selectedDayIndex = useHealthStore((s) => s.selectedDayIndex);
   const lastSession = useHealthStore((s) => s.lastSession);
-  const styles = useHealthStyles((t) => ({
+  const styles = useHealthStyles((ht) => ({
     header: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -23,18 +25,18 @@ export function WeeklyProgressCard() {
       fontWeight: '700',
       letterSpacing: 2,
       textTransform: 'uppercase',
-      color: t.slate,
+      color: ht.slate,
       flex: 1,
     },
     meta: {
       fontSize: 13,
       fontWeight: '700',
-      color: t.ink,
+      color: ht.ink,
     },
     percent: {
       fontSize: 13,
       fontWeight: '700',
-      color: t.accent,
+      color: ht.accent,
       minWidth: 36,
       textAlign: 'right',
     },
@@ -55,9 +57,9 @@ export function WeeklyProgressCard() {
   return (
     <PremiumCard padding={16}>
       <View style={styles.header}>
-        <Text style={styles.kicker}>Week Progress</Text>
+        <Text style={styles.kicker}>{t('health.weekProgress')}</Text>
         <Text style={styles.meta}>
-          {completed} / {target} workouts
+          {completed} / {target} {t('health.stats.workouts').toLowerCase()}
         </Text>
         <Text style={styles.percent}>{percent}%</Text>
       </View>

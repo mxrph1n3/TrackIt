@@ -1,5 +1,6 @@
 import { BlurView } from 'expo-blur';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dimensions, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector, ScrollView } from 'react-native-gesture-handler';
 import Animated, {
@@ -19,8 +20,10 @@ import { useSideDrawerStore } from '../../stores/useSideDrawerStore';
 import type { ProfileModuleId } from '../../types/profile';
 import { useTheme } from '../../theme/ThemeContext';
 import { drawerCloseSpring, drawerOpenSpring } from '../../theme/motion';
+import { LanguagePicker } from '../i18n/LanguagePicker';
 import { LifeOsStatsRow } from '../profile/LifeOsStatsRow';
 import { ProfileHero } from '../profile/ProfileHero';
+import { AndroidTrialBanner } from '../subscription/AndroidTrialBanner';
 import { ProfileNavMenu } from '../profile/ProfileNavMenu';
 
 const TAB_ROUTE_TO_MODULE: Partial<Record<string, ProfileModuleId>> = {
@@ -34,6 +37,7 @@ const DRAWER_Z_INDEX = 200;
 const DRAWER_SCROLL_BOTTOM_PADDING = 72;
 
 export function SideDrawer() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme } = useTheme();
   const isOpen = useSideDrawerStore((s) => s.isOpen);
@@ -192,14 +196,25 @@ export function SideDrawer() {
               }}
             >
               <ProfileHero />
+              <AndroidTrialBanner />
               <LifeOsStatsRow variant="drawer" />
               <Text
                 className="mb-2 px-4 text-[10px] font-bold uppercase tracking-widest"
                 style={{ color: theme.textMuted }}
               >
-                Navigation
+                {t('profile.navigation')}
               </Text>
               <ProfileNavMenu onModulePress={handleModulePress} />
+
+              <Text
+                className="mb-2 mt-5 px-4 text-[10px] font-bold uppercase tracking-widest"
+                style={{ color: theme.textMuted }}
+              >
+                {t('settings.language')}
+              </Text>
+              <View className="px-4 pb-2">
+                <LanguagePicker compact />
+              </View>
             </ScrollView>
           </View>
         </GestureDetector>

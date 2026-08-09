@@ -12,6 +12,7 @@ import {
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { reportSyncError, reportSyncSuccess } from '../lib/sync/reportSyncError';
 import { useGamificationStore } from '../stores/useGamificationStore';
+import { i18n } from '../i18n';
 
 export type UseHabitsResult = {
   habits: HabitWithWeek[];
@@ -46,7 +47,7 @@ export function useHabits(): UseHabitsResult {
       const data = await fetchHabitsWithWeek(userId);
       setHabits(data);
     } catch (error) {
-      reportSyncError('Habits', error, 'Could not load habits.');
+      reportSyncError('Habits', error, i18n.t('toasts.habitLoadError'));
       setHabits([]);
     } finally {
       setIsLoading(false);
@@ -104,10 +105,10 @@ export function useHabits(): UseHabitsResult {
 
         await refresh();
         if (nextCompleted) {
-          reportSyncSuccess('Habit logged.');
+          reportSyncSuccess(i18n.t('toasts.habitLogged'));
         }
       } catch (error) {
-        reportSyncError('Habits', error, 'Could not update habit.');
+        reportSyncError('Habits', error, i18n.t('toasts.habitUpdateError'));
       } finally {
         setIsMutating(false);
       }
@@ -126,9 +127,9 @@ export function useHabits(): UseHabitsResult {
       try {
         await createHabit(userId, title);
         await refresh();
-        reportSyncSuccess('Habit created.');
+        reportSyncSuccess(i18n.t('toasts.habitCreated'));
       } catch (error) {
-        reportSyncError('Habits', error, 'Could not create habit.');
+        reportSyncError('Habits', error, i18n.t('toasts.habitCreateError'));
       } finally {
         setIsMutating(false);
       }

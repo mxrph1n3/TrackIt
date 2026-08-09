@@ -4,7 +4,7 @@ export const USERNAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
 export type UsernameValidationResult =
   | { valid: true; normalized: string }
-  | { valid: false; error: string };
+  | { valid: false; errorKey: string; errorParams?: Record<string, number | string> };
 
 export function normalizeUsernameInput(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, USERNAME_MAX_LENGTH);
@@ -14,34 +14,39 @@ export function validateUsername(raw: string): UsernameValidationResult {
   const normalized = raw.trim();
 
   if (!normalized) {
-    return { valid: false, error: 'Username cannot be empty.' };
+    return { valid: false, errorKey: 'profile.usernameErrors.empty' };
   }
 
   if (normalized.length < USERNAME_MIN_LENGTH) {
     return {
       valid: false,
-      error: `Username must be at least ${USERNAME_MIN_LENGTH} characters.`,
+      errorKey: 'profile.usernameErrors.tooShort',
+      errorParams: { min: USERNAME_MIN_LENGTH },
     };
   }
 
   if (normalized.length > USERNAME_MAX_LENGTH) {
     return {
       valid: false,
-      error: `Username must be ${USERNAME_MAX_LENGTH} characters or fewer.`,
+      errorKey: 'profile.usernameErrors.tooLong',
+      errorParams: { max: USERNAME_MAX_LENGTH },
     };
   }
 
   if (!USERNAME_PATTERN.test(normalized)) {
     return {
       valid: false,
-      error: 'Use letters, numbers, underscores, or dashes only.',
+      errorKey: 'profile.usernameErrors.invalidChars',
     };
   }
 
   return { valid: true, normalized };
 }
 
-export function mapUsernameUpdateError(error: unknown): string {
+export function mapUsernameUpdateError(error: unknown): {
+  errorKey: string;
+  errorParams?: Record<string, number | string>;
+} {
   const message =
     typeof error === 'object' &&
     error !== null &&
@@ -59,16 +64,15 @@ export function mapUsernameUpdateError(error: unknown): string {
       : '';
 
   if (code === '23505' || message.toLowerCase().includes('unique')) {
-    return 'This username is already taken.';
+    return { errorKey: 'profile.usernameErrors.taken' };
   }
 
   if (code === '23514' || message.toLowerCase().includes('username_length_check')) {
-    return `Username must be ${USERNAME_MIN_LENGTH}–${USERNAME_MAX_LENGTH} characters.`;
+    return {
+      errorKey: 'profile.usernameErrors.lengthCheck',
+      errorParams: { min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH },
+    };
   }
 
-  if (message) {
-    return message;
-  }
-
-  return 'Could not update username. Try again.';
+  return { errorKey: 'profile.usernameErrors.updateFailed' };
 }

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { AddTaskPillButton } from '../ui/AddTaskPillButton';
 
 type PlannerTaskActionButtonsProps = {
@@ -5,12 +7,14 @@ type PlannerTaskActionButtonsProps = {
 };
 
 export function PlannerTaskActionButtons({ onAddTask }: PlannerTaskActionButtonsProps) {
+  const { t } = useTranslation();
+
   return (
     <AddTaskPillButton
       onPress={onAddTask}
-      label="New task"
+      label={t('planner.newTaskBtn')}
       fullWidth
-      accessibilityLabel="Create new task"
+      accessibilityLabel={t('welcome.createTask')}
     />
   );
 }

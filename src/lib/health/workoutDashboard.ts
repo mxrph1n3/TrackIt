@@ -20,13 +20,14 @@ export function formatMuscleGroups(focusName: string): string {
   return focusName;
 }
 
+const WEEKDAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
+
 export function buildWeeklyPlan(
   trackId: WorkoutTrackId,
   weekNumber: number,
   dayIndex: number,
 ): DayPlan[] {
   const days = listDaysForWeek(trackId, weekNumber);
-  const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   return days.map((day, index) => {
     const isRest = day.exercises.length === 0 || /rest|recovery/i.test(day.focusName);
@@ -35,7 +36,7 @@ export function buildWeeklyPlan(
 
     return {
       dayKey: `w${weekNumber}-d${day.dayNumber}`,
-      dayLabel: labels[index] ?? `D${day.dayNumber}`,
+      dayLabel: WEEKDAY_KEYS[index] ?? `d${day.dayNumber}`,
       split: day.focusName,
       isToday: index === dayIndex,
       isRest,
@@ -70,6 +71,12 @@ export function formatNextWorkoutWhen(stepsAhead: number, dayLabel: string): str
   return dayLabel;
 }
 
+export type WeekProgressSnapshot = {
+  streakDays: number;
+  completed: number;
+  target: number;
+};
+
 export type DashboardWorkoutSnapshot = {
   calendarDayIndex: number;
   programDay: ProgramDay;
@@ -81,6 +88,8 @@ export type DashboardWorkoutSnapshot = {
   exerciseCount: number;
   estimatedMinutes: number;
   muscleGroups: string;
+  weekProgress: WeekProgressSnapshot;
+  /** @deprecated Prefer weekProgress + i18n at the call site. */
   weekProgressLine: string;
 };
 
@@ -108,6 +117,12 @@ export function buildDashboardWorkoutSnapshot(
     completed = Math.min(weeklyTarget, completed + 1);
   }
 
+  const weekProgress: WeekProgressSnapshot = {
+    streakDays: lifetimeStats.streakDays,
+    completed,
+    target: weeklyTarget,
+  };
+
   const weekProgressLine =
     lifetimeStats.streakDays > 0
       ? `Streak · ${lifetimeStats.streakDays} days`
@@ -126,6 +141,7 @@ export function buildDashboardWorkoutSnapshot(
     exerciseCount: programDay.exercises.length,
     estimatedMinutes: todayPlan?.estimatedMinutes ?? estimateDayDurationMinutes(programDay.exercises.length),
     muscleGroups: formatMuscleGroups(programDay.focusName),
+    weekProgress,
     weekProgressLine,
   };
 }

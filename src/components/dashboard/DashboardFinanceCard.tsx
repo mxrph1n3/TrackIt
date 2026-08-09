@@ -10,6 +10,7 @@ import {
   Wallet,
 } from 'lucide-react-native';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -20,6 +21,7 @@ import Animated, {
 
 import { formatMoney, formatSignedMoney } from '../../constants/financeCategories';
 import { useDashboardFinanceStyles } from '../../hooks/useDashboardFinanceStyles';
+import { tRelativeDay } from '../../i18n/helpers';
 import { supportsNativeBlur } from '../../lib/platform/blur';
 import { triggerHaptic } from '../../lib/platform/haptics';
 import type { DashboardFinanceSnapshot } from '../../types/dashboard';
@@ -55,6 +57,7 @@ function MiniFlowCard({
   onPress: () => void;
   styles: FinanceCardStyles;
 }) {
+  const { t } = useTranslation();
   const isIncome = tone === 'income';
   const Icon = isIncome ? ArrowUpRight : ArrowDownRight;
   const accent = isIncome ? SEMANTIC.income : SEMANTIC.expense;
@@ -64,7 +67,7 @@ function MiniFlowCard({
       <View style={[styles.miniCard, { borderColor: `${accent}22` }]}>
         <View className="mb-1.5 flex-row items-center gap-1">
           <Icon color={accent} size={13} strokeWidth={2.4} />
-          <Text style={styles.miniCardLabel}>{isIncome ? 'Income' : 'Expense'}</Text>
+          <Text style={styles.miniCardLabel}>{isIncome ? t('dashboard.income') : t('dashboard.expense')}</Text>
         </View>
         <Text style={[styles.miniCardValue, { color: accent }]}>{formatMoney(amount, currency)}</Text>
       </View>
@@ -79,11 +82,12 @@ function OpenFinanceButton({
   onPress: () => void;
   styles: FinanceCardStyles;
 }) {
+  const { t } = useTranslation();
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel="Open finance"
+      accessibilityLabel={t('dashboard.finance')}
       className="active:opacity-85"
       style={styles.openButton}
     >
@@ -101,6 +105,7 @@ function FinanceHeader({
   onOpenFinance: () => void;
   styles: FinanceCardStyles;
 }) {
+  const { t } = useTranslation();
   return (
     <View className="flex-row items-start justify-between">
       <View className="flex-row items-center gap-2.5">
@@ -108,8 +113,8 @@ function FinanceHeader({
           <Wallet color={BRAND.primary} size={18} strokeWidth={2} />
         </View>
         <View>
-          <Text style={styles.headerTitle}>Finance</Text>
-          <Text style={styles.headerSubtitle}>{monthLabel || 'This month'}</Text>
+          <Text style={styles.headerTitle}>{t('dashboard.finance')}</Text>
+          <Text style={styles.headerSubtitle}>{monthLabel || t('dashboard.thisMonth')}</Text>
         </View>
       </View>
       <OpenFinanceButton onPress={onOpenFinance} styles={styles} />
@@ -130,6 +135,7 @@ function EmptyFinanceCard({
   styles: FinanceCardStyles;
   blurTint: 'light' | 'dark';
 }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.cardShell}>
       {supportsNativeBlur() ? (
@@ -138,9 +144,9 @@ function EmptyFinanceCard({
       <View style={styles.cardInner}>
         <FinanceHeader monthLabel={monthLabel} onOpenFinance={onOpenFinance} styles={styles} />
         <View style={styles.emptyBody}>
-          <Text style={styles.emptyTitle}>Welcome!</Text>
+          <Text style={styles.emptyTitle}>{t('dashboard.welcomeFinance')}</Text>
           <Text style={styles.emptySubtitle}>
-            Add your first transaction to track income, expenses, and trends.
+            {t('dashboard.welcomeFinanceBody')}
           </Text>
           <Pressable
             onPress={() => {
@@ -150,7 +156,7 @@ function EmptyFinanceCard({
             className="mt-4 active:opacity-90"
             style={styles.primaryCta}
           >
-            <Text style={styles.primaryCtaText}>Add first transaction</Text>
+            <Text style={styles.primaryCtaText}>{t('dashboard.addFirstTransaction')}</Text>
           </Pressable>
         </View>
       </View>
@@ -159,6 +165,7 @@ function EmptyFinanceCard({
 }
 
 export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceCardProps) {
+  const { t } = useTranslation();
   const { styles, theme, blurTint } = useDashboardFinanceStyles();
   const openFinance = useProfileModuleStore((s) => s.openModule);
   const openHub = useCreateHubStore((s) => s.open);
@@ -216,14 +223,16 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
           label: finance.lastTransactionLabel,
           amount: finance.lastTransactionAmount ?? 0,
           icon: finance.lastTransactionIcon ?? 'wallet',
-          relative: finance.lastTransactionRelative ?? 'Recently',
+          relative: finance.lastTransactionRelative
+            ? tRelativeDay(t, finance.lastTransactionRelative)
+            : t('dashboard.recently'),
         }
       : finance.recentTransactions[0]
         ? {
             label: finance.recentTransactions[0].label,
             amount: finance.recentTransactions[0].amount,
             icon: finance.recentTransactions[0].icon,
-            relative: finance.recentTransactions[0].relativeLabel,
+            relative: tRelativeDay(t, finance.recentTransactions[0].relativeLabel),
           }
         : null;
 
@@ -242,7 +251,9 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
             currency={finance.displayCurrency}
             style={styles.balanceValue}
           />
-          <Text style={styles.balanceCaption}>Total balance · {finance.displayCurrency}</Text>
+          <Text style={styles.balanceCaption}>
+            {t('dashboard.totalBalance', { currency: finance.displayCurrency })}
+          </Text>
           {finance.balancesByCurrency.length > 1 ? (
             <View className="mt-2 flex-row flex-wrap gap-2">
               {finance.balancesByCurrency
@@ -259,7 +270,7 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
               <TrendIcon color={trendColor} size={13} strokeWidth={2.3} />
               <Text style={[styles.trendText, { color: trendColor }]}>
                 {trendUp ? '+' : ''}
-                {balanceTrend}% vs last month
+                {t('dashboard.vsLastMonth', { percent: balanceTrend })}
               </Text>
             </View>
           ) : null}
@@ -291,11 +302,11 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
             <Animated.View style={[styles.goalCard, styles.goalCompleteCard, goalCelebrateStyle]}>
               <View className="flex-row items-center gap-2">
                 <Sparkles color={SEMANTIC.income} size={16} />
-                <Text style={styles.goalCompleteTitle}>Goal reached!</Text>
+                <Text style={styles.goalCompleteTitle}>{t('dashboard.goalReached')}</Text>
               </View>
               <Text style={styles.goalName}>{finance.activeGoal.name}</Text>
               <Pressable onPress={handleOpenFinance} className="mt-2 active:opacity-85">
-                <Text style={styles.goalCreateLink}>Create a new goal</Text>
+                <Text style={styles.goalCreateLink}>{t('dashboard.createNewGoal')}</Text>
               </Pressable>
             </Animated.View>
           ) : (
@@ -306,7 +317,7 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
                   <Text style={styles.goalName}>{finance.activeGoal.name}</Text>
                 </View>
                 <Text style={styles.goalAmounts}>
-                  {formatMoney(finance.activeGoal.savedAmount)} of{' '}
+                  {formatMoney(finance.activeGoal.savedAmount)} {t('common.of')}{' '}
                   {formatMoney(finance.activeGoal.targetAmount)}
                 </Text>
                 <View style={styles.progressTrack}>
@@ -321,7 +332,7 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
         ) : (
           <Pressable onPress={handleOpenFinance} className="active:opacity-90">
             <View style={styles.goalCreateButton}>
-              <Text style={styles.goalCreateText}>Create goal</Text>
+              <Text style={styles.goalCreateText}>{t('dashboard.createGoal')}</Text>
             </View>
           </Pressable>
         )}
@@ -330,7 +341,7 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
           <>
             <SectionDivider styles={styles} />
             <View style={styles.lastTxSection}>
-              <Text style={styles.sectionKicker}>Last transaction</Text>
+              <Text style={styles.sectionKicker}>{t('dashboard.lastTransaction')}</Text>
               <View className="mt-2 flex-row items-center justify-between">
                 <View className="flex-1 flex-row items-center gap-2 pr-3">
                   <TrackItIcon name={lastTx.icon} size={16} color={BRAND.primary} badge badgeSize={32} />
@@ -360,13 +371,13 @@ export function DashboardFinanceCard({ finance, isFreshUser }: DashboardFinanceC
           <Pressable onPress={handleOpenIncome} className="flex-1 active:opacity-90">
             <View style={[styles.actionButton, styles.actionIncome]}>
               <Plus color={SEMANTIC.income} size={15} strokeWidth={2.5} />
-              <Text style={[styles.actionLabel, { color: SEMANTIC.income }]}>Income</Text>
+              <Text style={[styles.actionLabel, { color: SEMANTIC.income }]}>{t('dashboard.income')}</Text>
             </View>
           </Pressable>
           <Pressable onPress={handleOpenExpense} className="flex-1 active:opacity-90">
             <View style={[styles.actionButton, styles.actionExpense]}>
               <Plus color={BRAND.primary} size={15} strokeWidth={2.5} />
-              <Text style={[styles.actionLabel, { color: BRAND.primary }]}>Expense</Text>
+              <Text style={[styles.actionLabel, { color: BRAND.primary }]}>{t('dashboard.expense')}</Text>
             </View>
           </Pressable>
         </View>

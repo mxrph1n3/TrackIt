@@ -10,6 +10,7 @@ import {
   UtensilsCrossed,
 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View, ImageBackground, useWindowDimensions, type ImageSourcePropType, type ViewStyle } from 'react-native';
 import Animated, {
   type AnimatedStyle,
@@ -31,6 +32,11 @@ import { insertWaterLog } from '../../lib/quickActions/service';
 import { formatNextWorkoutWhen } from '../../lib/health/workoutDashboard';
 import { countCompletedExercises } from '../../lib/health/workoutEngine';
 import { triggerHaptic } from '../../lib/platform/haptics';
+import {
+  tRelativeDay,
+  tWeekdayShort,
+  tWorkoutProgramDay,
+} from '../../i18n/helpers';
 import { useCreateHubStore } from '../../stores/useCreateHubStore';
 import { useHealthStore } from '../../stores/useHealthStore';
 import { MEAL_SLOT_ORDER } from '../../constants/mealSlots';
@@ -45,9 +51,18 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const GLASS_ML = 250;
 
+const MEAL_SLOT_I18N: Record<string, string> = {
+  breakfast: 'nutrition.mealTypes.breakfast',
+  lunch: 'nutrition.mealTypes.lunch',
+  dinner: 'nutrition.mealTypes.dinner',
+  snack: 'nutrition.mealTypes.snacks',
+  evening_snack: 'nutrition.mealTypes.eveningSnack',
+};
+
 const MEAL_SLOTS = MEAL_SLOT_ORDER.map((id) => ({
   id,
-  label: SLOT_LABELS[id] ?? id,
+  labelKey: MEAL_SLOT_I18N[id] ?? id,
+  fallbackLabel: SLOT_LABELS[id] ?? id,
 }));
 
 function formatActiveElapsed(
@@ -187,6 +202,7 @@ function HealthHeader({
   onOpenHealth: () => void;
   styles: DashboardHealthStyles;
 }) {
+  const { t } = useTranslation();
   return (
     <View className="flex-row items-start justify-between">
       <View className="flex-row items-center gap-2.5">
@@ -197,8 +213,8 @@ function HealthHeader({
           </View>
         </View>
         <View>
-          <Text style={styles.headerTitle}>Health</Text>
-          <Text style={styles.headerSubtitle}>Today</Text>
+          <Text style={styles.headerTitle}>{t('tabs.Health')}</Text>
+          <Text style={styles.headerSubtitle}>{t('common.today')}</Text>
         </View>
       </View>
       <Pressable onPress={onOpenHealth} style={styles.openButton} className="active:opacity-85">
@@ -215,6 +231,7 @@ function NutritionHeader({
   onOpenHealth: () => void;
   styles: DashboardHealthStyles;
 }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.nutritionHeader}>
       <View style={styles.nutritionHeaderLeft}>
@@ -222,8 +239,8 @@ function NutritionHeader({
           <UtensilsCrossed color={BRAND.primary} size={16} strokeWidth={2.1} />
         </View>
         <View>
-          <Text style={styles.nutritionTitle}>Nutrition</Text>
-          <Text style={styles.nutritionSubtitle}>Today&apos;s fuel</Text>
+          <Text style={styles.nutritionTitle}>{t('dashboard.nutrition')}</Text>
+          <Text style={styles.nutritionSubtitle}>{t('dashboard.todaysFuel')}</Text>
         </View>
       </View>
       <Pressable onPress={onOpenHealth} style={styles.openButton} className="active:opacity-85">
@@ -267,6 +284,7 @@ function NutritionDashboardSection({
   calorieBarStyle,
   styles,
 }: NutritionDashboardSectionProps & { styles: DashboardHealthStyles }) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const waterPercent = Math.min(100, Math.round((waterLiters / waterTargetL) * 100));
 
@@ -285,12 +303,12 @@ function NutritionDashboardSection({
           {nutritionGoalReached ? (
             <View style={styles.goalBadgeRow}>
               <Sparkles color={SEMANTIC.income} size={14} />
-              <Text style={styles.goalBadgeText}>Daily goal hit</Text>
+              <Text style={styles.goalBadgeText}>{t('dashboard.dailyGoalHit')}</Text>
             </View>
           ) : null}
           <Text style={styles.calorieHeroValue}>{calories.toLocaleString('en-US')}</Text>
           <Text style={styles.calorieHeroTarget}>
-            of {calorieTarget.toLocaleString('en-US')} kcal
+            {t('common.of')} {calorieTarget.toLocaleString('en-US')} {t('common.kcal')}
           </Text>
         </View>
         <ProgressRing percent={caloriePercent} size={56} styles={styles} />
@@ -337,7 +355,7 @@ function NutritionDashboardSection({
           </View>
           <Pressable onPress={onAddWater} style={styles.glassButton} className="active:opacity-85">
             <Plus color={BRAND.primary} size={14} strokeWidth={2.4} />
-            <Text style={styles.glassButtonText}>+250 ml</Text>
+            <Text style={styles.glassButtonText}>{t('dashboard.addWater')}</Text>
           </Pressable>
         </View>
         <View style={styles.waterTrack}>
@@ -354,10 +372,10 @@ function NutritionDashboardSection({
               style={[styles.mealSlot, logged ? styles.mealSlotLogged : styles.mealSlotPending]}
             >
               <Text style={[styles.mealSlotLetter, logged ? styles.mealSlotLetterLogged : null]}>
-                {slot.label.slice(0, 1)}
+                {t(slot.labelKey, { defaultValue: slot.fallbackLabel }).slice(0, 1)}
               </Text>
               <Text style={styles.mealSlotName} numberOfLines={1}>
-                {slot.label}
+                {t(slot.labelKey, { defaultValue: slot.fallbackLabel })}
               </Text>
             </View>
           );
@@ -366,18 +384,20 @@ function NutritionDashboardSection({
 
       <Pressable onPress={onAddMeal} style={styles.addMealButton} className="active:opacity-90">
         <Plus color={BRAND.primary} size={15} strokeWidth={2.5} />
-        <Text style={styles.addMealText}>Log meal</Text>
+        <Text style={styles.addMealText}>{t('dashboard.logMeal')}</Text>
       </Pressable>
     </View>
   );
 }
 
 export function DashboardHealthCard() {
+  const { t } = useTranslation();
   const { consumedMacros: consumed, dietPlan, mealLog, quickMeals, waterTargetLiters } =
     useTodayNutrition();
   const activeSession = useHealthStore((s) => s.activeSession);
   const openWorkoutGoalPicker = useHealthStore((s) => s.openWorkoutGoalPicker);
   const lastSession = useHealthStore((s) => s.lastSession);
+  const selectedTrackId = useHealthStore((s) => s.selectedTrackId);
   const openHub = useCreateHubStore((s) => s.open);
   const workoutSnapshot = useDashboardWorkoutSnapshot();
   const calorieTarget = dietPlan.calories;
@@ -407,17 +427,34 @@ export function DashboardHealthCard() {
 
   const nextWorkoutMeta = useMemo(() => {
     const next = workoutSnapshot.nextTraining;
-    if (!next) return 'Recovery day';
-    return `Next · ${next.day.split} · ${formatNextWorkoutWhen(next.stepsAhead, next.day.dayLabel)}`;
-  }, [workoutSnapshot.nextTraining]);
+    if (!next) return t('dashboard.recoveryDay');
+    const rawWhen = formatNextWorkoutWhen(next.stepsAhead, next.day.dayLabel);
+    const whenLabel =
+      rawWhen === 'Today' || rawWhen === 'Tomorrow'
+        ? tRelativeDay(t, rawWhen)
+        : tWeekdayShort(t, rawWhen);
+    const dayMatch = /^w(\d+)-d(\d+)$/.exec(next.day.dayKey);
+    const split =
+      dayMatch != null
+        ? tWorkoutProgramDay(
+            t,
+            selectedTrackId,
+            Number(dayMatch[1]),
+            Number(dayMatch[2]),
+            next.day.split,
+          )
+        : next.day.split;
+    return t('dashboard.nextWorkoutMeta', { split, when: whenLabel });
+  }, [selectedTrackId, t, workoutSnapshot.nextTraining]);
 
   const scheduledWorkoutMeta = useMemo(() => {
     const xpSuffix =
       workoutSnapshot.todayPlan.xpReward > 0
-        ? ` · +${workoutSnapshot.todayPlan.xpReward} XP`
+        ? ` · +${workoutSnapshot.todayPlan.xpReward} ${t('common.xp')}`
         : '';
-    return `${workoutSnapshot.exerciseCount} exercises · ≈${workoutSnapshot.estimatedMinutes} min${xpSuffix}`;
+    return `${workoutSnapshot.exerciseCount} ${t('health.exercises').toLowerCase()} · ≈${workoutSnapshot.estimatedMinutes} ${t('common.min')}${xpSuffix}`;
   }, [
+    t,
     workoutSnapshot.estimatedMinutes,
     workoutSnapshot.exerciseCount,
     workoutSnapshot.todayPlan.xpReward,
@@ -483,7 +520,13 @@ export function DashboardHealthCard() {
     }
   }, [addWaterOptimistic, isAddingWater]);
 
-  const streakLine = workoutSnapshot.weekProgressLine;
+  const streakLine =
+    workoutSnapshot.weekProgress.streakDays > 0
+      ? t('health.streakLine', { days: workoutSnapshot.weekProgress.streakDays })
+      : t('health.weekWorkoutsLine', {
+          completed: workoutSnapshot.weekProgress.completed,
+          target: workoutSnapshot.weekProgress.target,
+        });
 
   const { width: screenWidth } = useWindowDimensions();
   const { mode, theme } = useTheme();
@@ -509,7 +552,7 @@ export function DashboardHealthCard() {
           <Pressable onPress={handleOpenHealth} className="mt-3 active:opacity-94">
             {isActive && activeSession ? (
               <View>
-                <Text style={styles.activeKicker}>Workout active</Text>
+                <Text style={styles.activeKicker}>{t('dashboard.workoutActive')}</Text>
                 <View className="mt-2 flex-row items-center justify-between">
                   <View className="flex-1 pr-3">
                     <Text style={styles.workoutTitle}>{activeSession.focusName}</Text>
@@ -523,7 +566,7 @@ export function DashboardHealthCard() {
                 <View className="flex-row items-center gap-2">
                   <Check color={SEMANTIC.income} size={18} strokeWidth={2.8} />
                   <Text style={styles.completedTitle}>
-                    {completionSummary?.focusName ?? lastSession.title} complete
+                    {completionSummary?.focusName ?? lastSession.title} · {t('common.complete')}
                   </Text>
                 </View>
                 <Text style={styles.completedMeta}>
@@ -573,12 +616,12 @@ export function DashboardHealthCard() {
               ) : null}
               <Text style={styles.primaryButtonText}>
                 {isActive
-                  ? 'Continue workout'
+                  ? t('dashboard.continueWorkout')
                   : completedToday
-                    ? 'View report'
+                    ? t('dashboard.viewReport')
                     : isRestDay
-                      ? 'View program'
-                      : 'Start workout'}
+                      ? t('dashboard.viewProgram')
+                      : t('dashboard.startWorkout')}
               </Text>
             </View>
           </Pressable>

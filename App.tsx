@@ -12,10 +12,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthBootScreen } from './src/components/auth/AuthBootScreen';
 import { LevelUpModal } from './src/components/gamification/LevelUpModal';
+import { I18nBootstrap } from './src/components/i18n/I18nBootstrap';
 import { SubscriptionBootstrap } from './src/components/subscription/SubscriptionBootstrap';
 import { WebBootErrorBoundary } from './src/components/system/WebBootErrorBoundary';
 import { TelegramBootstrap } from './src/components/telegram/TelegramBootstrap';
 import { TmaAccessBootstrap } from './src/components/telegram/TmaAccessBootstrap';
+import './src/i18n';
 import { AuthProvider } from './src/hooks/useAuth';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { AuthScreen } from './src/screens/AuthScreen';
@@ -161,6 +163,7 @@ export default function App() {
     <RootWrapper style={styles.root}>
       <KeyboardProviderCompat>
         <SafeAreaProvider>
+          <I18nBootstrap />
           <TelegramBootstrap />
           <AppThemeRoot>
             <AuthGuardRoot />

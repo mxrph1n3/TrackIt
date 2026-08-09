@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 
 import { PaywallHost } from '../components/paywall/PaywallHost';
+import { AndroidTrialExpiredPrompt } from '../components/subscription/AndroidTrialExpiredPrompt';
 import { FinanceTransactionHost } from '../components/finance/FinanceTransactionHost';
 import { TaskCreationHost } from '../components/planner/TaskCreationHost';
 import { NutritionSyncBridge } from '../hooks/useHealthNutritionSync';
@@ -104,6 +105,7 @@ export function AppNavigator() {
           <SideDrawer />
           <ProfileModuleHost />
           <PaywallHost />
+          <AndroidTrialExpiredPrompt />
           <WorkoutSessionHost />
           <TaskCreationHost />
           <FinanceTransactionHost />

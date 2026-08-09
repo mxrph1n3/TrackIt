@@ -1,4 +1,5 @@
 import { Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useProgression } from '../../hooks/useProgression';
 import { useHealthStore } from '../../stores/useHealthStore';
@@ -29,6 +30,7 @@ function StatCard({ label, value }: StatCardProps) {
 }
 
 export function WorkoutStatsGrid() {
+  const { t } = useTranslation();
   const stats = useHealthStore((s) => s.lifetimeStats);
   const { profile } = useProgression();
 
@@ -39,15 +41,15 @@ export function WorkoutStatsGrid() {
     <GlassPanel borderRadius={22} style={{ marginBottom: 16 }}>
       <View className="p-4">
         <Text className="mb-3 text-[10px] font-bold uppercase tracking-widest text-ethereal-slate">
-          Stats
+          {t('health.quickActions.stats')}
         </Text>
         <View className="flex-row flex-wrap gap-3">
-          <StatCard label="Total workouts" value={String(stats.totalWorkouts)} />
-          <StatCard label="Streak" value={`${streak} days`} />
-          <StatCard label="Time" value={`${hours} hr`} />
+          <StatCard label={t('health.stats.totalWorkouts')} value={String(stats.totalWorkouts)} />
+          <StatCard label={t('health.stats.streak')} value={t('health.daysCount', { count: streak })} />
+          <StatCard label={t('health.stats.time')} value={`${hours} hr`} />
           <StatCard
-            label="Total volume"
-            value={`${stats.totalTonnageKg.toLocaleString('en-US')} kg`}
+            label={t('health.stats.volume')}
+            value={`${stats.totalTonnageKg.toLocaleString('en-US')} ${t('common.kg')}`}
           />
         </View>
       </View>

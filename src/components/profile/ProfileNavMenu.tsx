@@ -1,4 +1,5 @@
 import { ChevronRight } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import { PROFILE_MENU_ITEMS } from '../../constants/profileMenu';
@@ -16,6 +17,7 @@ type ProfileNavMenuProps = {
 };
 
 export function ProfileNavMenu({ forcedActiveId, onModulePress }: ProfileNavMenuProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const activeModuleId = useProfileStore((s) => s.activeModuleId);
   const resolvedActiveId = forcedActiveId ?? activeModuleId;
@@ -82,7 +84,7 @@ export function ProfileNavMenu({ forcedActiveId, onModulePress }: ProfileNavMenu
                 className="ml-3 flex-1 text-base font-semibold"
                 style={{ color: isActive ? theme.textPrimary : theme.textSecondary }}
               >
-                {item.label}
+                {t(`profile.menu.${item.id}`)}
               </Text>
 
               {showXpBadge ? (

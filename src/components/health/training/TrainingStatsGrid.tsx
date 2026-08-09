@@ -1,6 +1,7 @@
 import { Dumbbell, Hourglass, Medal, TrendingUp } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useHealthStyles } from '../../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
@@ -16,11 +17,11 @@ function StatTile({
   label: string;
   value: string;
 }) {
-  const styles = useHealthStyles((t) => ({
+  const styles = useHealthStyles((ht) => ({
     tile: {
       flex: 1,
       borderRadius: 16,
-      backgroundColor: t.accentSoft,
+      backgroundColor: ht.accentSoft,
       paddingVertical: 12,
       paddingHorizontal: 6,
       alignItems: 'center',
@@ -31,14 +32,14 @@ function StatTile({
     tileValue: {
       fontSize: 18,
       fontWeight: '900',
-      color: t.ink,
+      color: ht.ink,
       letterSpacing: -0.4,
     },
     tileLabel: {
       marginTop: 2,
       fontSize: 9,
       fontWeight: '700',
-      color: t.slate,
+      color: ht.slate,
       textTransform: 'uppercase',
       letterSpacing: 0.8,
       textAlign: 'center',
@@ -55,6 +56,7 @@ function StatTile({
 }
 
 export function TrainingStatsGrid() {
+  const { t } = useTranslation();
   const stats = useHealthStore((s) => s.lifetimeStats);
   const healthTheme = useHealthTheme();
   const styles = useHealthStyles(() => ({
@@ -73,22 +75,22 @@ export function TrainingStatsGrid() {
       <View style={styles.grid}>
         <StatTile
           icon={<Dumbbell color={healthTheme.accent} size={16} />}
-          label="Workouts"
+          label={t('health.stats.workouts')}
           value={String(stats.totalWorkouts)}
         />
         <StatTile
           icon={<Hourglass color={healthTheme.accent} size={16} />}
-          label="Hours"
+          label={t('health.stats.hours')}
           value={String(hours)}
         />
         <StatTile
           icon={<TrendingUp color={healthTheme.accent} size={16} />}
-          label="Volume"
+          label={t('health.stats.volume')}
           value={`${volumeT}t`}
         />
         <StatTile
           icon={<Medal color={healthTheme.accent} size={16} />}
-          label="PRs"
+          label={t('health.stats.prs')}
           value={String(prCount)}
         />
       </View>

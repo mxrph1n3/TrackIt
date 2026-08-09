@@ -1,6 +1,7 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Linking,
@@ -27,6 +28,7 @@ import { triggerHaptic } from '../lib/platform/haptics';
 import { useTheme } from '../theme/ThemeContext';
 
 export function AuthScreen() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const {
@@ -77,7 +79,7 @@ export function AuthScreen() {
       setAgeError(null);
       return true;
     }
-    setAgeError(`You must be at least ${MIN_ACCOUNT_AGE} years old to create an account.`);
+    setAgeError(t('auth.ageError', { age: MIN_ACCOUNT_AGE }));
     return false;
   };
 
@@ -98,11 +100,8 @@ export function AuthScreen() {
     }
   };
 
-  const headline = mode === 'sign-in' ? 'Welcome back' : 'Start your orbit';
-  const subline =
-    mode === 'sign-in'
-      ? 'Pick up where you left off — sync focus, health and habits.'
-      : 'Create your account and build your daily command center.';
+  const headline = mode === 'sign-in' ? t('auth.welcomeBack') : t('auth.createAccount');
+  const subline = mode === 'sign-in' ? t('auth.welcomeBackSub') : t('auth.createAccountSub');
 
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
@@ -149,24 +148,24 @@ export function AuthScreen() {
 
                   <View style={styles.fields}>
                     <AuthTextField
-                      label="Email"
+                      label={t('auth.email')}
                       value={email}
                       onChangeText={setEmail}
                       autoCapitalize="none"
                       autoCorrect={false}
                       keyboardType="email-address"
                       textContentType="emailAddress"
-                      placeholder="you@trackit.app"
+                      placeholder={t('auth.emailPlaceholder')}
                       error={fieldErrors.email}
                     />
 
                     <AuthTextField
-                      label="Password"
+                      label={t('auth.password')}
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry
                       textContentType={mode === 'sign-up' ? 'newPassword' : 'password'}
-                      placeholder={mode === 'sign-up' ? 'At least 8 characters' : 'Your password'}
+                      placeholder={t('auth.passwordPlaceholder')}
                       error={fieldErrors.password}
                       onFocus={scrollPasswordIntoView}
                     />
@@ -193,7 +192,7 @@ export function AuthScreen() {
                         {ageConfirmed ? <Text style={styles.ageCheckmark}>✓</Text> : null}
                       </View>
                       <Text style={[styles.ageLabel, { color: theme.textSecondary }]}>
-                        I confirm I am at least {MIN_ACCOUNT_AGE} years old
+                        {t('auth.ageConfirm', { age: MIN_ACCOUNT_AGE })}
                       </Text>
                     </Pressable>
 
@@ -221,7 +220,7 @@ export function AuthScreen() {
                       style={styles.primaryButton}
                     >
                       <Text style={styles.primaryLabel}>
-                        {mode === 'sign-in' ? 'Enter TrackIt' : 'Create my account'}
+                        {mode === 'sign-in' ? t('auth.enterTrackIt') : t('auth.createTrackIt')}
                       </Text>
                     </LinearGradient>
                   </Pressable>
@@ -232,15 +231,15 @@ export function AuthScreen() {
 
           <View style={styles.legalRow}>
             <Pressable onPress={() => void Linking.openURL(PRIVACY_POLICY_URL)}>
-              <Text style={[styles.legalLink, { color: theme.textMuted }]}>Privacy Policy</Text>
+              <Text style={[styles.legalLink, { color: theme.textMuted }]}>{t('auth.privacy')}</Text>
             </Pressable>
             <Text style={[styles.legalDivider, { color: theme.textMuted }]}>·</Text>
             <Pressable onPress={() => void Linking.openURL(TERMS_OF_SERVICE_URL)}>
-              <Text style={[styles.legalLink, { color: theme.textMuted }]}>Terms of Service</Text>
+              <Text style={[styles.legalLink, { color: theme.textMuted }]}>{t('auth.terms')}</Text>
             </Pressable>
             <Text style={[styles.legalDivider, { color: theme.textMuted }]}>·</Text>
             <Pressable onPress={() => void Linking.openURL(SUPPORT_URL)}>
-              <Text style={[styles.legalLink, { color: theme.textMuted }]}>Support</Text>
+              <Text style={[styles.legalLink, { color: theme.textMuted }]}>{t('auth.support')}</Text>
             </Pressable>
           </View>
       </KeyboardAwareScrollViewCompat>

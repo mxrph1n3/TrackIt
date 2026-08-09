@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -15,6 +16,7 @@ import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { useFinanceLiveData } from '../hooks/useFinanceLiveData';
 import { useJournalEntries } from '../hooks/useJournalEntries';
 import { useProgression } from '../hooks/useProgression';
+import { tJournalCategory, tRelativeDay } from '../i18n/helpers';
 import type { JournalCategory } from '../lib/journal/journalService';
 import { useProfileModuleStore } from '../stores/useProfileModuleStore';
 import { useTheme } from '../theme/ThemeContext';
@@ -28,6 +30,7 @@ const CATEGORY_COLORS: Record<JournalCategory, string> = {
 };
 
 export function JournalScreen() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const closeModule = useProfileModuleStore((state) => state.closeModule);
   const { entries, isLoading, refresh, saveEntry } = useJournalEntries();
@@ -53,7 +56,7 @@ export function JournalScreen() {
   return (
     <>
       <IsolatedScreenLayout
-        header={<ScreenHeader title="JOURNAL" subtitle="Daily Reflection" onBack={closeModule} />}
+        header={<ScreenHeader title={t('journal.title')} subtitle={t('journal.subtitle')} onBack={closeModule} />}
         scrollProps={{
           refreshControl: (
             <RefreshControl refreshing={isLoading} onRefresh={() => void refresh()} tintColor={theme.primary} />
@@ -70,7 +73,7 @@ export function JournalScreen() {
           className="mb-4 rounded-2xl px-4 py-3 active:opacity-85"
           style={{ backgroundColor: theme.primary }}
         >
-          <Text className="text-center text-sm font-bold text-ethereal-ink">+ New entry for today</Text>
+          <Text className="text-center text-sm font-bold text-ethereal-ink">+ {t('journal.addEntry')}</Text>
         </Pressable>
 
         {isLoading && entries.length === 0 ? (
@@ -80,7 +83,7 @@ export function JournalScreen() {
         {!isLoading && entries.length === 0 ? (
           <GlassPanel borderRadius={24}>
             <Text className="p-5 text-sm leading-6 text-ethereal-slate">
-              No journal entries yet. Capture your mindset, health wins, and motivation here.
+              {t('journal.empty')}
             </Text>
           </GlassPanel>
         ) : null}
@@ -92,7 +95,7 @@ export function JournalScreen() {
                 <View className="gap-2 p-4">
                   <View className="flex-row items-center justify-between">
                     <Text className="text-xs font-bold uppercase tracking-[0.2em] text-ethereal-slate">
-                      {entry.dateLabel}
+                      {tRelativeDay(t, entry.dateLabel)}
                     </Text>
                     <Text className="text-xs text-ethereal-slate">{entry.timeLabel}</Text>
                   </View>
@@ -105,7 +108,7 @@ export function JournalScreen() {
                         className="text-[10px] font-bold uppercase tracking-[0.14em]"
                         style={{ color: CATEGORY_COLORS[entry.category] }}
                       >
-                        {entry.category}
+                        {tJournalCategory(t, entry.category)}
                       </Text>
                     </View>
                   </View>

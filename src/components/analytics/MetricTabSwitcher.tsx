@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ANALYTICS_TABS } from '../../constants/analyticsData';
@@ -11,6 +12,7 @@ type MetricTabSwitcherProps = {
 };
 
 export function MetricTabSwitcher({ activeTab, onTabChange }: MetricTabSwitcherProps) {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
 
   return (
@@ -55,7 +57,7 @@ export function MetricTabSwitcher({ activeTab, onTabChange }: MetricTabSwitcherP
                     { color: isActive ? theme.textPrimary : theme.textMuted },
                   ]}
                 >
-                  {tab.label}
+                  {t(`analytics.${tab.id}`)}
                 </Text>
               </View>
             </Pressable>

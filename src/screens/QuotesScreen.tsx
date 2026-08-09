@@ -1,16 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { GlassPanel } from '../components/GlassPanel';
 import { IsolatedScreenLayout } from '../components/layout/IsolatedScreenShell';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { QUOTE_FILTERS, QUOTES, type QuoteCategory } from '../constants/quotes';
+import { tQuoteAuthor, tQuoteContent } from '../i18n/helpers';
 import { loadQuoteFavorites, saveQuoteFavorites } from '../lib/quotes/favoritesStorage';
 import { useGamificationStore } from '../stores/useGamificationStore';
 import { useProfileModuleStore } from '../stores/useProfileModuleStore';
 import { useTheme } from '../theme/ThemeContext';
 
 export function QuotesScreen() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const userId = useGamificationStore((state) => state.profile?.id);
   const closeModule = useProfileModuleStore((state) => state.closeModule);
@@ -55,7 +58,7 @@ export function QuotesScreen() {
 
   return (
     <IsolatedScreenLayout
-      header={<ScreenHeader title="QUOTES" subtitle="Motivation Hub" onBack={closeModule} />}
+      header={<ScreenHeader title={t('quotes.title')} subtitle={t('quotes.subtitle')} onBack={closeModule} />}
     >
       <ScrollView
         horizontal
@@ -77,7 +80,7 @@ export function QuotesScreen() {
                 className="text-xs font-bold uppercase tracking-[0.12em]"
                 style={{ color: active ? '#FFFFFF' : theme.textSecondary }}
               >
-                {item.label}
+                {t(`quotes.filters.${item.id}`)}
               </Text>
             </Pressable>
           );
@@ -93,15 +96,17 @@ export function QuotesScreen() {
                 className="gap-3 p-5"
                 style={{ borderLeftWidth: 3, borderLeftColor: quote.accent }}
               >
-                <Text className="text-base leading-7 text-ethereal-ink">"{quote.text}"</Text>
+                <Text className="text-base leading-7 text-ethereal-ink">"{tQuoteContent(t, quote.id, quote.text)}"</Text>
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-sm font-semibold text-ethereal-slate">— {quote.author}</Text>
+                  <Text className="text-sm font-semibold text-ethereal-slate">
+                    — {tQuoteAuthor(t, quote.author)}
+                  </Text>
                   <Pressable onPress={() => toggleFavorite(quote.id)}>
                     <Text
                       className="text-xs font-bold uppercase tracking-[0.12em]"
                       style={{ color: isFavorite ? quote.accent : theme.textMuted }}
                     >
-                      {isFavorite ? 'Saved' : 'Save'}
+                      {isFavorite ? t('quotes.saved') : t('quotes.save')}
                     </Text>
                   </Pressable>
                 </View>

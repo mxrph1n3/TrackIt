@@ -1,5 +1,6 @@
 import { BlurView } from 'expo-blur';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   BackHandler,
@@ -31,8 +32,9 @@ import {
 import {
   FORM_ACTION_IDS,
   PRIMARY_CREATE_ACTIONS,
-  QUICK_INPUT_PLACEHOLDER,
 } from '../constants/createHub';
+import { tActionHubLabel } from '../i18n/helpers';
+import type { TFunction } from 'i18next';
 import { useRecentTemplates } from '../hooks/useRecentTemplates';
 import { routeExternalQuickAction } from '../lib/quickActions/actionRouter';
 import { openFinanceSheet, openNewTaskSheet } from '../lib/quickActions/createFlows';
@@ -157,26 +159,48 @@ function QuickActionMiniForm({
   }
 }
 
-function getActionMeta(actionId: QuickActionId, radialKey?: string): CreateHubAction {
+function getActionMeta(
+  actionId: QuickActionId,
+  t: TFunction,
+  radialKey?: string,
+): CreateHubAction {
   const radial = findRadialAction(actionId, radialKey);
   if (radial) {
     return {
       id: radial.actionId,
-      title: radial.label,
-      subtitle: 'Quick create',
+      title: tActionHubLabel(t, radial.key, radial.label),
+      subtitle: t('actionHub.quickCreate'),
       accent: radial.accent,
       icon: radial.icon,
     };
   }
-  return PRIMARY_CREATE_ACTIONS.find((action) => action.id === actionId) ?? PRIMARY_CREATE_ACTIONS[0];
+  const fallback = PRIMARY_CREATE_ACTIONS.find((action) => action.id === actionId) ?? PRIMARY_CREATE_ACTIONS[0];
+  const titleKey =
+    fallback.id === 'task'
+      ? 'actionHub.actions.newTask'
+      : fallback.id === 'meal'
+        ? 'actionHub.actions.meals'
+        : fallback.id === 'note'
+          ? 'actionHub.actions.notes'
+          : `actionHub.actions.${fallback.id}`;
+  const subtitleId =
+    fallback.id === 'meal' ? 'meals' : fallback.id === 'note' ? 'notes' : fallback.id;
+  const subtitleKey = `actionHub.subtitles.${subtitleId}`;
+  const translatedTitle = t(titleKey);
+  const translatedSubtitle = t(subtitleKey);
+  return {
+    ...fallback,
+    title: translatedTitle === titleKey ? fallback.title : translatedTitle,
+    subtitle: translatedSubtitle === subtitleKey ? fallback.subtitle : translatedSubtitle,
+  };
 }
 
-function templateToRecentEntry(template: RecentTemplate): RecentActionEntry {
-  const meta = getActionMeta(template.actionId);
+function templateToRecentEntry(template: RecentTemplate, t: TFunction): RecentActionEntry {
+  const meta = getActionMeta(template.actionId, t);
   return {
     id: template.id,
     title: template.label,
-    meta: 'Recently used',
+    meta: t('actionHub.recentlyUsed'),
     actionId: template.actionId,
     icon: meta.icon,
     accent: meta.accent,
@@ -190,6 +214,7 @@ export function QuickActionSheet({
   onInitialActionConsumed,
   onActionSelect,
 }: QuickActionSheetProps) {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme, isDark } = useTheme();
   const hubTheme = useActionHubTheme();
@@ -211,8 +236,8 @@ export function QuickActionSheet({
   const hubProgress = useSharedValue(0);
 
   const recentActions = useMemo(
-    () => templates.slice(0, 4).map(templateToRecentEntry),
-    [templates],
+    () => templates.slice(0, 4).map((template) => templateToRecentEntry(template, t)),
+    [t, templates],
   );
 
   const radialLayoutScale = Math.min(1, (width - 32) / 440);
@@ -338,21 +363,21 @@ export function QuickActionSheet({
 
   const handleFormSuccess = useCallback(() => {
     if (activeForm) {
-      const actionMeta = getActionMeta(activeForm, activeRadialKey);
+      const actionMeta = getActionMeta(activeForm, t, activeRadialKey);
       void recordTemplate(activeForm, actionMeta.title);
     }
     setActiveForm(null);
     setActiveRadialKey(undefined);
     setFormSeed({});
     onClose();
-  }, [activeForm, activeRadialKey, onClose, recordTemplate]);
+  }, [activeForm, activeRadialKey, onClose, recordTemplate, t]);
 
   const handleQuickSubmit = useCallback(async () => {
     const parsed = parseQuickInput(quickInput);
     setParseError(null);
 
     if (parsed.kind === 'unknown') {
-      setParseError('Could not parse that command. Try a different format.');
+      setParseError(t('actionHub.forms.parseError'));
       return;
     }
 
@@ -369,7 +394,7 @@ export function QuickActionSheet({
           addScheduleItem({
             id: row.id,
             title: row.title,
-            time: parsed.scheduledTime ?? 'Anytime',
+            time: parsed.scheduledTime ?? t('planner.anytime'),
             completed: false,
           });
         }
@@ -389,7 +414,7 @@ export function QuickActionSheet({
         });
         void recordTemplate(
           'finance',
-          `${parsed.type === 'expense' ? 'Expense' : 'Income'} — ${parsed.label}`,
+          `${parsed.type === 'expense' ? t('common.expense') : t('common.income')} — ${parsed.label}`,
         );
         setQuickInput('');
         handleCloseSheet();
@@ -458,7 +483,7 @@ export function QuickActionSheet({
   );
 
   const scrimColor = hubTheme.scrim;
-  const activeAction = activeForm ? getActionMeta(activeForm, activeRadialKey) : null;
+  const activeAction = activeForm ? getActionMeta(activeForm, t, activeRadialKey) : null;
 
   if (!visible) {
     return null;
@@ -467,7 +492,7 @@ export function QuickActionSheet({
   return (
     <View style={styles.portal} pointerEvents="box-none">
       <View style={styles.overlay}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={handleCloseSheet} accessibilityLabel="Close Action Hub">
+        <Pressable style={StyleSheet.absoluteFill} onPress={handleCloseSheet} accessibilityLabel={t('actionHub.closeA11y')}>
           <Animated.View
             entering={SUPPORTS_LAYOUT_ANIMATIONS ? overlayEnter : undefined}
             exiting={SUPPORTS_LAYOUT_ANIMATIONS ? overlayExit : undefined}
@@ -558,7 +583,7 @@ export function QuickActionSheet({
               <ActionHubRecentActions items={recentActions} onPressItem={handleRecentPress} />
 
               <View style={styles.bottomZone}>
-                <Text style={[styles.sectionLabel, { color: hubTheme.sectionLabel }]}>Quick Input</Text>
+                <Text style={[styles.sectionLabel, { color: hubTheme.sectionLabel }]}>{t('actionHub.quickInput')}</Text>
                 <View style={[styles.quickInputShell, { borderColor: hubTheme.glassEdge, backgroundColor: hubTheme.panelBg }]}>
                   {supportsNativeBlur() ? (
                     <BlurView intensity={hubTheme.isDark ? 36 : 18} tint={hubTheme.blurTint} style={StyleSheet.absoluteFill} />
@@ -567,7 +592,7 @@ export function QuickActionSheet({
                     ref={quickInputRef}
                     value={quickInput}
                     onChangeText={setQuickInput}
-                    placeholder={QUICK_INPUT_PLACEHOLDER}
+                    placeholder={t('actionHub.aiPlaceholder')}
                     placeholderTextColor={hubTheme.placeholder}
                     style={[styles.quickInput, { color: theme.textPrimary }]}
                     returnKeyType="done"

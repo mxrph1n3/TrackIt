@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, ChevronRight, Clock } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
 
@@ -8,9 +9,18 @@ import { useHealthNavigation } from '../../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
 import { useTodayNutrition } from '../../../hooks/useTodayNutrition';
+import { tMealName } from '../../../i18n/helpers';
 import { triggerHaptic } from '../../../lib/platform/haptics';
 import type { DailyMealLog, MealSlot, QuickMealLog } from '../../../types/health';
 import { PremiumCard } from '../ui/PremiumCard';
+
+const MEAL_SLOT_I18N: Record<string, string> = {
+  breakfast: 'nutrition.mealTypes.breakfast',
+  lunch: 'nutrition.mealTypes.lunch',
+  dinner: 'nutrition.mealTypes.dinner',
+  snack: 'nutrition.mealTypes.snacks',
+  evening_snack: 'nutrition.mealTypes.eveningSnack',
+};
 
 const MEAL_TARGET = MEAL_SLOT_ORDER.length;
 
@@ -131,6 +141,7 @@ function isSlotLogged(slot: MealSlot, mealLog: DailyMealLog, quickMeals: QuickMe
 }
 
 export function MealsTimeline() {
+  const { t } = useTranslation();
   const { mealLog, quickMeals } = useTodayNutrition();
   const { push } = useHealthNavigation();
   const healthTheme = useHealthTheme();
@@ -140,9 +151,9 @@ export function MealsTimeline() {
   return (
     <View>
       <View style={styles.header}>
-        <Text style={styles.sectionTitle}>Meals</Text>
+        <Text style={styles.sectionTitle}>{t('nutrition.meals')}</Text>
         <Text style={styles.count}>
-          {completed} / {MEAL_TARGET} completed
+          {t('nutrition.mealsCompleted', { done: completed, total: MEAL_TARGET })}
         </Text>
       </View>
 
@@ -151,7 +162,9 @@ export function MealsTimeline() {
         const meal = mealId ? getMealById(mealId) : null;
         const quickMeal = quickMeals[slot];
         const done = Boolean(meal) || Boolean(quickMeal);
-        const displayName = meal?.name ?? quickMeal?.name ?? 'Pending';
+        const displayName = meal
+          ? tMealName(t, meal.meal_id, meal.name)
+          : (quickMeal?.name ?? t('nutrition.pending'));
         const displayCalories = meal?.macros.calories ?? quickMeal?.calories;
 
         return (
@@ -176,12 +189,14 @@ export function MealsTimeline() {
                   )}
                 </View>
                 <View style={styles.copy}>
-                  <Text style={styles.slot}>{SLOT_LABELS[slot]}</Text>
+                  <Text style={styles.slot}>
+                    {t(MEAL_SLOT_I18N[slot] ?? 'nutrition.meal')}
+                  </Text>
                   <Text style={styles.mealName} numberOfLines={1}>
                     {displayName}
                   </Text>
                   {done && displayCalories ? (
-                    <Text style={styles.calories}>{displayCalories} kcal</Text>
+                    <Text style={styles.calories}>{displayCalories} {t('common.kcal')}</Text>
                   ) : (
                     <Text style={styles.time}>{MEAL_SLOT_TIMES[slot]}</Text>
                   )}
@@ -197,6 +212,7 @@ export function MealsTimeline() {
 }
 
 export function NextMealCard() {
+  const { t } = useTranslation();
   const { mealLog, quickMeals } = useTodayNutrition();
   const { push } = useHealthNavigation();
   const [now, setNow] = useState(() => new Date());
@@ -215,6 +231,7 @@ export function NextMealCard() {
 
     return {
       slot: pendingSlot,
+      labelKey: MEAL_SLOT_I18N[pendingSlot],
       label: SLOT_LABELS[pendingSlot],
       time: MEAL_SLOT_TIMES[pendingSlot],
     };
@@ -226,8 +243,10 @@ export function NextMealCard() {
 
   return (
     <PremiumCard onPress={() => push('FoodSearch', { targetSlot: nextEntry.slot })}>
-      <Text style={styles.nextKicker}>Next Meal</Text>
-      <Text style={styles.nextTitle}>{nextEntry.label}</Text>
+      <Text style={styles.nextKicker}>{t('nutrition.nextMeal')}</Text>
+      <Text style={styles.nextTitle}>
+        {nextEntry.labelKey ? t(nextEntry.labelKey) : nextEntry.label}
+      </Text>
       <Text style={styles.nextTime}>{nextEntry.time}</Text>
       <Text style={styles.countdown}>{formatCountdown(nextEntry.time, now)}</Text>
     </PremiumCard>

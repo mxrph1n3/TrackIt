@@ -72,6 +72,14 @@ export type ExpenseCategoryStat = {
   color: string;
 };
 
+/** Structured finance tip — translate at the UI with `finance.tips.*`. */
+export type FinanceTip =
+  | { id: 'overspending' }
+  | { id: 'top_category'; categoryId: string; percentage: number }
+  | { id: 'goal_pace'; goalName: string; months: number }
+  | { id: 'log_to_unlock' }
+  | { id: 'first_transaction' };
+
 export type MetricDelta = {
   amount: number;
   changePercent: number;
@@ -100,7 +108,7 @@ export type FinanceOverview = {
   todaySpent: number;
   budgetRemainingToday: number;
   lastTransaction: FinanceTransaction | null;
-  financeTips: string[];
+  financeTips: FinanceTip[];
   shieldStrengthPercent: number;
   shieldStatus: FinanceShieldStatus;
   bossProgressPercent: number;

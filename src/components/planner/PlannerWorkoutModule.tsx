@@ -1,18 +1,32 @@
 import { ChevronRight, Dumbbell, Play } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
-import { useTodayWorkoutPreview } from '../../stores/useHealthStore';
+import {
+  tWorkoutProgramDay,
+  tWorkoutProgramField,
+} from '../../i18n/helpers';
+import { useHealthStore, useTodayWorkoutPreview, useCurrentProgramDay } from '../../stores/useHealthStore';
 import { navigateTab } from '../../navigation/navigationRef';
 import { BRAND, SEMANTIC } from '../../theme/designTokens';
 import { PlannerPremiumCard } from './PlannerPremiumCard';
 import { PlannerSectionHeader } from './PlannerSectionHeader';
-import { PLANNER_COPY } from './plannerTheme';
+import { usePlannerCopy } from './plannerTheme';
 
 export function PlannerWorkoutModule() {
+  const { t } = useTranslation();
+  const copy = usePlannerCopy();
   const { styles: plannerStyles, theme, surfaces, isDark } = usePlannerTheme();
   const { focusName, exerciseCount, estimatedMinutes, programTitle } = useTodayWorkoutPreview();
+  const trackId = useHealthStore((s) => s.selectedTrackId);
+  const programDay = useCurrentProgramDay();
+  const localizedFocus =
+    programDay != null
+      ? tWorkoutProgramDay(t, trackId, programDay.weekNumber, programDay.dayNumber, focusName)
+      : focusName;
+  const localizedProgram = tWorkoutProgramField(t, trackId, 'title', programTitle);
 
   const styles = useMemo(
     () =>
@@ -73,9 +87,9 @@ export function PlannerWorkoutModule() {
       <PlannerPremiumCard>
         <View style={plannerStyles.moduleInner}>
           <PlannerSectionHeader
-            title={PLANNER_COPY.workouts}
-            subtitle={`${programTitle} · ~${estimatedMinutes} min`}
-            actionLabel={PLANNER_COPY.open}
+            title={copy.workouts}
+            subtitle={`${localizedProgram} · ~${estimatedMinutes} ${t('common.min')}`}
+            actionLabel={copy.open}
             onAction={() => navigateTab('Health')}
           />
 
@@ -85,10 +99,10 @@ export function PlannerWorkoutModule() {
             </View>
             <View style={styles.copy}>
               <Text style={styles.focusName} numberOfLines={1}>
-                {focusName}
+                {localizedFocus}
               </Text>
               <Text style={plannerStyles.meta}>
-                {exerciseCount} exercises · sets, reps & PRs in Health
+                {exerciseCount} {t('health.exercises').toLowerCase()}
               </Text>
             </View>
             <View style={styles.playChip}>
@@ -97,7 +111,7 @@ export function PlannerWorkoutModule() {
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerHint}>Open Health for the full workout card</Text>
+            <Text style={styles.footerHint}>{t('health.todaysWorkout')}</Text>
             <ChevronRight color={theme.textMuted} size={18} />
           </View>
         </View>

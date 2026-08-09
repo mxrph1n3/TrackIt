@@ -1,6 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { i18n } from '../../i18n';
+
 type Props = {
   children: ReactNode;
 };
@@ -29,11 +31,8 @@ export class WebBootErrorBoundary extends Component<Props, State> {
     return (
       <View style={styles.root}>
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.title}>TrackIt failed to start</Text>
-          <Text style={styles.body}>
-            Open browser DevTools (F12) for details. If this is a fresh Vercel deploy, check
-            Environment Variables and redeploy without build cache.
-          </Text>
+          <Text style={styles.title}>{i18n.t('system.bootFailed')}</Text>
+          <Text style={styles.body}>{i18n.t('system.bootFailedBody')}</Text>
           <Text style={styles.error}>{this.state.error.message}</Text>
         </ScrollView>
       </View>

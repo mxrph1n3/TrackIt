@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 
 import { formatMoney } from '../../constants/financeCategories';
@@ -13,6 +14,7 @@ type SubscriptionsSectionProps = {
 };
 
 export function SubscriptionsSection({ subscriptions, onCreated }: SubscriptionsSectionProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const [isAdding, setIsAdding] = useState(false);
   const [name, setName] = useState('');
@@ -62,14 +64,14 @@ export function SubscriptionsSection({ subscriptions, onCreated }: Subscriptions
     return (
       <View className="items-center py-2">
         <Text className="text-center text-sm" style={{ color: theme.textMuted }}>
-          No active subscriptions tracked.
+          {t('finance.noSubscriptions')}
         </Text>
         <Pressable
           onPress={() => setIsAdding(true)}
           className="mt-3 rounded-xl px-4 py-2 active:opacity-85"
           style={{ backgroundColor: theme.primary }}
         >
-          <Text className="text-sm font-bold text-ethereal-ink">Add Subscription</Text>
+          <Text className="text-sm font-bold text-ethereal-ink">{t('finance.addSubscription')}</Text>
         </Pressable>
       </View>
     );
@@ -88,7 +90,12 @@ export function SubscriptionsSection({ subscriptions, onCreated }: Subscriptions
               {sub.name}
             </Text>
             <Text className="mt-0.5 text-xs" style={{ color: theme.textMuted }}>
-              Next · {sub.nextBillingLabel} · {sub.billingCycle}
+              {t('finance.nextBilling')} · {sub.nextBillingLabel} ·{' '}
+              {sub.billingCycle === 'yearly'
+                ? t('finance.yearly')
+                : sub.billingCycle === 'weekly'
+                  ? t('finance.week')
+                  : t('finance.month')}
             </Text>
           </View>
           <Text className="text-sm font-bold" style={{ color: theme.textPrimary }}>
@@ -103,7 +110,7 @@ export function SubscriptionsSection({ subscriptions, onCreated }: Subscriptions
           style={{ borderColor: `${theme.primary}44`, backgroundColor: `${theme.primary}12` }}
         >
           <Text className="text-[9px] font-bold uppercase tracking-wider" style={{ color: theme.textMuted }}>
-            Monthly
+            {t('finance.month')}
           </Text>
           <Text className="text-sm font-bold" style={{ color: theme.primary }}>
             {formatMoney(Math.round(monthlyTotal))}
@@ -114,7 +121,7 @@ export function SubscriptionsSection({ subscriptions, onCreated }: Subscriptions
           style={{ borderColor: `${theme.primary}44`, backgroundColor: `${theme.primary}12` }}
         >
           <Text className="text-[9px] font-bold uppercase tracking-wider" style={{ color: theme.textMuted }}>
-            Yearly
+            {t('finance.yearly')}
           </Text>
           <Text className="text-sm font-bold" style={{ color: theme.primary }}>
             {formatMoney(Math.round(yearlyTotal))}
@@ -125,7 +132,7 @@ export function SubscriptionsSection({ subscriptions, onCreated }: Subscriptions
       {!isAdding ? (
         <Pressable onPress={() => setIsAdding(true)} className="mt-3 active:opacity-85">
           <Text className="text-center text-xs font-bold" style={{ color: theme.primary }}>
-            + Add subscription
+            + {t('finance.addSubscription')}
           </Text>
         </Pressable>
       ) : (
@@ -136,7 +143,7 @@ export function SubscriptionsSection({ subscriptions, onCreated }: Subscriptions
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="Service name"
+            placeholder={t('finance.subscriptionNamePlaceholder')}
             placeholderTextColor={theme.textMuted}
             className="mb-3 rounded-xl border px-4 py-3 text-sm font-semibold"
             style={{ color: theme.textPrimary, borderColor: theme.borderSubtle }}
@@ -144,7 +151,7 @@ export function SubscriptionsSection({ subscriptions, onCreated }: Subscriptions
           <TextInput
             value={amount}
             onChangeText={setAmount}
-            placeholder="Amount"
+            placeholder={t('finance.subscriptionAmountPlaceholder')}
             placeholderTextColor={theme.textMuted}
             keyboardType="decimal-pad"
             className="mb-3 rounded-xl border px-4 py-3 text-sm font-semibold"
@@ -164,7 +171,7 @@ export function SubscriptionsSection({ subscriptions, onCreated }: Subscriptions
                   className="text-center text-xs font-bold capitalize"
                   style={{ color: cycle === item ? theme.textPrimary : theme.textMuted }}
                 >
-                  {item}
+                  {item === 'monthly' ? t('finance.month') : t('finance.yearly')}
                 </Text>
               </Pressable>
             ))}
@@ -178,7 +185,7 @@ export function SubscriptionsSection({ subscriptions, onCreated }: Subscriptions
             {isSaving ? (
               <ActivityIndicator color={theme.textPrimary} />
             ) : (
-              <Text className="font-bold text-ethereal-ink">Save Subscription</Text>
+              <Text className="font-bold text-ethereal-ink">{t('finance.saveSubscription')}</Text>
             )}
           </Pressable>
         </View>

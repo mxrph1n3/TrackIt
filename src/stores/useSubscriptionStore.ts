@@ -3,6 +3,13 @@ import { create } from 'zustand';
 import { isAppFullyFree } from '../constants/appAccess';
 import { IS_WEB } from '../lib/platform/constants';
 import {
+  canUseAndroidTrial,
+  ensureAndroidTrialStarted,
+  loadAndroidTrialStatus,
+  markAndroidTrialExpiredPrompted,
+  shouldPromptAndroidTrialExpired,
+} from '../lib/subscription/androidTrialService';
+import {
   configureSubscriptionService,
   fetchSubscriptionOfferings,
   fetchSubscriptionStatus,
@@ -18,6 +25,10 @@ import {
   syncTmaAccess,
 } from '../lib/subscription/tmaAccessService';
 import { openTelegramStarsInvoice } from '../lib/telegram/starsPayment';
+import {
+  EMPTY_ANDROID_TRIAL,
+  type AndroidTrialStatus,
+} from '../types/androidTrial';
 import type {
   SubscriptionOfferings,
   SubscriptionProductId,
@@ -34,6 +45,9 @@ type SubscriptionState = {
   offerings: SubscriptionOfferings;
   tmaAccess: TmaAccessStatus;
   tmaAccessReady: boolean;
+  androidTrial: AndroidTrialStatus;
+  /** One-shot soft paywall after Android trial expires. */
+  trialExpiredPromptPending: boolean;
   devProOverride: boolean;
   initialize: (userId: string | null) => Promise<void>;
   refresh: () => Promise<void>;
@@ -41,6 +55,7 @@ type SubscriptionState = {
   purchase: (productId: SubscriptionProductId) => Promise<boolean>;
   purchaseWithStars: () => Promise<boolean>;
   restore: () => Promise<boolean>;
+  consumeTrialExpiredPrompt: () => void;
   setDevProOverride: (enabled: boolean) => void;
   clearError: () => void;
 };
@@ -67,6 +82,8 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   offerings: DEFAULT_OFFERINGS,
   tmaAccess: EMPTY_TMA_ACCESS,
   tmaAccessReady: false,
+  androidTrial: EMPTY_ANDROID_TRIAL,
+  trialExpiredPromptPending: false,
   devProOverride: false,
 
   initialize: async (userId) => {
@@ -83,6 +100,8 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
           canUseNotifications: true,
         },
         tmaAccessReady: !canSyncTmaAccess() || Boolean(userId),
+        androidTrial: EMPTY_ANDROID_TRIAL,
+        trialExpiredPromptPending: false,
         isReady: true,
         isLoading: false,
         error: null,
@@ -96,17 +115,22 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
       await configureSubscriptionService(userId);
       await syncSubscriptionUser(userId);
 
-      const [status, offerings, tmaAccess] = await Promise.all([
-        fetchSubscriptionStatus(),
-        fetchSubscriptionOfferings(),
-        userId && canSyncTmaAccess() ? syncTmaAccess() : Promise.resolve(EMPTY_TMA_ACCESS),
-      ]);
+      const [status, offerings, tmaAccess, androidTrial, shouldPromptExpired] =
+        await Promise.all([
+          fetchSubscriptionStatus(),
+          fetchSubscriptionOfferings(),
+          userId && canSyncTmaAccess() ? syncTmaAccess() : Promise.resolve(EMPTY_TMA_ACCESS),
+          canUseAndroidTrial() ? ensureAndroidTrialStarted() : Promise.resolve(EMPTY_ANDROID_TRIAL),
+          canUseAndroidTrial() ? shouldPromptAndroidTrialExpired() : Promise.resolve(false),
+        ]);
 
       set({
         status,
         offerings,
         tmaAccess,
         tmaAccessReady: !canSyncTmaAccess() || Boolean(userId),
+        androidTrial,
+        trialExpiredPromptPending: !status.isPro && shouldPromptExpired,
         isReady: true,
       });
 
@@ -142,12 +166,22 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     }
 
     try {
-      const [status, offerings, tmaAccess] = await Promise.all([
+      const [status, offerings, tmaAccess, androidTrial] = await Promise.all([
         fetchSubscriptionStatus(),
         fetchSubscriptionOfferings(),
         canSyncTmaAccess() ? syncTmaAccess() : Promise.resolve(get().tmaAccess),
+        canUseAndroidTrial() ? loadAndroidTrialStatus() : Promise.resolve(EMPTY_ANDROID_TRIAL),
       ]);
-      set({ status, offerings, tmaAccess, error: null, tmaAccessReady: true });
+      set({
+        status,
+        offerings,
+        tmaAccess,
+        androidTrial,
+        trialExpiredPromptPending:
+          status.isPro || !androidTrial.isExpired ? false : get().trialExpiredPromptPending,
+        error: null,
+        tmaAccessReady: true,
+      });
     } catch (error) {
       console.warn('[SubscriptionStore] refresh failed:', error);
       set({
@@ -177,7 +211,11 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
     try {
       const status = await purchaseSubscriptionProduct(productId);
-      set({ status, isPurchasing: false });
+      set({
+        status,
+        isPurchasing: false,
+        trialExpiredPromptPending: status.isPro ? false : get().trialExpiredPromptPending,
+      });
       if (status.isPro) {
         void syncProStatusToServer();
       }
@@ -212,6 +250,7 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
             expirationDate: tmaAccess.proExpiresAt,
           },
           isPurchasing: false,
+          trialExpiredPromptPending: false,
         });
         return true;
       }
@@ -244,7 +283,13 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     try {
       const status = await restoreSubscriptionPurchases();
       const tmaAccess = canSyncTmaAccess() ? await syncTmaAccess() : get().tmaAccess;
-      set({ status, tmaAccess, isPurchasing: false, tmaAccessReady: true });
+      set({
+        status,
+        tmaAccess,
+        isPurchasing: false,
+        tmaAccessReady: true,
+        trialExpiredPromptPending: status.isPro ? false : get().trialExpiredPromptPending,
+      });
       if (status.isPro) {
         void syncProStatusToServer();
       }
@@ -258,10 +303,19 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     }
   },
 
+  consumeTrialExpiredPrompt: () => {
+    void markAndroidTrialExpiredPrompted();
+    set({ trialExpiredPromptPending: false });
+  },
+
   setDevProOverride: (enabled) => set({ devProOverride: enabled }),
 
   clearError: () => set({ error: null }),
 }));
+
+function selectHasAndroidTrialAccess(state: SubscriptionState): boolean {
+  return canUseAndroidTrial() && state.androidTrial.isInTrial && !state.status.isPro;
+}
 
 export function selectIsPro(state: SubscriptionState): boolean {
   if (isAppFullyFree()) {
@@ -273,10 +327,13 @@ export function selectIsPro(state: SubscriptionState): boolean {
   if (IS_WEB && state.tmaAccess.hasFullAccess) {
     return true;
   }
+  if (selectHasAndroidTrialAccess(state)) {
+    return true;
+  }
   return state.status.isPro;
 }
 
-/** Paid Pro (Stars / store) — excludes TMA trial-only access so users can subscribe early. */
+/** Paid Pro — excludes trial-only so users can subscribe early. */
 export function selectHasPaidPro(state: SubscriptionState): boolean {
   if (isAppFullyFree()) {
     return true;
@@ -294,6 +351,10 @@ export function selectHasPaidPro(state: SubscriptionState): boolean {
     return state.status.isPro;
   }
   return state.status.isPro;
+}
+
+export function selectAndroidTrial(state: SubscriptionState): AndroidTrialStatus {
+  return state.androidTrial;
 }
 
 export function selectCanUseNotifications(state: SubscriptionState): boolean {

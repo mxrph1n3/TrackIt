@@ -1,5 +1,6 @@
 import { ChevronLeft } from 'lucide-react-native';
 import type { PropsWithChildren } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 
@@ -12,6 +13,7 @@ type ScreenHeaderProps = PropsWithChildren<{
 }>;
 
 export function ScreenHeader({ title, subtitle, onBack, children }: ScreenHeaderProps) {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { theme } = useTheme();
 
@@ -24,7 +26,7 @@ export function ScreenHeader({ title, subtitle, onBack, children }: ScreenHeader
             className="mr-3 h-10 w-10 items-center justify-center rounded-full active:opacity-80"
             style={{ backgroundColor: `${theme.primary}18` }}
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={t('common.goBack')}
           >
             <ChevronLeft color={theme.primary} size={22} strokeWidth={2.5} />
           </Pressable>
@@ -35,7 +37,7 @@ export function ScreenHeader({ title, subtitle, onBack, children }: ScreenHeader
             className="text-[11px] font-bold uppercase tracking-[2px]"
             style={{ color: theme.textMuted }}
           >
-            {subtitle ?? 'Profile Module'}
+            {subtitle ?? t('common.profileModule')}
           </Text>
           <Text className="mt-1 text-2xl font-black" style={{ color: theme.textPrimary }}>
             {title}

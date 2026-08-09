@@ -5,6 +5,7 @@ import { useTasksSyncStore } from '../../stores/useTasksSyncStore';
 import type { NewTaskDraft } from '../../types/planner';
 import { toDayKey } from '../../utils/plannerDates';
 import { insertSubtask } from './subtaskService';
+import { i18n } from '../../i18n';
 
 export async function createPlannerTask(draft: NewTaskDraft): Promise<void> {
   const title = draft.title.trim();
@@ -33,5 +34,5 @@ export async function createPlannerTask(draft: NewTaskDraft): Promise<void> {
   }
 
   useTasksSyncStore.getState().notifyTaskMutation();
-  reportSyncSuccess('Task added.');
+  reportSyncSuccess(i18n.t('toasts.taskAdded'));
 }

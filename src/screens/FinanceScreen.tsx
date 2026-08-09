@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshControl, View } from 'react-native';
 
 import { FinanceTipsCard } from '../components/finance/FinanceTipsCard';
@@ -31,6 +32,7 @@ import type { TransactionType } from '../types/finance';
 import { useTheme } from '../theme/ThemeContext';
 
 export function FinanceScreen() {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const insets = useAppSafeAreaInsets();
   const closeModule = useProfileModuleStore((s) => s.closeModule);
@@ -44,7 +46,7 @@ export function FinanceScreen() {
     setIsPullRefreshing(true);
     void refresh()
       .catch((error) => {
-        reportSyncError('Finance', error, 'Could not refresh finances.');
+        reportSyncError('Finance', error, t('toasts.financeRefreshError'));
       })
       .finally(() => {
         setIsPullRefreshing(false);
@@ -52,13 +54,17 @@ export function FinanceScreen() {
   }, [refresh]);
 
   const handleTransactionSuccess = useCallback(() => {
-    reportSyncSuccess('Transaction saved.');
+    reportSyncSuccess(t('toasts.transactionSaved'));
     handleRefresh();
   }, [handleRefresh]);
 
   return (
     <IsolatedScreenShell>
-      <ScreenHeader title="FINANCES" subtitle="Personal Wealth OS" onBack={closeModule} />
+      <ScreenHeader
+        title={t('finance.title')}
+        subtitle={t('finance.subtitle')}
+        onBack={closeModule}
+      />
 
       <IsolatedScrollView
         contentContainerStyle={{ paddingBottom: 16 }}
@@ -96,7 +102,7 @@ export function FinanceScreen() {
           onClearCategoryFilter={() => setCategoryFilter(null)}
         />
 
-        <ExpandableSection title="Subscriptions" subtitle="Recurring payments">
+        <ExpandableSection title={t('finance.subscriptions')} subtitle={t('finance.recurringPayments')}>
           <SubscriptionsSection
             subscriptions={data.subscriptions}
             total={data.subscriptionsTotal}
@@ -104,7 +110,7 @@ export function FinanceScreen() {
           />
         </ExpandableSection>
 
-        <ExpandableSection title="Savings Goals" subtitle="Boss roster">
+        <ExpandableSection title={t('finance.savingsGoals')} subtitle={t('finance.bossRoster')}>
           <SavingsGoalsSection goals={data.goals} onCreated={handleRefresh} />
         </ExpandableSection>
 

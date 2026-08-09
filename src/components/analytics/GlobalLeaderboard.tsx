@@ -1,6 +1,8 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -40,9 +42,11 @@ function formatXp(xp: number): string {
   return xp.toLocaleString('en-US');
 }
 
-function formatRankPlacement(rank: number, total: number): string {
-  const formattedTotal = total.toLocaleString('en-US');
-  return `#${rank.toLocaleString('en-US')} out of ${formattedTotal} users`;
+function formatRankPlacement(rank: number, total: number, t: TFunction): string {
+  return t('analytics.rankOutOf', {
+    rank: rank.toLocaleString('en-US'),
+    total: total.toLocaleString('en-US'),
+  });
 }
 
 function tierGlowStyle(theme: DashboardTierTheme, intensity: 'soft' | 'strong' = 'soft'): ViewStyle {
@@ -201,6 +205,7 @@ export function CurrentUserRankCard({
   isLoading: boolean;
   error: string | null;
 }) {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
   const mutedColor = isDark ? SILVER_DARK : SILVER_LIGHT;
 
@@ -209,7 +214,7 @@ export function CurrentUserRankCard({
       <LeaderboardGlassCard variant="hero">
         <View className="items-center justify-center gap-3 px-5 py-8">
           <ActivityIndicator color={theme.primary} size="small" />
-          <Text style={{ fontSize: 14, fontWeight: '500', color: mutedColor }}>Loading your rank…</Text>
+          <Text style={{ fontSize: 14, fontWeight: '500', color: mutedColor }}>{t('common.loading')}</Text>
         </View>
       </LeaderboardGlassCard>
     );
@@ -229,7 +234,7 @@ export function CurrentUserRankCard({
               color: theme.textPrimary,
             }}
           >
-            Sign in to compete globally
+            {t('analytics.syncRank')}
           </Text>
           <Text
             style={{
@@ -240,7 +245,7 @@ export function CurrentUserRankCard({
               color: mutedColor,
             }}
           >
-            {error ?? 'Your rank and XP progress will appear here once your profile syncs.'}
+            {error ?? t('analytics.rankSyncHint')}
           </Text>
         </View>
       </LeaderboardGlassCard>
@@ -290,7 +295,7 @@ export function CurrentUserRankCard({
               color: mutedColor,
             }}
           >
-            Global Placement
+            {t('analytics.globalPlacement')}
           </Text>
           <Text
             style={{
@@ -301,7 +306,7 @@ export function CurrentUserRankCard({
               color: theme.textPrimary,
             }}
           >
-            {formatRankPlacement(rank_position, total_users)}
+            {formatRankPlacement(rank_position, total_users, t)}
           </Text>
         </View>
 
@@ -315,7 +320,7 @@ export function CurrentUserRankCard({
               textShadowRadius: 12,
             }}
           >
-            LVL {profile.level}
+            {t('analytics.levelShort', { level: profile.level })}
           </Text>
           <XpProgressTrack percent={xpProgress.percent} accentColor={tierTheme.primary} />
           <Text
@@ -329,7 +334,7 @@ export function CurrentUserRankCard({
               color: mutedColor,
             }}
           >
-            {formatXp(xpRemaining)} XP to next level
+            {formatXp(xpRemaining)} {t('analytics.xpToNext')}
           </Text>
         </View>
       </View>
@@ -439,6 +444,7 @@ type GlobalLeaderboardProps = {
 };
 
 export function GlobalLeaderboard({ bottomInset = 32 }: GlobalLeaderboardProps) {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
   const mutedColor = isDark ? SILVER_DARK : SILVER_LIGHT;
   const { topUsers, currentUser, isLoading, error, refresh } = useLeaderboard();
@@ -478,7 +484,7 @@ export function GlobalLeaderboard({ bottomInset = 32 }: GlobalLeaderboardProps) 
           onRefresh={() => void handleRefresh()}
           tintColor={theme.primary}
           colors={[theme.primary]}
-          title="Pull to refresh ranks"
+          title={t('analytics.pullToRefresh')}
           titleColor={mutedColor}
         />
       }
@@ -495,7 +501,7 @@ export function GlobalLeaderboard({ bottomInset = 32 }: GlobalLeaderboardProps) 
               color: mutedColor,
             }}
           >
-            Global Leaderboard
+            {t('analytics.globalLeaderboard')}
           </Text>
           <CurrentUserRankCard
             currentUser={currentUser}
@@ -512,7 +518,7 @@ export function GlobalLeaderboard({ bottomInset = 32 }: GlobalLeaderboardProps) 
               color: theme.textPrimary,
             }}
           >
-            Top 50 Worldwide
+            {t('analytics.topWorldwide')}
           </Text>
           {error ? (
             <Text className="text-xs font-medium text-red-400">{error}</Text>
@@ -533,7 +539,7 @@ export function GlobalLeaderboard({ bottomInset = 32 }: GlobalLeaderboardProps) 
                   color: theme.textPrimary,
                 }}
               >
-                No ranked players yet
+                {t('analytics.emptyTitle')}
               </Text>
               <Text
                 style={{
@@ -544,7 +550,7 @@ export function GlobalLeaderboard({ bottomInset = 32 }: GlobalLeaderboardProps) 
                   color: mutedColor,
                 }}
               >
-                Be the first to earn XP and claim the top spot.
+                {t('analytics.emptyBody')}
               </Text>
             </View>
           </LeaderboardGlassCard>

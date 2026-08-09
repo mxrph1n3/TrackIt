@@ -1,7 +1,9 @@
 import { Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Svg, { Circle, G } from 'react-native-svg';
 
 import type { ExpenseCategoryStat } from '../../types/finance';
+import { tFinanceCategory } from '../../i18n/helpers';
 
 type ExpensePieChartProps = {
   data: ExpenseCategoryStat[];
@@ -9,6 +11,7 @@ type ExpensePieChartProps = {
 };
 
 export function ExpensePieChart({ data, size = 168 }: ExpensePieChartProps) {
+  const { t } = useTranslation();
   const radius = size / 2 - 8;
   const cx = size / 2;
   const cy = size / 2;
@@ -50,7 +53,7 @@ export function ExpensePieChart({ data, size = 168 }: ExpensePieChartProps) {
                 className="h-2.5 w-2.5 rounded-full"
                 style={{ backgroundColor: segment.color }}
               />
-              <Text className="text-sm text-ethereal-ink">{segment.name}</Text>
+              <Text className="text-sm text-ethereal-ink">{tFinanceCategory(t, segment.id, segment.name)}</Text>
             </View>
             <Text className="text-sm font-semibold text-ethereal-slate">
               {segment.percentage}%

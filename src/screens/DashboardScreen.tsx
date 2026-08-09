@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   RefreshControl,
   ScrollView,
@@ -19,6 +20,7 @@ import { useSideDrawerStore } from '../stores/useSideDrawerStore';
 import { getScreenHorizontalPadding } from '../theme/screenLayout';
 
 export function DashboardScreen() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const openDrawer = useSideDrawerStore((s) => s.open);
@@ -62,7 +64,7 @@ export function DashboardScreen() {
             refreshing={isLoading}
             onRefresh={handleRefresh}
             tintColor="#775DD8"
-            title="Syncing profile..."
+            title={t('dashboard.syncing')}
             titleColor="#7F7D9C"
           />
         }

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { HabitHeatmapRow } from '../../../types/statisticsOverview';
@@ -23,6 +24,7 @@ export function HabitCompletionHeatmap({
   weekLabels: string[];
   rows: HabitHeatmapRow[];
 }) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const cellSize = 22;
   const gap = 6;
@@ -100,7 +102,7 @@ export function HabitCompletionHeatmap({
     <StatisticsPremiumCard>
       <StatisticsCardBlur />
       <View style={styles.header}>
-        <Text style={styles.kicker}>Habit Completion Heatmap</Text>
+        <Text style={styles.kicker}>{t('analytics.habitHeatmap')}</Text>
         <Text style={styles.range}>{rangeLabel}</Text>
       </View>
 
@@ -147,11 +149,11 @@ export function HabitCompletionHeatmap({
 
       <View style={styles.legend}>
         <View style={[styles.legendSwatch, { backgroundColor: 'rgba(119, 93, 216, 0.12)' }]} />
-        <Text style={styles.legendText}>Low</Text>
+        <Text style={styles.legendText}>{t('analytics.low')}</Text>
         <View style={[styles.legendSwatch, { backgroundColor: 'rgba(129, 140, 248, 0.55)' }]} />
-        <Text style={styles.legendText}>Moderate</Text>
+        <Text style={styles.legendText}>{t('analytics.moderate')}</Text>
         <View style={[styles.legendSwatch, { backgroundColor: BRAND.primary }]} />
-        <Text style={styles.legendText}>Complete</Text>
+        <Text style={styles.legendText}>{t('analytics.complete')}</Text>
       </View>
     </StatisticsPremiumCard>
   );

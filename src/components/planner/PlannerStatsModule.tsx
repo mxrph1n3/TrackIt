@@ -1,6 +1,7 @@
 import { BarChart3, Flame, Sparkles } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
@@ -10,9 +11,11 @@ import { navigateTab } from '../../navigation/navigationRef';
 import { BRAND } from '../../theme/designTokens';
 import { PlannerPremiumCard } from './PlannerPremiumCard';
 import { PlannerSectionHeader } from './PlannerSectionHeader';
-import { PLANNER_COPY } from './plannerTheme';
+import { usePlannerCopy } from './plannerTheme';
 
 export function PlannerStatsModule() {
+  const { t } = useTranslation();
+  const copy = usePlannerCopy();
   const { styles: plannerStyles, theme, surfaces, isDark } = usePlannerTheme();
   const { level, xpProgress, profileStats } = useProgression();
   const streakDays = useHealthStore((s) => s.lifetimeStats.streakDays);
@@ -75,28 +78,28 @@ export function PlannerStatsModule() {
       <PlannerPremiumCard>
         <View style={plannerStyles.moduleInner}>
           <PlannerSectionHeader
-            title={PLANNER_COPY.stats}
-            subtitle={`Level ${level} · ${profileStats.username}`}
-            actionLabel={PLANNER_COPY.open}
+            title={copy.stats}
+            subtitle={`${t('common.level')} ${level} · ${profileStats.username}`}
+            actionLabel={copy.open}
             onAction={() => navigateTab('Analytics')}
           />
 
           <View style={styles.grid}>
             <StatTile
               icon={<Sparkles color={BRAND.primary} size={16} />}
-              label="XP"
+              label={t('common.xp')}
               value={`${xpProgress.currentXp} / ${xpProgress.requiredXp}`}
               styles={styles}
             />
             <StatTile
               icon={<Flame color={BRAND.primaryLight} size={16} />}
-              label="Streak"
-              value={`${streakDays} days`}
+              label={t('common.streak')}
+              value={`${streakDays} ${t('common.days').toLowerCase()}`}
               styles={styles}
             />
             <StatTile
               icon={<BarChart3 color={BRAND.accent} size={16} />}
-              label="Workouts"
+              label={t('common.workouts')}
               value={String(totalWorkouts)}
               styles={styles}
             />
@@ -106,7 +109,7 @@ export function PlannerStatsModule() {
             <View style={[styles.progressFill, { width: `${xpProgress.percent}%` }]} />
           </View>
           <Text style={styles.progressCaption}>
-            Progress to level {level + 1} · heatmaps and charts in Analytics
+            {t('planner.empty.stats')}
           </Text>
         </View>
       </PlannerPremiumCard>

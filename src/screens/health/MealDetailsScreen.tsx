@@ -1,22 +1,33 @@
 import { Plus } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useMemo } from 'react';
 
-import { getMealById, getMealInstructions, SLOT_LABELS } from '../../constants/meals';
+import { getMealById, getMealInstructions } from '../../constants/meals';
 import { resolveMealSlot } from '../../constants/mealSlots';
 import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useHealthNavigation } from '../../hooks/useHealthNavigation';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
 import { useTodayNutrition } from '../../hooks/useTodayNutrition';
+import { tMealName } from '../../i18n/helpers';
 import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBarStyles';
 import type { HealthStackParamList } from '../../navigation/healthTypes';
 import { HealthScreenHeader } from '../../components/health/ui/HealthScreenHeader';
 import { PremiumCard } from '../../components/health/ui/PremiumCard';
 import { useHealthStore } from '../../stores/useHealthStore';
 
+const SLOT_TYPE_KEYS: Record<string, 'breakfast' | 'lunch' | 'dinner' | 'snacks' | 'eveningSnack'> = {
+  breakfast: 'breakfast',
+  lunch: 'lunch',
+  dinner: 'dinner',
+  snack: 'snacks',
+  evening_snack: 'eveningSnack',
+};
+
 export function MealDetailsScreen() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const { pop } = useHealthNavigation();
@@ -33,21 +44,21 @@ export function MealDetailsScreen() {
   const isPreview = Boolean(previewMealId);
   const instructions = meal ? getMealInstructions(meal.meal_id) : [];
 
-  const styles = useHealthStyles((t) => ({
-    root: { flex: 1, backgroundColor: t.background },
+  const styles = useHealthStyles((ht) => ({
+    root: { flex: 1, backgroundColor: ht.background },
     content: { paddingHorizontal: 20 },
-    empty: { color: t.slate, textAlign: 'center', marginTop: 24 },
+    empty: { color: ht.slate, textAlign: 'center', marginTop: 24 },
     mealName: {
       fontSize: 28,
       fontWeight: '900',
-      color: t.ink,
+      color: ht.ink,
       letterSpacing: -0.4,
     },
     calories: {
       marginTop: 8,
       fontSize: 18,
       fontWeight: '700',
-      color: t.accent,
+      color: ht.accent,
     },
     macroRow: {
       flexDirection: 'row',
@@ -59,7 +70,7 @@ export function MealDetailsScreen() {
       fontWeight: '700',
       letterSpacing: 2,
       textTransform: 'uppercase',
-      color: t.slate,
+      color: ht.slate,
       marginTop: 20,
       marginBottom: 12,
       paddingHorizontal: 4,
@@ -69,12 +80,12 @@ export function MealDetailsScreen() {
       fontWeight: '700',
       letterSpacing: 2,
       textTransform: 'uppercase',
-      color: t.slate,
+      color: ht.slate,
       marginBottom: 12,
     },
     ingredient: {
       fontSize: 15,
-      color: t.ink,
+      color: ht.ink,
       marginBottom: 8,
       textTransform: 'capitalize',
     },
@@ -87,7 +98,7 @@ export function MealDetailsScreen() {
       width: 28,
       height: 28,
       borderRadius: 14,
-      backgroundColor: t.accentSoft,
+      backgroundColor: ht.accentSoft,
       alignItems: 'center',
       justifyContent: 'center',
       flexShrink: 0,
@@ -95,19 +106,19 @@ export function MealDetailsScreen() {
     stepNumberText: {
       fontSize: 13,
       fontWeight: '800',
-      color: t.accent,
+      color: ht.accent,
     },
     stepText: {
       flex: 1,
       fontSize: 15,
       lineHeight: 22,
-      color: t.ink,
+      color: ht.ink,
     },
     addHeaderBtn: {
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: t.accent,
+      backgroundColor: ht.accent,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -115,13 +126,13 @@ export function MealDetailsScreen() {
 
   const headerTitle = useMemo(() => {
     if (isPreview) {
-      return 'Meal';
+      return t('nutrition.meal');
     }
-    if (mealSlot) {
-      return SLOT_LABELS[mealSlot];
+    if (mealSlot && SLOT_TYPE_KEYS[mealSlot]) {
+      return t(`nutrition.mealTypes.${SLOT_TYPE_KEYS[mealSlot]}`);
     }
-    return 'Meal';
-  }, [isPreview, mealSlot]);
+    return t('nutrition.meal');
+  }, [isPreview, mealSlot, t]);
 
   const handleAdd = () => {
     if (!meal) {
@@ -135,11 +146,13 @@ export function MealDetailsScreen() {
   if (!meal) {
     return (
       <View style={[styles.root, { paddingTop: insets.top + 8, paddingHorizontal: 20 }]}>
-        <HealthScreenHeader title="Meal" onBack={pop} />
-        <Text style={styles.empty}>Meal not found.</Text>
+        <HealthScreenHeader title={t('nutrition.meal')} onBack={pop} />
+        <Text style={styles.empty}>{t('health.mealNotFound')}</Text>
       </View>
     );
   }
+
+  const localizedName = tMealName(t, meal.meal_id, meal.name);
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
@@ -156,7 +169,7 @@ export function MealDetailsScreen() {
                 onPress={handleAdd}
                 style={styles.addHeaderBtn}
                 accessibilityRole="button"
-                accessibilityLabel={`Add ${meal.name}`}
+                accessibilityLabel={t('nutrition.addMealA11y', { name: localizedName })}
               >
                 <Plus color={healthTheme.ink} size={18} strokeWidth={2.5} />
               </Pressable>
@@ -164,18 +177,20 @@ export function MealDetailsScreen() {
           }
         />
 
-        <Text style={styles.mealName}>{meal.name}</Text>
-        <Text style={styles.calories}>{meal.macros.calories} kcal</Text>
+        <Text style={styles.mealName}>{localizedName}</Text>
+        <Text style={styles.calories}>
+          {meal.macros.calories} {t('common.kcal')}
+        </Text>
 
         <PremiumCard>
           <View style={styles.macroRow}>
-            <MacroPill label="Protein" value={`${meal.macros.protein}g`} />
-            <MacroPill label="Fat" value={`${meal.macros.fat}g`} />
-            <MacroPill label="Carbs" value={`${meal.macros.carbs}g`} />
+            <MacroPill label={t('common.protein')} value={`${meal.macros.protein}g`} />
+            <MacroPill label={t('common.fat')} value={`${meal.macros.fat}g`} />
+            <MacroPill label={t('common.carbs')} value={`${meal.macros.carbs}g`} />
           </View>
         </PremiumCard>
 
-        <Text style={styles.sectionTitle}>How to prepare</Text>
+        <Text style={styles.sectionTitle}>{t('nutrition.howToPrepare')}</Text>
         <PremiumCard>
           {instructions.map((step, index) => (
             <View key={`${meal.meal_id}-step-${index}`} style={styles.stepRow}>
@@ -187,7 +202,7 @@ export function MealDetailsScreen() {
           ))}
         </PremiumCard>
 
-        <Text style={styles.sectionTitle}>Ingredients</Text>
+        <Text style={styles.sectionTitle}>{t('nutrition.ingredients')}</Text>
         <PremiumCard>
           {meal.ingredients.map((ing) => (
             <Text key={ing.id} style={styles.ingredient}>
@@ -196,13 +211,13 @@ export function MealDetailsScreen() {
           ))}
         </PremiumCard>
 
-        <Text style={styles.sectionTitle}>Details</Text>
+        <Text style={styles.sectionTitle}>{t('nutrition.details')}</Text>
         <PremiumCard>
-          <Text style={styles.sectionKicker}>Nutrition Facts</Text>
-          <FactRow label="Prep time" value={`${meal.prep_time} min`} />
-          <FactRow label="Cuisine" value={meal.cuisine} />
-          <FactRow label="Tier" value={meal.tier} />
-          <FactRow label="Category" value={meal.category} />
+          <Text style={styles.sectionKicker}>{t('nutrition.nutritionFacts')}</Text>
+          <FactRow label={t('nutrition.prepTime')} value={`${meal.prep_time} min`} />
+          <FactRow label={t('nutrition.cuisine')} value={meal.cuisine} />
+          <FactRow label={t('nutrition.tier')} value={meal.tier} />
+          <FactRow label={t('nutrition.category')} value={meal.category} />
         </PremiumCard>
       </ScrollView>
     </View>
@@ -210,10 +225,10 @@ export function MealDetailsScreen() {
 }
 
 function MacroPill({ label, value }: { label: string; value: string }) {
-  const styles = useHealthStyles((t) => ({
+  const styles = useHealthStyles((ht) => ({
     pill: {
       flex: 1,
-      backgroundColor: t.accentSoft,
+      backgroundColor: ht.accentSoft,
       borderRadius: 12,
       padding: 10,
       alignItems: 'center',
@@ -221,13 +236,13 @@ function MacroPill({ label, value }: { label: string; value: string }) {
     pillLabel: {
       fontSize: 10,
       fontWeight: '700',
-      color: t.slate,
+      color: ht.slate,
     },
     pillValue: {
       marginTop: 2,
       fontSize: 15,
       fontWeight: '800',
-      color: t.ink,
+      color: ht.ink,
     },
   }));
 
@@ -240,16 +255,16 @@ function MacroPill({ label, value }: { label: string; value: string }) {
 }
 
 function FactRow({ label, value }: { label: string; value: string }) {
-  const styles = useHealthStyles((t) => ({
+  const styles = useHealthStyles((ht) => ({
     factRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       paddingVertical: 8,
       borderBottomWidth: 1,
-      borderBottomColor: t.cardBorder,
+      borderBottomColor: ht.cardBorder,
     },
-    factLabel: { color: t.slate, fontSize: 14 },
-    factValue: { color: t.ink, fontSize: 14, fontWeight: '600', textTransform: 'capitalize' },
+    factLabel: { color: ht.slate, fontSize: 14 },
+    factValue: { color: ht.ink, fontSize: 14, fontWeight: '600', textTransform: 'capitalize' },
   }));
 
   return (

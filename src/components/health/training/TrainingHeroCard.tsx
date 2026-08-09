@@ -1,12 +1,17 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Play } from 'lucide-react-native';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useHealthAssets } from '../../../lib/healthAssets';
 import { getImageScrim } from '../../../lib/themeAssets';
-import { formatMuscleGroups } from '../../../lib/health/workoutDashboard';
 import { useHealthNavigation } from '../../../hooks/useHealthNavigation';
 import { useHealthTheme } from '../../../hooks/useHealthTheme';
+import {
+  tMuscleGroups,
+  tProgramNote,
+  tWorkoutProgramDay,
+} from '../../../i18n/helpers';
 import { useHealthStore, useTodayWorkoutPreview } from '../../../stores/useHealthStore';
 import { useCurrentProgramDay } from '../../../stores/useHealthStore';
 import { HealthPrimaryButton } from '../ui/HealthPrimaryButton';
@@ -14,14 +19,20 @@ import { PremiumCard } from '../ui/PremiumCard';
 import { useTheme } from '../../../theme/ThemeContext';
 
 export function TrainingHeroCard() {
+  const { t } = useTranslation();
   const { focusName, exerciseCount, estimatedMinutes } = useTodayWorkoutPreview();
   const openWorkoutGoalPicker = useHealthStore((s) => s.openWorkoutGoalPicker);
+  const trackId = useHealthStore((s) => s.selectedTrackId);
   const { push } = useHealthNavigation();
   const programDay = useCurrentProgramDay();
   const { isDark } = useTheme();
   const { workoutHero } = useHealthAssets();
   const healthTheme = useHealthTheme();
   const heroScrim = getImageScrim(isDark ? 'obsidian' : 'ethereal', 'vertical');
+  const localizedFocus =
+    programDay != null
+      ? tWorkoutProgramDay(t, trackId, programDay.weekNumber, programDay.dayNumber, focusName)
+      : focusName;
 
   return (
     <PremiumCard onPress={() => push('WorkoutDetails')} padding={0} style={styles.card}>
@@ -39,15 +50,18 @@ export function TrainingHeroCard() {
           style={styles.heroGradient}
         >
           <View style={styles.copy}>
-            <Text style={[styles.kicker, { color: healthTheme.slate }]}>Today&apos;s Workout</Text>
-            <Text style={[styles.title, { color: healthTheme.ink }]}>{focusName}</Text>
-            <Text style={[styles.muscles, { color: healthTheme.slate }]}>{formatMuscleGroups(focusName)}</Text>
+            <Text style={[styles.kicker, { color: healthTheme.slate }]}>{t('health.todaysWorkout')}</Text>
+            <Text style={[styles.title, { color: healthTheme.ink }]}>{localizedFocus}</Text>
+            <Text style={[styles.muscles, { color: healthTheme.slate }]}>
+              {tMuscleGroups(t, focusName)}
+            </Text>
             <Text style={[styles.meta, { color: healthTheme.muted }]}>
-              {exerciseCount} exercises · ~{estimatedMinutes} min
+              {exerciseCount} {t('health.exercises').toLowerCase()} · ~{estimatedMinutes}{' '}
+              {t('common.min')}
             </Text>
             <View style={styles.ctaWrap}>
               <HealthPrimaryButton
-                label="Start Workout"
+                label={t('health.startWorkout')}
                 icon={<Play color={healthTheme.ink} size={18} fill={healthTheme.ink} />}
                 onPress={() => openWorkoutGoalPicker()}
               />
@@ -58,7 +72,9 @@ export function TrainingHeroCard() {
 
       {programDay?.notes?.[0] ? (
         <View style={[styles.note, { borderTopColor: healthTheme.cardBorder, backgroundColor: healthTheme.card }]}>
-          <Text style={[styles.noteText, { color: healthTheme.slate }]}>{programDay.notes[0]}</Text>
+          <Text style={[styles.noteText, { color: healthTheme.slate }]}>
+            {tProgramNote(t, programDay.notes[0])}
+          </Text>
         </View>
       ) : null}
     </PremiumCard>

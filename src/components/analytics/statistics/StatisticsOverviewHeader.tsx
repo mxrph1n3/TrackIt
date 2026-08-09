@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { MenuHeaderButton } from '../../navigation/MenuHeaderButton';
@@ -9,6 +10,7 @@ type StatisticsOverviewHeaderProps = {
 };
 
 export function StatisticsOverviewHeader({ onMenuPress }: StatisticsOverviewHeaderProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
 
   const styles = useMemo(
@@ -43,7 +45,7 @@ export function StatisticsOverviewHeader({ onMenuPress }: StatisticsOverviewHead
     <View style={styles.wrap}>
       <MenuHeaderButton onPress={onMenuPress} size={20} />
 
-      <Text style={styles.title}>Statistics Overview</Text>
+      <Text style={styles.title}>{t('analytics.statisticsOverview')}</Text>
 
       <View style={styles.spacer} />
     </View>

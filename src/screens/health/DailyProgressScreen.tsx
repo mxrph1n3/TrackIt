@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 
 import { HealthProgressBar } from '../../components/health/ui/HealthProgressBar';
@@ -13,6 +14,7 @@ import { useFloatingTabBarStyles } from '../../navigation/hooks/useFloatingTabBa
 import { useHealthStore } from '../../stores/useHealthStore';
 
 export function DailyProgressScreen() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
   const { pop } = useHealthNavigation();
@@ -20,15 +22,15 @@ export function DailyProgressScreen() {
   const bodyStats = useHealthStore((s) => s.bodyStats);
   const { data, isLoading } = useAnalyticsHealth();
   const healthTheme = useHealthTheme();
-  const styles = useHealthStyles((t) => ({
-    root: { flex: 1, backgroundColor: t.background },
+  const styles = useHealthStyles((ht) => ({
+    root: { flex: 1, backgroundColor: ht.background },
     content: { paddingHorizontal: 20 },
     kicker: {
       fontSize: 11,
       fontWeight: '700',
       letterSpacing: 2,
       textTransform: 'uppercase',
-      color: t.slate,
+      color: ht.slate,
       marginBottom: 14,
     },
     spacer: { height: 16 },
@@ -39,7 +41,7 @@ export function DailyProgressScreen() {
     trendValue: {
       fontSize: 24,
       fontWeight: '900',
-      color: t.ink,
+      color: ht.ink,
       marginBottom: 16,
     },
     chart: {
@@ -56,7 +58,7 @@ export function DailyProgressScreen() {
     bar: {
       width: '100%',
       maxWidth: 28,
-      backgroundColor: t.accent,
+      backgroundColor: ht.accent,
       borderRadius: 6,
       minHeight: 8,
     },
@@ -64,18 +66,18 @@ export function DailyProgressScreen() {
       marginTop: 6,
       fontSize: 10,
       fontWeight: '600',
-      color: t.slate,
+      color: ht.slate,
     },
     goalTitle: {
       fontSize: 20,
       fontWeight: '800',
-      color: t.ink,
+      color: ht.ink,
       marginBottom: 8,
     },
     goalBody: {
       fontSize: 14,
       lineHeight: 21,
-      color: t.slate,
+      color: ht.slate,
       fontWeight: '500',
     },
   }));
@@ -90,32 +92,36 @@ export function DailyProgressScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: scrollContentPaddingBottom + 16 }]}
         showsVerticalScrollIndicator={false}
       >
-        <HealthScreenHeader title="Daily Progress" subtitle="Analytics & goals" onBack={pop} />
+        <HealthScreenHeader
+          title={t('nutrition.dailyProgress')}
+          subtitle={t('nutrition.analyticsGoals')}
+          onBack={pop}
+        />
 
         <PremiumCard>
-          <Text style={styles.kicker}>Today</Text>
+          <Text style={styles.kicker}>{t('nutrition.today')}</Text>
           <HealthProgressBar
-            label="Calories"
+            label={t('common.calories')}
             meta={`${consumed.calories} / ${dietPlan.calories}`}
             progress={caloriePercent}
           />
           <View style={styles.spacer} />
           <HealthProgressBar
-            label="Protein"
+            label={t('common.protein')}
             meta={`${Math.round(consumed.protein)} / ${dietPlan.protein_target}g`}
             progress={Math.min(100, (consumed.protein / dietPlan.protein_target) * 100)}
             color={healthTheme.macro.protein}
           />
           <View style={styles.spacer} />
           <HealthProgressBar
-            label="Fat"
+            label={t('common.fat')}
             meta={`${Math.round(consumed.fat)} / ${dietPlan.fat_target}g`}
             progress={Math.min(100, (consumed.fat / dietPlan.fat_target) * 100)}
             color={healthTheme.macro.fat}
           />
           <View style={styles.spacer} />
           <HealthProgressBar
-            label="Carbs"
+            label={t('common.carbs')}
             meta={`${Math.round(consumed.carbs)} / ${dietPlan.carb_target}g`}
             progress={Math.min(100, (consumed.carbs / dietPlan.carb_target) * 100)}
             color={healthTheme.macro.carbs}
@@ -123,7 +129,7 @@ export function DailyProgressScreen() {
         </PremiumCard>
 
         <PremiumCard>
-          <Text style={styles.kicker}>Weekly Trend</Text>
+          <Text style={styles.kicker}>{t('nutrition.weeklyTrend')}</Text>
           {isLoading && !data.isLive ? (
             <View style={styles.loading}>
               <ActivityIndicator color={healthTheme.accent} size="small" />
@@ -131,7 +137,9 @@ export function DailyProgressScreen() {
           ) : (
             <>
               <Text style={styles.trendValue}>
-                {weeklyAvg > 0 ? `${weeklyAvg.toLocaleString()} kcal / day avg` : 'No meals logged this week'}
+                {weeklyAvg > 0
+                  ? `${weeklyAvg.toLocaleString()} ${t('common.kcal')} / day avg`
+                  : t('nutrition.emptyWeek')}
               </Text>
               <View style={styles.chart}>
                 {data.series.map((day) => {
@@ -149,17 +157,19 @@ export function DailyProgressScreen() {
         </PremiumCard>
 
         <PremiumCard>
-          <Text style={styles.kicker}>Body</Text>
-          <Text style={styles.trendValue}>{bodyStats.weightKg.toFixed(1)} kg</Text>
+          <Text style={styles.kicker}>{t('nutrition.body')}</Text>
+          <Text style={styles.trendValue}>
+            {bodyStats.weightKg.toFixed(1)} {t('common.kg')}
+          </Text>
           <Text style={styles.goalBody}>
             {data.hasWeightData && data.weightDelta != null
-              ? `Weekly change: ${data.weightDelta > 0 ? '+' : ''}${data.weightDelta} kg`
-              : 'Log weight from Action Hub to track body trends.'}
+              ? `Weekly change: ${data.weightDelta > 0 ? '+' : ''}${data.weightDelta} ${t('common.kg')}`
+              : t('nutrition.emptyWeight')}
           </Text>
         </PremiumCard>
 
         <PremiumCard>
-          <Text style={styles.kicker}>Goal</Text>
+          <Text style={styles.kicker}>{t('nutrition.goal')}</Text>
           <Text style={styles.goalTitle}>{dietPlan.label}</Text>
           <Text style={styles.goalBody}>
             Stay within {dietPlan.calories} kcal with balanced macros for sustainable progress.

@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedProps,
@@ -77,6 +78,7 @@ export function StatisticsBarChartCard({
   valueFormatter,
   flex,
 }: StatisticsBarChartCardProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const max = Math.max(...data.map((item) => item.value), 1);
   const barGap = 8;
@@ -172,7 +174,7 @@ export function StatisticsBarChartCard({
 
       {valueFormatter && data.length > 0 ? (
         <Text style={styles.peak}>
-          Peak: {valueFormatter(Math.max(...data.map((item) => item.value)))}
+          {t('analytics.peakLabel', { value: valueFormatter(Math.max(...data.map((item) => item.value))) })}
         </Text>
       ) : null}
     </StatisticsPremiumCard>

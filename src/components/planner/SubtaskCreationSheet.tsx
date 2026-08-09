@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Modal,
@@ -27,6 +28,7 @@ export function SubtaskCreationSheet({
   onSubmit,
   preferredTaskId,
 }: SubtaskCreationSheetProps) {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { styles, theme } = usePlannerSheetStyles();
   const userId = useGamificationStore((state) => state.profile?.id);
@@ -93,7 +95,7 @@ export function SubtaskCreationSheet({
       await onSubmit(parentTaskId, trimmed);
       onClose();
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Could not add subtask.');
+      setError(submitError instanceof Error ? submitError.message : t('planner.couldNotAdd'));
     } finally {
       setIsSubmitting(false);
     }
@@ -103,14 +105,14 @@ export function SubtaskCreationSheet({
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
-          <Text style={styles.kicker}>Planner</Text>
-          <Text style={styles.title}>Add Subtask</Text>
+          <Text style={styles.kicker}>{t('planner.title')}</Text>
+          <Text style={styles.title}>{t('planner.addSubtask')}</Text>
 
-          <Text style={styles.label}>Parent task</Text>
+          <Text style={styles.label}>{t('planner.parentTask')}</Text>
           {isLoadingTasks ? (
             <ActivityIndicator color={BRAND.primary} style={{ marginBottom: 16 }} />
           ) : parentTasks.length === 0 ? (
-            <Text style={styles.hint}>No open tasks yet. Create a task first, then add subtasks.</Text>
+            <Text style={styles.hint}>{t('planner.noTasksOpen')}</Text>
           ) : (
             <ScrollView
               horizontal
@@ -134,11 +136,11 @@ export function SubtaskCreationSheet({
             </ScrollView>
           )}
 
-          <Text style={styles.label}>Subtask</Text>
+          <Text style={styles.label}>{t('planner.subtasks')}</Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="What step comes next?"
+            placeholder={t('planner.nextStepPlaceholder')}
             placeholderTextColor={theme.textMuted}
             style={styles.input}
             autoFocus={parentTasks.length > 0}
@@ -151,7 +153,7 @@ export function SubtaskCreationSheet({
 
           <View style={styles.actions}>
             <Pressable onPress={onClose} style={styles.secondaryBtn}>
-              <Text style={styles.secondaryLabel}>Cancel</Text>
+              <Text style={styles.secondaryLabel}>{t('common.cancel')}</Text>
             </Pressable>
             <Pressable
               onPress={() => void handleSubmit()}
@@ -164,7 +166,7 @@ export function SubtaskCreationSheet({
               {isSubmitting ? (
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
-                <Text style={styles.primaryLabel}>Add Subtask</Text>
+                <Text style={styles.primaryLabel}>{t('planner.addSubtask')}</Text>
               )}
             </Pressable>
           </View>

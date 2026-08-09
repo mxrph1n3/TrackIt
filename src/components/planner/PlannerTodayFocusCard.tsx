@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
@@ -7,7 +8,7 @@ import { ScheduleCheckbox } from '../dashboard/ScheduleCheckbox';
 import type { DayAgenda } from '../../types/planner';
 import { PlannerPremiumCard } from './PlannerPremiumCard';
 import { PlannerSectionHeader } from './PlannerSectionHeader';
-import { PLANNER_COPY } from './plannerTheme';
+import { usePlannerCopy } from './plannerTheme';
 
 type PlannerTodayFocusCardProps = {
   agenda: DayAgenda;
@@ -24,6 +25,8 @@ export function PlannerTodayFocusCard({
   onEditJournal,
   onToggleHabit,
 }: PlannerTodayFocusCardProps) {
+  const { t } = useTranslation();
+  const copy = usePlannerCopy();
   const { styles: plannerStyles, theme, surfaces } = usePlannerTheme();
 
   const styles = useMemo(
@@ -84,16 +87,16 @@ export function PlannerTodayFocusCard({
   const completedHabits = agenda.habits.filter((habit) => habit.completed).length;
   const habitSubtitle =
     agenda.habits.length > 0
-      ? `${completedHabits} of ${agenda.habits.length} habits`
-      : 'Habits for today';
+      ? `${completedHabits} ${t('common.of')} ${agenda.habits.length}`
+      : t('planner.habitsForToday');
 
   return (
     <PlannerPremiumCard>
       <View style={plannerStyles.moduleInner}>
         <PlannerSectionHeader
-          title={PLANNER_COPY.todayFocus}
+          title={copy.todayFocus}
           subtitle={habitSubtitle}
-          actionLabel={isJournalEmpty ? undefined : PLANNER_COPY.editJournal}
+          actionLabel={isJournalEmpty ? undefined : copy.editJournal}
           onAction={isJournalEmpty ? undefined : onEditJournal}
         />
 
@@ -101,21 +104,19 @@ export function PlannerTodayFocusCard({
           style={[plannerStyles.body, isJournalEmpty && plannerStyles.bodyMuted]}
           numberOfLines={4}
         >
-          {isJournalEmpty
-            ? 'Write today\'s goal, focus, or a short reflection — it sets the rhythm for your whole ecosystem.'
-            : agenda.journal.body}
+          {isJournalEmpty ? t('planner.journalEmpty') : agenda.journal.body}
         </Text>
 
         {isJournalEmpty ? (
           <Pressable onPress={onAddJournal} style={styles.addJournal}>
             <Plus color={theme.textSecondary} size={16} strokeWidth={2.2} />
-            <Text style={styles.addJournalText}>{PLANNER_COPY.addJournal}</Text>
+            <Text style={styles.addJournalText}>{copy.addJournal}</Text>
           </Pressable>
         ) : null}
 
         {agenda.habits.length > 0 ? (
           <View style={styles.habitsBlock}>
-            <Text style={styles.habitsKicker}>{PLANNER_COPY.habits}</Text>
+            <Text style={styles.habitsKicker}>{copy.habits}</Text>
             {agenda.habits.map((habit) => (
               <View key={habit.id} style={styles.habitRow}>
                 <ScheduleCheckbox

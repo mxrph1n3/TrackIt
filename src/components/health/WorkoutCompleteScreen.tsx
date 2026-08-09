@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ImageBackground, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -40,6 +41,7 @@ const XP_COUNT_MS = 1200;
 const DISMISS_UNLOCK_MS = 3400;
 
 export function WorkoutCompleteScreen({ summary, onDismiss }: WorkoutCompleteScreenProps) {
+  const { t } = useTranslation();
   const { mode, isDark } = useTheme();
   const artwork = getWorkoutAchieveImage(mode);
 
@@ -209,7 +211,7 @@ export function WorkoutCompleteScreen({ summary, onDismiss }: WorkoutCompleteScr
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Workout complete. Plus ${summary.xpEarned} experience. Tap to continue.`}
+      accessibilityLabel={`${t('common.completed')}. ${t('health.xpGain', { xp: summary.xpEarned })}. ${t('health.tapToContinue')}`}
       accessibilityState={{ disabled: !canDismiss }}
       onPress={handlePress}
       style={[styles.root, { backgroundColor: themeStyles.rootBg }]}
@@ -276,7 +278,7 @@ export function WorkoutCompleteScreen({ summary, onDismiss }: WorkoutCompleteScr
                     ]}
                   >
                     {' '}
-                    XP
+                    {t('common.xp')}
                   </Text>
                 </Text>
               </View>
@@ -286,7 +288,7 @@ export function WorkoutCompleteScreen({ summary, onDismiss }: WorkoutCompleteScr
       </Animated.View>
 
       <Animated.View style={[styles.hintWrap, hintStyle]} pointerEvents="none">
-        <Text style={[styles.hint, { color: themeStyles.hintColor }]}>Tap to continue</Text>
+        <Text style={[styles.hint, { color: themeStyles.hintColor }]}>{t('health.tapToContinue')}</Text>
       </Animated.View>
     </Pressable>
   );

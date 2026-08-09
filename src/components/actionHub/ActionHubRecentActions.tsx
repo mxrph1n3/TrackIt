@@ -1,6 +1,7 @@
 import { BlurView } from 'expo-blur';
 import { ChevronRight } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { RecentActionEntry } from '../../constants/actionHubRadial';
@@ -15,6 +16,7 @@ type ActionHubRecentActionsProps = {
 };
 
 export function ActionHubRecentActions({ items, onPressItem }: ActionHubRecentActionsProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const hubTheme = useActionHubTheme();
 
@@ -104,10 +106,10 @@ export function ActionHubRecentActions({ items, onPressItem }: ActionHubRecentAc
         {supportsNativeBlur() ? (
           <BlurView intensity={hubTheme.isDark ? 36 : 22} tint={hubTheme.blurTint} style={StyleSheet.absoluteFill} />
         ) : null}
-        <Text style={styles.header}>Recent Actions</Text>
+        <Text style={styles.header}>{t('actionHub.recentActions')}</Text>
 
         {items.length === 0 ? (
-          <Text style={styles.empty}>Your recent quick actions will appear here after you create something.</Text>
+          <Text style={styles.empty}>{t('actionHub.emptyRecent')}</Text>
         ) : (
           items.map((item, index) => {
             const Icon = item.icon;

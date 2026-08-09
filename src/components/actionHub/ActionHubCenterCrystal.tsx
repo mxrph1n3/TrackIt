@@ -1,6 +1,7 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { supportsNativeBlur } from '../../lib/platform/blur';
@@ -22,6 +23,7 @@ type ActionHubCenterCrystalProps = {
 
 /** Pixel-perfect center crystal for the expanded Action Hub radial menu. */
 export function ActionHubCenterCrystal({ onPress, size = DEFAULT_SIZE }: ActionHubCenterCrystalProps) {
+  const { t } = useTranslation();
   const hubTheme = useActionHubTheme();
   const iconSize = Math.round(size * ICON_RATIO);
   const innerSize = size - OUTER_RING;
@@ -68,7 +70,7 @@ export function ActionHubCenterCrystal({ onPress, size = DEFAULT_SIZE }: ActionH
       onPress={handlePress}
       style={[styles.hitArea, { width: size, height: size, borderRadius: size / 2 }]}
       accessibilityRole="button"
-      accessibilityLabel="Close Action Hub"
+      accessibilityLabel={t('actionHub.closeA11y')}
     >
       {supportsNativeBlur() ? (
         <BlurView intensity={hubTheme.isDark ? 36 : 32} tint={hubTheme.blurTint} style={StyleSheet.absoluteFill} />

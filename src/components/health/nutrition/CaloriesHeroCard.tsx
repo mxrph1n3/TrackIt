@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import Animated, {
@@ -16,6 +17,7 @@ import { PremiumCard } from '../ui/PremiumCard';
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export function CaloriesHeroCard() {
+  const { t } = useTranslation();
   const healthTheme = useHealthTheme();
   const { dietPlan, consumedMacros: consumed } = useTodayNutrition();
   const { push } = useHealthNavigation();
@@ -106,14 +108,14 @@ export function CaloriesHeroCard() {
 
   return (
     <PremiumCard onPress={() => push('DailyProgress')}>
-      <Text style={styles.kicker}>Today&apos;s Summary</Text>
+      <Text style={styles.kicker}>{t('nutrition.todaysSummary')}</Text>
       <View style={styles.row}>
         <View style={styles.copy}>
           <View style={styles.calorieRow}>
             <Text style={styles.current}>{consumed.calories.toLocaleString('en-US')}</Text>
-            <Text style={styles.target}> / {dietPlan.calories.toLocaleString('en-US')} kcal</Text>
+            <Text style={styles.target}> / {dietPlan.calories.toLocaleString('en-US')} {t('common.kcal')}</Text>
           </View>
-          <Text style={styles.remaining}>{remaining.toLocaleString('en-US')} kcal left</Text>
+          <Text style={styles.remaining}>{t('nutrition.kcalLeft', { count: remaining })}</Text>
         </View>
         <View style={styles.ringWrap}>
           <Svg width={size} height={size}>
@@ -147,7 +149,7 @@ export function CaloriesHeroCard() {
           </Svg>
           <View style={styles.ringLabel}>
             <Text style={styles.percent}>{percent}%</Text>
-            <Text style={styles.percentHint}>of goal</Text>
+            <Text style={styles.percentHint}>{t('nutrition.goal')}</Text>
           </View>
         </View>
       </View>

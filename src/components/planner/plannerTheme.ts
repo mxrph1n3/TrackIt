@@ -1,20 +1,26 @@
-/** Planner ecosystem copy — TrackIt 2.0 */
-export const PLANNER_COPY = {
-  screenTitle: 'PLANNER',
-  todayFocus: 'TODAY\'S FOCUS',
-  tasks: 'TASKS',
-  workouts: 'WORKOUTS',
-  nutrition: 'NUTRITION',
-  finance: 'FINANCE',
-  stats: 'STATS',
-  projects: 'PROJECTS',
-  habits: 'HABITS',
-  viewAll: 'View All',
-  open: 'Open',
-  addJournal: 'Add entry',
-  editJournal: 'Edit',
-  noTasks: 'No tasks for this day',
-  noProjects: 'No projects yet',
-  startWorkout: 'Start',
-  logMeal: 'Log meal',
-} as const;
+import { useTranslation } from 'react-i18next';
+
+/** Planner ecosystem copy — TrackIt 2.0 (i18n) */
+export function usePlannerCopy() {
+  const { t } = useTranslation();
+
+  return {
+    screenTitle: t('planner.title'),
+    todayFocus: t('planner.todaysFocus'),
+    tasks: t('planner.sections.tasks'),
+    workouts: t('planner.sections.workouts'),
+    nutrition: t('planner.sections.nutrition'),
+    finance: t('planner.sections.finance'),
+    stats: t('planner.sections.stats'),
+    projects: t('planner.sections.projects'),
+    habits: t('planner.sections.habits'),
+    viewAll: t('planner.viewAll'),
+    open: t('planner.open'),
+    addJournal: t('planner.addEntry'),
+    editJournal: t('planner.edit'),
+    noTasks: t('planner.empty.tasks'),
+    noProjects: t('planner.empty.projects'),
+    startWorkout: t('planner.startWorkout'),
+    logMeal: t('planner.logMeal'),
+  } as const;
+}

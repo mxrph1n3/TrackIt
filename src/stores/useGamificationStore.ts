@@ -42,7 +42,11 @@ type GamificationState = {
   fetchGlobalLeaderboard: () => Promise<GamificationLeaderboardResult>;
   addXpAction: (amount: number, actionName: string) => Promise<boolean>;
   setFinanceXpMultiplier: (multiplier: number) => void;
-  updateUsername: (newUsername: string) => Promise<{ success: boolean; error: string | null }>;
+  updateUsername: (newUsername: string) => Promise<{
+    success: boolean;
+    errorKey: string | null;
+    errorParams?: Record<string, number | string>;
+  }>;
   dismissLevelUp: () => void;
   teardown: () => void;
 };
@@ -287,14 +291,17 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
   updateUsername: async (newUsername) => {
     const validation = validateUsername(newUsername);
     if (!validation.valid) {
-      return { success: false, error: validation.error };
+      return {
+        success: false,
+        errorKey: validation.errorKey,
+        errorParams: validation.errorParams,
+      };
     }
 
     if (!isSupabaseConfigured) {
       return {
         success: false,
-        error:
-          'Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.',
+        errorKey: 'profile.usernameErrors.updateFailed',
       };
     }
 
@@ -307,12 +314,16 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
 
       const userId = session?.user?.id;
       if (!userId) {
-        return { success: false, error: 'You must be signed in to update your username.' };
+        return { success: false, errorKey: 'profile.usernameErrors.updateFailed' };
       }
 
       const result = await updateProfileUsername(userId, validation.normalized);
       if (!result.success) {
-        return { success: false, error: result.error };
+        return {
+          success: false,
+          errorKey: result.errorKey,
+          errorParams: result.errorParams,
+        };
       }
 
       const currentProfile = get().profile;
@@ -323,9 +334,9 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       }
 
       await get().syncProfile();
-      return { success: true, error: null };
-    } catch (error) {
-      return { success: false, error: toErrorMessage(error) };
+      return { success: true, errorKey: null };
+    } catch {
+      return { success: false, errorKey: 'profile.usernameErrors.updateFailed' };
     } finally {
       set({ isUpdatingUsername: false });
     }

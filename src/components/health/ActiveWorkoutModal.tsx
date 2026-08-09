@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Modal,
@@ -27,8 +28,10 @@ import { useAppSafeAreaInsets } from '../../hooks/useAppSafeAreaInsets';
 import { useHeartRateProfile } from '../../hooks/useHeartRateProfile';
 import { useHealthStyles } from '../../hooks/useHealthStyles';
 import { useHealthTheme } from '../../hooks/useHealthTheme';
-import { countCompletedExercises, formatExerciseSubtitle, sessionElapsedSeconds } from '../../lib/health/workoutEngine';
+import { countCompletedExercises, sessionElapsedSeconds } from '../../lib/health/workoutEngine';
 import { resolveMusclesForExercise } from '../../lib/health/muscleMap';
+import { getWorkoutTrack } from '../../constants/workoutPrograms';
+import { tExerciseName, tExerciseSubtitle, tWorkoutFocusName } from '../../i18n/helpers';
 import { supportsNativeBlur } from '../../lib/platform/blur';
 import { triggerHaptic } from '../../lib/platform/haptics';
 import type { MuscleHighlight } from '../../types/workout';
@@ -70,12 +73,13 @@ function SetRow({
   onWeightDelta: (delta: number) => void;
   onRepsDelta: (delta: number) => void;
 }) {
+  const { t } = useTranslation();
   const healthTheme = useHealthTheme();
 
   return (
     <PremiumCard padding={14} style={{ marginBottom: 10 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <Text style={{ fontSize: 15, fontWeight: '800', color: healthTheme.ink }}>Set {setIndex + 1}</Text>
+        <Text style={{ fontSize: 15, fontWeight: '800', color: healthTheme.ink }}>{t('health.sets')} {setIndex + 1}</Text>
         <Pressable
           onPress={onToggle}
           style={{
@@ -96,14 +100,14 @@ function SetRow({
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', color: healthTheme.slate, marginBottom: 6 }}>
-            Weight
+            {t('health.weight')}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: healthTheme.accentSoft, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 8 }}>
             <Pressable onPress={() => onWeightDelta(-2.5)} hitSlop={8}>
               <Minus color={healthTheme.accent} size={16} />
             </Pressable>
             <Text style={{ fontSize: 15, fontWeight: '800', color: healthTheme.ink }}>
-              {weightKg > 0 ? `${weightKg} kg` : '—'}
+              {weightKg > 0 ? `${weightKg} ${t('common.kg')}` : '—'}
             </Text>
             <Pressable onPress={() => onWeightDelta(2.5)} hitSlop={8}>
               <Plus color={healthTheme.accent} size={16} />
@@ -113,7 +117,7 @@ function SetRow({
 
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', color: healthTheme.slate, marginBottom: 6 }}>
-            Reps
+            {t('health.reps')}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: healthTheme.accentSoft, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 8 }}>
             <Pressable onPress={() => onRepsDelta(-1)} hitSlop={8}>
@@ -133,19 +137,20 @@ function SetRow({
 }
 
 export function ActiveWorkoutModal() {
+  const { t } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const { isDark } = useTheme();
   const healthTheme = useHealthTheme();
-  const styles = useHealthStyles((t) => ({
+  const styles = useHealthStyles((ht) => ({
     iconBtn: {
       height: 44,
       minWidth: 44,
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: 14,
-      backgroundColor: t.card,
+      backgroundColor: ht.card,
       borderWidth: 1,
-      borderColor: t.cardBorder,
+      borderColor: ht.cardBorder,
     },
   }));
   const session = useHealthStore((s) => s.activeSession);
@@ -221,12 +226,12 @@ export function ActiveWorkoutModal() {
 
   const handleExit = () => {
     Alert.alert(
-      'Exit workout?',
-      'Your progress for this session will not be saved.',
+      t('health.exitWorkout'),
+      t('health.exitProgressLost'),
       [
-        { text: 'Keep going', style: 'cancel' },
+        { text: t('health.keepGoing'), style: 'cancel' },
         {
-          text: 'Exit',
+          text: t('health.exit'),
           style: 'destructive',
           onPress: () => {
             void triggerHaptic('warning');
@@ -278,16 +283,23 @@ export function ActiveWorkoutModal() {
                 }}
               >
                 <X color="#E11D48" size={14} strokeWidth={2.5} />
-                <Text style={{ fontSize: 12, fontWeight: '600', color: '#E11D48' }}>Exit</Text>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#E11D48' }}>{t('health.exit')}</Text>
               </Pressable>
-              <Text style={{ fontSize: 28, fontWeight: '900', color: healthTheme.ink }}>{session.focusName}</Text>
+              <Text style={{ fontSize: 28, fontWeight: '900', color: healthTheme.ink }}>
+                {tWorkoutFocusName(
+                  t,
+                  session.focusName,
+                  getWorkoutTrack(session.trackId).days,
+                  session.trackId,
+                )}
+              </Text>
               <Text style={{ marginTop: 4, fontSize: 22, fontWeight: '800', color: healthTheme.accent }}>
                 {formatTimer(elapsedSec)}
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
               <Text style={{ fontSize: 11, fontWeight: '700', color: healthTheme.slate, textTransform: 'uppercase', letterSpacing: 1.5 }}>
-                Exercise {session.currentExerciseIndex + 1} of {session.exercises.length}
+                {t('health.exerciseOf', { current: session.currentExerciseIndex + 1, total: session.exercises.length })}
               </Text>
             </View>
           </View>
@@ -301,7 +313,7 @@ export function ActiveWorkoutModal() {
               nestedScrollEnabled
             >
               <HealthProgressBar
-                label="Overall Progress"
+                label={t('health.overallProgress')}
                 meta={`${progressPercent}%`}
                 progress={progressPercent}
               />
@@ -322,7 +334,7 @@ export function ActiveWorkoutModal() {
                         }}
                         numberOfLines={3}
                       >
-                        {currentExercise?.name}
+                        {currentExercise ? tExerciseName(t, currentExercise.name) : ''}
                       </Text>
                       {currentExercise?.template ? (
                         <Text
@@ -333,7 +345,7 @@ export function ActiveWorkoutModal() {
                             color: healthTheme.slate,
                           }}
                         >
-                          {formatExerciseSubtitle(currentExercise.template)}
+                          {tExerciseSubtitle(t, currentExercise.template)}
                         </Text>
                       ) : null}
                       {isCardio ? (
@@ -342,7 +354,7 @@ export function ActiveWorkoutModal() {
                           className="mt-2 flex-row items-center justify-center gap-1 active:opacity-80"
                         >
                           <Text className="text-xs font-semibold text-obsidian-primary">
-                            Heart rate zones {activeHrZones.join('–')}
+                            {t('health.hrZonesToggle', { zones: activeHrZones.join('–') })}
                           </Text>
                           {showHrCard ? (
                             <ChevronUp color={healthTheme.accent} size={14} />
@@ -379,10 +391,10 @@ export function ActiveWorkoutModal() {
               {nextExercise ? (
                 <PremiumCard padding={14}>
                   <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase', color: healthTheme.slate }}>
-                    Next Exercise
+                    {t('health.nextExercise')}
                   </Text>
                   <Text style={{ marginTop: 4, fontSize: 15, fontWeight: '700', color: healthTheme.ink }}>
-                    {nextExercise.name}
+                    {tExerciseName(t, nextExercise.name)}
                   </Text>
                 </PremiumCard>
               ) : null}
@@ -390,7 +402,7 @@ export function ActiveWorkoutModal() {
               {showExerciseList ? (
                 <PremiumCard padding={14} style={{ marginTop: 8 }}>
                   <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase', color: healthTheme.slate, marginBottom: 10 }}>
-                    All Exercises
+                    {t('health.allExercises')}
                   </Text>
                   {session.exercises.map((exercise, index) => (
                     <Pressable
@@ -407,7 +419,7 @@ export function ActiveWorkoutModal() {
                       }}
                     >
                       <Text style={{ fontSize: 14, fontWeight: '600', color: healthTheme.ink }}>
-                        {index + 1}. {exercise.name}
+                        {index + 1}. {tExerciseName(t, exercise.name)}
                       </Text>
                     </Pressable>
                   ))}
@@ -429,7 +441,7 @@ export function ActiveWorkoutModal() {
               style={[styles.iconBtn, { flex: 1, flexDirection: 'row', gap: 6 }]}
             >
               <List color={healthTheme.accent} size={16} />
-              <Text style={{ fontSize: 12, fontWeight: '600', color: healthTheme.ink }}>List</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: healthTheme.ink }}>{t('health.list')}</Text>
             </Pressable>
 
             <Pressable onPress={togglePause} style={styles.iconBtn}>
@@ -447,7 +459,7 @@ export function ActiveWorkoutModal() {
 
           <View style={{ marginTop: 12 }}>
             <HealthPrimaryButton
-              label={isLastExercise ? 'Finish Workout' : 'Complete Exercise'}
+              label={isLastExercise ? t('health.finishWorkout') : t('health.completeExercise')}
               onPress={handleCompleteExercise}
               icon={<Check color={healthTheme.ink} size={16} />}
             />

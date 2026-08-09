@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useHealthNavigation } from '../../hooks/useHealthNavigation';
 import { CaloriesHeroCard } from './nutrition/CaloriesHeroCard';
@@ -9,6 +10,7 @@ import { WaterTrackerCard } from './nutrition/WaterTrackerCard';
 import { HealthPrimaryButton } from './ui/HealthPrimaryButton';
 
 export function NutritionTabPanel() {
+  const { t } = useTranslation();
   const { push } = useHealthNavigation();
 
   return (
@@ -19,7 +21,7 @@ export function NutritionTabPanel() {
       <MealsTimeline />
       <NextMealCard />
       <NutritionScoreCard />
-      <HealthPrimaryButton label="Add Meal" onPress={() => push('FoodSearch')} />
+      <HealthPrimaryButton label={t('nutrition.addMeal')} onPress={() => push('FoodSearch')} />
     </View>
   );
 }

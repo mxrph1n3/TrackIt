@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { usePlannerTheme } from '../../hooks/usePlannerTheme';
@@ -11,6 +12,7 @@ type SubtaskInlineAddProps = {
 };
 
 export function SubtaskInlineAdd({ onAdd, disabled = false }: SubtaskInlineAddProps) {
+  const { t } = useTranslation();
   const { theme, surfaces } = usePlannerTheme();
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState('');
@@ -92,7 +94,7 @@ export function SubtaskInlineAdd({ onAdd, disabled = false }: SubtaskInlineAddPr
         hitSlop={6}
       >
         <Plus color={BRAND.primary} size={14} strokeWidth={2.5} />
-        <Text style={styles.addTriggerText}>Add subtask</Text>
+        <Text style={styles.addTriggerText}>{t('planner.addSubtask')}</Text>
       </Pressable>
     );
   }
@@ -102,7 +104,7 @@ export function SubtaskInlineAdd({ onAdd, disabled = false }: SubtaskInlineAddPr
       <TextInput
         value={title}
         onChangeText={setTitle}
-        placeholder="Subtask title"
+        placeholder={t('planner.subtaskPlaceholder')}
         placeholderTextColor={theme.textMuted}
         style={styles.input}
         autoFocus
@@ -115,7 +117,7 @@ export function SubtaskInlineAdd({ onAdd, disabled = false }: SubtaskInlineAddPr
         disabled={!title.trim() || isSubmitting}
         style={[styles.addButton, (!title.trim() || isSubmitting) && styles.disabled]}
       >
-        <Text style={styles.addButtonText}>Add</Text>
+        <Text style={styles.addButtonText}>{t('common.add')}</Text>
       </Pressable>
     </View>
   );

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -78,6 +79,7 @@ function MacroTile({ label, current, target, color }: MacroTileProps) {
 }
 
 export function MacroCardsRow() {
+  const { t } = useTranslation();
   const { dietPlan, consumedMacros: consumed } = useTodayNutrition();
   const healthTheme = useHealthTheme();
   const styles = useHealthStyles(() => ({
@@ -96,7 +98,7 @@ export function MacroCardsRow() {
     <View style={styles.row}>
       <PremiumCard style={styles.card} padding={16}>
         <MacroTile
-          label="Protein"
+          label={t('common.protein')}
           current={consumed.protein}
           target={dietPlan.protein_target}
           color={healthTheme.macro.protein}
@@ -104,7 +106,7 @@ export function MacroCardsRow() {
       </PremiumCard>
       <PremiumCard style={styles.card} padding={16}>
         <MacroTile
-          label="Fat"
+          label={t('common.fat')}
           current={consumed.fat}
           target={dietPlan.fat_target}
           color={healthTheme.macro.fat}
@@ -112,7 +114,7 @@ export function MacroCardsRow() {
       </PremiumCard>
       <PremiumCard style={styles.card} padding={16}>
         <MacroTile
-          label="Carbs"
+          label={t('common.carbs')}
           current={consumed.carbs}
           target={dietPlan.carb_target}
           color={healthTheme.macro.carbs}

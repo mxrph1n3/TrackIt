@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedProps,
@@ -58,6 +59,7 @@ export function OverallGrowthCard({
   rangeLabel: string;
   series: GrowthPoint[];
 }) {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
   const progress = useSharedValue(0);
   const points = buildPoints(series.map((item) => item.value));
@@ -119,7 +121,7 @@ export function OverallGrowthCard({
       <StatisticsCardBlur />
       <View style={styles.header}>
         <View>
-          <Text style={styles.kicker}>Overall Growth</Text>
+          <Text style={styles.kicker}>{t('analytics.overallGrowth')}</Text>
           <Text style={styles.range}>{rangeLabel}</Text>
         </View>
         <Text style={styles.percent}>{percent}%</Text>

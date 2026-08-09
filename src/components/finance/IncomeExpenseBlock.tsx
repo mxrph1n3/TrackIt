@@ -1,4 +1,5 @@
 import { Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { formatMoney } from '../../constants/financeCategories';
 import type { FinanceOverview } from '../../types/finance';
@@ -10,6 +11,7 @@ type IncomeExpenseBlockProps = {
 };
 
 export function IncomeExpenseBlock({ overview }: IncomeExpenseBlockProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const total = Math.max(overview.income.amount + overview.expenses.amount, 1);
   const incomePercent = Math.round((overview.income.amount / total) * 100);
@@ -22,13 +24,13 @@ export function IncomeExpenseBlock({ overview }: IncomeExpenseBlockProps) {
           className="mb-4 text-[10px] font-bold uppercase tracking-[2px]"
           style={{ color: theme.textMuted }}
         >
-          Cash Flow · This Month
+          {t('finance.cashFlowThisMonth')}
         </Text>
 
         <View className="mb-4">
           <View className="mb-2 flex-row items-center justify-between">
             <Text className="text-sm font-bold" style={{ color: '#34D399' }}>
-              Income
+              {t('finance.income')}
             </Text>
             <Text className="text-sm font-black" style={{ color: theme.textPrimary }}>
               {formatMoney(overview.income.amount, overview.displayCurrency)}
@@ -41,7 +43,7 @@ export function IncomeExpenseBlock({ overview }: IncomeExpenseBlockProps) {
 
         <View>
           <View className="mb-2 flex-row items-center justify-between">
-            <Text className="text-sm font-bold text-red-400">Expense</Text>
+            <Text className="text-sm font-bold text-red-400">{t('finance.expense')}</Text>
             <Text className="text-sm font-black" style={{ color: theme.textPrimary }}>
               {formatMoney(overview.expenses.amount, overview.displayCurrency)}
             </Text>

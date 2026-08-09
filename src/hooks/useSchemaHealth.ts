@@ -38,7 +38,7 @@ export function useSchemaHealth(enabled: boolean): SchemaHealthState {
     const missing = probes.some((result) => isMissingSchemaError(result.error));
     if (missing) {
       setIsHealthy(false);
-      setMessage('Database schema is out of date. Run supabase db push to apply pending migrations.');
+      setMessage('system.schemaOutOfDate');
     } else {
       setIsHealthy(true);
       setMessage(null);

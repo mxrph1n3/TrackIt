@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, Layout } from 'react-native-reanimated';
 
@@ -12,6 +13,7 @@ type AuthModeTabsProps = {
 };
 
 export function AuthModeTabs({ mode, onChange }: AuthModeTabsProps) {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
 
   const handlePress = (next: AuthMode) => {
@@ -62,7 +64,7 @@ export function AuthModeTabs({ mode, onChange }: AuthModeTabsProps) {
                 active && styles.tabLabelActive,
               ]}
             >
-              {tab === 'sign-in' ? 'Sign in' : 'Create account'}
+              {tab === 'sign-in' ? t('auth.signIn') : t('auth.createAccount')}
             </Text>
           </Pressable>
         );

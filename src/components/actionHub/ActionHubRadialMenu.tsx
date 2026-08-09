@@ -1,5 +1,6 @@
 import { BlurView } from 'expo-blur';
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -11,6 +12,7 @@ import Animated, {
 import Svg, { Line } from 'react-native-svg';
 
 import type { RadialHubAction } from '../../constants/actionHubRadial';
+import { tActionHubLabel } from '../../i18n/helpers';
 import { supportsNativeBlur } from '../../lib/platform/blur';
 import { premiumSpringConfig, timingEntrance, timingExit } from '../../theme/motion';
 import { ActionHubCenterCrystal } from './ActionHubCenterCrystal';
@@ -51,6 +53,7 @@ function RadialOrb({
   delayMs: number;
   onPress: () => void;
 }) {
+  const { t } = useTranslation();
   const hubTheme = useActionHubTheme();
   const position = polar(action.angle, ORBIT_RADIUS);
   const scale = useSharedValue(0.6);
@@ -129,7 +132,7 @@ function RadialOrb({
           <Icon color={action.accent} size={22} strokeWidth={2} />
         </View>
         <Text style={styles.orbLabel} numberOfLines={1}>
-          {action.label}
+          {tActionHubLabel(t, action.key, action.label)}
         </Text>
       </Pressable>
     </Animated.View>

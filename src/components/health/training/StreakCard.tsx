@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Check, Flame } from 'lucide-react-native';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useHealthAssets } from '../../../lib/healthAssets';
 import { getImageScrim } from '../../../lib/themeAssets';
@@ -12,6 +13,7 @@ import { HEALTH_ELEVATION } from '../ui/healthTheme';
 const CARD_HEIGHT = 168;
 
 export function StreakCard() {
+  const { t } = useTranslation();
   const stats = useHealthStore((s) => s.lifetimeStats);
   const weeklyPlan = useHealthStore((s) => s.weeklyPlan);
   const selectedDayIndex = useHealthStore((s) => s.selectedDayIndex);
@@ -42,11 +44,15 @@ export function StreakCard() {
               <View style={styles.streakCopy}>
                 <View style={styles.kickerRow}>
                   <Flame color={healthTheme.accent} size={14} fill={healthTheme.accent} />
-                  <Text style={[styles.kicker, { color: healthTheme.slate }]}>Streak</Text>
+                  <Text style={[styles.kicker, { color: healthTheme.slate }]}>{t('common.streak')}</Text>
                 </View>
-                <Text style={[styles.value, { color: healthTheme.ink }]}>{streak} days</Text>
+                <Text style={[styles.value, { color: healthTheme.ink }]}>
+                  {t('health.daysCount', { count: streak })}
+                </Text>
                 {longest > 0 ? (
-                  <Text style={[styles.longest, { color: healthTheme.muted }]}>Longest: {longest} days</Text>
+                  <Text style={[styles.longest, { color: healthTheme.muted }]}>
+                    {t('health.longestStreak', { days: longest })}
+                  </Text>
                 ) : null}
               </View>
             </View>

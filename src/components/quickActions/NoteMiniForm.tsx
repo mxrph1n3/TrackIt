@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -20,6 +21,7 @@ type NoteMiniFormProps = {
 };
 
 export function NoteMiniForm({ onSuccess, onBack, initialBody = '' }: NoteMiniFormProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { text, surfaces } = useThemedStyles();
   const [body, setBody] = useState(initialBody);
@@ -48,7 +50,7 @@ export function NoteMiniForm({ onSuccess, onBack, initialBody = '' }: NoteMiniFo
       <TextInput
         value={body}
         onChangeText={setBody}
-        placeholder="Text, checklist, or link…"
+        placeholder={t('actionHub.forms.notePlaceholder')}
         placeholderTextColor={theme.textMuted}
         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderSubtle }]}
         multiline
@@ -57,7 +59,7 @@ export function NoteMiniForm({ onSuccess, onBack, initialBody = '' }: NoteMiniFo
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <View style={styles.actions}>
         <Pressable onPress={onBack} style={[styles.secondaryButton, { borderColor: theme.borderSubtle }]}>
-          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>Back</Text>
+          <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>{t('actionHub.forms.back')}</Text>
         </Pressable>
         <Pressable
           onPress={() => void handleSave()}
@@ -67,7 +69,7 @@ export function NoteMiniForm({ onSuccess, onBack, initialBody = '' }: NoteMiniFo
           {isSubmitting ? (
             <ActivityIndicator color={surfaces.onPrimary} />
           ) : (
-            <Text style={[text.onBrand, styles.primaryText]}>Save</Text>
+            <Text style={[text.onBrand, styles.primaryText]}>{t('common.save')}</Text>
           )}
         </Pressable>
       </View>

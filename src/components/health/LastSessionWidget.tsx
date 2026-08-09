@@ -1,11 +1,22 @@
 import { Clock } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
 import { useHealthStore } from '../../stores/useHealthStore';
+import { getWorkoutTracks } from '../../constants/workoutPrograms';
+import { tRelativeDay, tWorkoutFocusName } from '../../i18n/helpers';
 import { GlassPanel } from '../GlassPanel';
 
 export function LastSessionWidget() {
+  const { t } = useTranslation();
   const lastSession = useHealthStore((s) => s.lastSession);
+  const localizedTitle = (() => {
+    for (const track of getWorkoutTracks()) {
+      const translated = tWorkoutFocusName(t, lastSession.title, track.days, track.id);
+      if (translated !== lastSession.title) return translated;
+    }
+    return lastSession.title;
+  })();
 
   return (
     <GlassPanel borderRadius={20}>
@@ -15,11 +26,15 @@ export function LastSessionWidget() {
         </View>
         <View className="flex-1">
           <Text className="text-[10px] font-bold uppercase tracking-widest text-ethereal-slate">
-            Last workout
+            {t('health.lastWorkout')}
           </Text>
           <Text className="mt-1 text-sm font-semibold text-ethereal-ink">
-            {lastSession.title} · {lastSession.relativeDay} · {lastSession.durationMinutes} min ·
-            +{lastSession.xpEarned} XP
+            {t('health.lastSessionMeta', {
+              title: localizedTitle,
+              day: tRelativeDay(t, lastSession.relativeDay),
+              minutes: lastSession.durationMinutes,
+              xp: lastSession.xpEarned,
+            })}
           </Text>
         </View>
       </View>

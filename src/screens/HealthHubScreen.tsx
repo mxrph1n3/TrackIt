@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
 import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
@@ -17,7 +18,7 @@ import { useHealthStore } from '../stores/useHealthStore';
 import { getScreenHorizontalPadding } from '../theme/screenLayout';
 import type { HealthTabId } from '../types/health';
 
-function buildWeekDays(selectedIndex: number) {
+function buildWeekDays(selectedIndex: number, locale: string) {
   const now = new Date();
   const dayOfWeek = (now.getDay() + 6) % 7;
   const monday = new Date(now);
@@ -33,7 +34,7 @@ function buildWeekDays(selectedIndex: number) {
 
     return {
       key: date.toISOString(),
-      weekday: date.toLocaleDateString('en-US', { weekday: 'short' }),
+      weekday: date.toLocaleDateString(locale, { weekday: 'short' }),
       dayNumber: date.getDate(),
       isToday,
       isSelected: index === selectedIndex,
@@ -42,6 +43,7 @@ function buildWeekDays(selectedIndex: number) {
 }
 
 export function HealthHubScreen() {
+  const { t, i18n } = useTranslation();
   const insets = useAppSafeAreaInsets();
   const openDrawer = useSideDrawerStore((s) => s.open);
   const { scrollContentPaddingBottom } = useFloatingTabBarStyles();
@@ -93,7 +95,10 @@ export function HealthHubScreen() {
     }
   }, [activeTab, selectDay]);
 
-  const weekDays = useMemo(() => buildWeekDays(selectedDayIndex), [selectedDayIndex]);
+  const weekDays = useMemo(
+    () => buildWeekDays(selectedDayIndex, i18n.language || 'en'),
+    [selectedDayIndex, i18n.language],
+  );
   const selectedDayIsToday = weekDays[selectedDayIndex]?.isToday ?? true;
   const horizontalPadding = getScreenHorizontalPadding();
 
@@ -143,8 +148,8 @@ export function HealthHubScreen() {
                 ]}
               >
                 {selectedDayIsToday
-                  ? 'Nutrition and water logs reflect today.'
-                  : 'Day picker applies to workouts only — nutrition and water always show today.'}
+                  ? t('nutrition.dayPickerToday')
+                  : t('nutrition.dayPickerOther')}
               </Text>
             </View>
           </>

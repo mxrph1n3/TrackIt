@@ -1,4 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -17,6 +18,7 @@ type BudgetProgressBarProps = {
 };
 
 export function BudgetProgressBar({ percent, isBreached }: BudgetProgressBarProps) {
+  const { t } = useTranslation();
   const pulse = useSharedValue(1);
   const clampedPercent = Math.min(percent, 100);
 
@@ -48,12 +50,12 @@ export function BudgetProgressBar({ percent, isBreached }: BudgetProgressBarProp
     <View className="mt-5">
       <View className="mb-2 flex-row items-center justify-between">
         <Text className="text-[11px] font-semibold uppercase tracking-wider text-ethereal-slate">
-          Spent: {percent}%
+          {t('finance.spentPercent', { percent })}
         </Text>
         <Text
           className={`text-sm font-bold ${isBreached ? 'text-finance-red' : 'text-obsidian-primary'}`}
         >
-          {isBreached ? 'Over budget' : 'On track'}
+          {isBreached ? t('finance.overBudget') : t('finance.onTrack')}
         </Text>
       </View>
 

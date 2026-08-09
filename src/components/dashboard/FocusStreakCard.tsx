@@ -1,4 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { getCrystalImage, getImageScrim } from '../../lib/themeAssets';
@@ -14,9 +15,10 @@ type FocusStreakCardProps = {
 };
 
 export function FocusStreakCard({ streakDays, crystalActive }: FocusStreakCardProps) {
+  const { t } = useTranslation();
   const { theme, mode, isDark } = useTheme();
   const shadowStyle = buildGlassShadowStyle(theme);
-  const unitLabel = streakDays === 1 ? 'DAY' : 'DAYS';
+  const unitLabel = streakDays === 1 ? t('dashboard.day') : t('dashboard.days');
   const focusScrim = getImageScrim(mode, 'focusCard');
 
   return (
@@ -62,7 +64,7 @@ export function FocusStreakCard({ streakDays, crystalActive }: FocusStreakCardPr
 
         <View style={styles.copy}>
           <View style={styles.labelColumn}>
-            <Text style={[styles.kicker, { color: theme.textMuted }]}>FOCUS STREAK</Text>
+            <Text style={[styles.kicker, { color: theme.textMuted }]}>{t('dashboard.focusStreak')}</Text>
             <View style={styles.streakStack}>
               <Text style={[styles.streakValue, crystalActive && styles.streakValueActive]}>
                 {streakDays}

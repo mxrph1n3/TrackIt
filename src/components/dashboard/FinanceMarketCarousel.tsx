@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { getMarketQuotesForCurrency } from '../../lib/finance/marketQuotes';
@@ -10,6 +11,7 @@ type FinanceMarketCarouselProps = {
 };
 
 export function FinanceMarketCarousel({ displayCurrency }: FinanceMarketCarouselProps) {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const quotes = getMarketQuotesForCurrency(displayCurrency);
 
@@ -81,7 +83,7 @@ export function FinanceMarketCarousel({ displayCurrency }: FinanceMarketCarousel
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.kicker}>Markets</Text>
+      <Text style={styles.kicker}>{t('dashboard.markets')}</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
