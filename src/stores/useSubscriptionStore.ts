@@ -4,6 +4,7 @@ import { isAppFullyFree } from '../constants/appAccess';
 import { IS_WEB } from '../lib/platform/constants';
 import {
   canUseAndroidTrial,
+  computeAndroidTrialStatus,
   ensureAndroidTrialStarted,
   loadAndroidTrialStatus,
   markAndroidTrialExpiredPrompted,
@@ -313,8 +314,22 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   clearError: () => set({ error: null }),
 }));
 
+/**
+ * Live soft-trial check (wall clock vs trialEndsAt).
+ * Do not trust cached `androidTrial.isInTrial` alone — app can stay open past expiry.
+ */
+function selectLiveAndroidTrial(state: SubscriptionState): AndroidTrialStatus {
+  if (!canUseAndroidTrial()) {
+    return EMPTY_ANDROID_TRIAL;
+  }
+  return computeAndroidTrialStatus(state.androidTrial.trialStartedAt);
+}
+
 function selectHasAndroidTrialAccess(state: SubscriptionState): boolean {
-  return canUseAndroidTrial() && state.androidTrial.isInTrial && !state.status.isPro;
+  if (!canUseAndroidTrial() || state.status.isPro) {
+    return false;
+  }
+  return selectLiveAndroidTrial(state).isInTrial;
 }
 
 export function selectIsPro(state: SubscriptionState): boolean {
@@ -354,7 +369,7 @@ export function selectHasPaidPro(state: SubscriptionState): boolean {
 }
 
 export function selectAndroidTrial(state: SubscriptionState): AndroidTrialStatus {
-  return state.androidTrial;
+  return selectLiveAndroidTrial(state);
 }
 
 export function selectCanUseNotifications(state: SubscriptionState): boolean {
