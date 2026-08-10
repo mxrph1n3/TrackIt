@@ -26,7 +26,8 @@
 - Paid Pro + soft-trial 3 дня
 - i18n EN / RU / ES / DE
 - Фикс краша меню профиля (infinite re-render soft-trial)
-- RevenueCat: в Release игнорируются `test_…` ключи (нужны `appl_` / `goog_` в EAS env)
+- Биллинг: Google Play Billing напрямую (`expo-iap`), без RevenueCat
+- Product IDs: `trackit_pro_monthly` / `trackit_pro_yearly`
 
 ## Play Console (напоминание)
 

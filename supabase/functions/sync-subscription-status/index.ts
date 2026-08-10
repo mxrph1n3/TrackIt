@@ -1,7 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
-const REVENUECAT_ENTITLEMENT = 'pro';
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': Deno.env.get('ALLOWED_ORIGIN') ?? 'https://trackit.app',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -43,50 +41,50 @@ Deno.serve(async (req) => {
     }
 
     const userId = userData.user.id;
-    const rcSecret = Deno.env.get('REVENUECAT_SECRET_KEY');
-
-    if (!rcSecret) {
-      return new Response(JSON.stringify({ isPro: false, synced: false }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const response = await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(userId)}`, {
-      headers: {
-        Authorization: `Bearer ${rcSecret}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      return new Response(JSON.stringify({ error: 'Could not verify subscription' }), {
-        status: 502,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const json = await response.json();
-    const entitlement = json?.subscriber?.entitlements?.[REVENUECAT_ENTITLEMENT];
-    const expires = entitlement?.expires_date;
-    const isPro =
-      entitlement?.is_active === true ||
-      (typeof expires === 'string' && new Date(expires).getTime() > Date.now());
+    const body = (await req.json().catch(() => ({}))) as {
+      isPro?: boolean;
+      expiresAt?: string | null;
+    };
 
     const serviceClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    await serviceClient
-      .from('profiles')
-      .update({
-        is_pro: isPro,
-        pro_expires_at: typeof expires === 'string' ? expires : null,
-      })
-      .eq('id', userId);
+    // Client reports store entitlement after native IAP purchase/restore.
+    if (typeof body.isPro === 'boolean') {
+      const expiresAt =
+        typeof body.expiresAt === 'string' || body.expiresAt === null ? body.expiresAt : null;
 
-    return new Response(JSON.stringify({ isPro, synced: true, expiresAt: expires ?? null }), {
+      await serviceClient
+        .from('profiles')
+        .update({
+          is_pro: body.isPro,
+          pro_expires_at: expiresAt,
+        })
+        .eq('id', userId);
+
+      return new Response(
+        JSON.stringify({ isPro: body.isPro, synced: true, expiresAt }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      );
+    }
+
+    const { data: profile } = await serviceClient
+      .from('profiles')
+      .select('is_pro, pro_expires_at')
+      .eq('id', userId)
+      .maybeSingle();
+
+    const expires = profile?.pro_expires_at ?? null;
+    const isPro =
+      profile?.is_pro === true ||
+      (typeof expires === 'string' && new Date(expires).getTime() > Date.now());
+
+    return new Response(JSON.stringify({ isPro, synced: false, expiresAt: expires }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

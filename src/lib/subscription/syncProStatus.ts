@@ -6,15 +6,26 @@ type SyncSubscriptionResponse = {
   expiresAt?: string | null;
 };
 
-/** Sync RevenueCat entitlement to server-side profiles.is_pro (service role write). */
-export async function syncProStatusToServer(): Promise<SyncSubscriptionResponse | null> {
+type ClientProSnapshot = {
+  isPro: boolean;
+  expiresAt?: string | null;
+};
+
+/**
+ * Sync store Pro status to profiles.is_pro.
+ * Pass a client snapshot after native purchase/restore; without body the server
+ * returns the current profile flag (synced from native store IAP).
+ */
+export async function syncProStatusToServer(
+  snapshot?: ClientProSnapshot,
+): Promise<SyncSubscriptionResponse | null> {
   if (!isSupabaseConfigured) {
     return null;
   }
 
   const { data, error } = await supabase.functions.invoke<SyncSubscriptionResponse>(
     'sync-subscription-status',
-    { body: {} },
+    { body: snapshot ?? {} },
   );
 
   if (error) {

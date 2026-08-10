@@ -9,8 +9,8 @@ Package / Bundle ID: **`com.trackit.lifeos`**
 
 - **Не полностью бесплатное.** Есть подписка **TrackIt Pro** (~$5/мес, есть годовой план).
 - На **iOS и Android**: soft-триал **3 дня** полного Pro, затем paywall.
-- Product IDs: `trackit_pro_monthly`, `trackit_pro_yearly`
-- Entitlement RevenueCat: **`pro`**
+- Product IDs: `trackit_pro_monthly`, `trackit_pro_yearly` (создать в App Store Connect / Play Console)
+- Оплата только через Apple / Google (без RevenueCat)
 - В приложении языки: **English / Русский / Español / Deutsch** (Settings → Language или боковое меню).
 
 Expo для повседневной работы **не обязателен**. Для стора — Xcode Archive (iOS) или EAS AAB (Android).

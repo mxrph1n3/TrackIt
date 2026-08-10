@@ -26,7 +26,7 @@ async function recheckSoftTrialAfterExpiry(): Promise<void> {
   }
 }
 
-/** Loads RevenueCat customer info and local workout library when the user changes. */
+/** Loads store subscription status and local workout library when the user changes. */
 export function SubscriptionBootstrap() {
   const user = useAuth().user;
   const initialize = useSubscriptionStore((s) => s.initialize);
@@ -40,7 +40,7 @@ export function SubscriptionBootstrap() {
     void hydrateWorkoutLibrary();
   }, [hydrateWorkoutLibrary, initialize, user?.id]);
 
-  // Re-check soft trial + RevenueCat when returning to foreground.
+  // Re-check soft trial + store entitlements when returning to foreground.
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next) => {
       const wasBackground = appState.current.match(/inactive|background/);

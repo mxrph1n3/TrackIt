@@ -7,7 +7,7 @@ export type TmaAccessStatus = {
   /** Paid via Telegram Stars (profiles.is_pro). */
   hasStarsSubscription: boolean;
   proExpiresAt: string | null;
-  /** Trial OR Stars/RevenueCat Pro — unlocks premium features. */
+  /** Trial OR Stars / native store Pro — unlocks premium features. */
   hasFullAccess: boolean;
   /** Trial OR paid — unlocks smart reminders / bot notifications. */
   canUseNotifications: boolean;

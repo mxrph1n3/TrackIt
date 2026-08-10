@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 /**
- * Native store billing (RevenueCat + paywalls + soft trial).
+ * Native store billing (App Store / Google Play IAP + paywalls + soft trial).
  * Web/TMA uses Stars / separate flow — not this flag.
  */
 export const IOS_BILLING_ENABLED = true;

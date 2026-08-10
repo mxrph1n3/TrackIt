@@ -136,7 +136,10 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
       });
 
       if (userId && status.isPro) {
-        void syncProStatusToServer();
+        void syncProStatusToServer({
+          isPro: status.isPro,
+          expiresAt: status.expirationDate,
+        });
       }
     } catch (error) {
       console.warn('[SubscriptionStore] initialize failed:', error);
@@ -218,7 +221,10 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         trialExpiredPromptPending: status.isPro ? false : get().trialExpiredPromptPending,
       });
       if (status.isPro) {
-        void syncProStatusToServer();
+        void syncProStatusToServer({
+          isPro: status.isPro,
+          expiresAt: status.expirationDate,
+        });
       }
       return true;
     } catch (error) {
@@ -292,7 +298,10 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         trialExpiredPromptPending: status.isPro ? false : get().trialExpiredPromptPending,
       });
       if (status.isPro) {
-        void syncProStatusToServer();
+        void syncProStatusToServer({
+          isPro: status.isPro,
+          expiresAt: status.expirationDate,
+        });
       }
       return status.isPro || tmaAccess.hasFullAccess;
     } catch (error) {
@@ -420,9 +429,15 @@ export function useCanUseNotifications(): boolean {
   return useSubscriptionStore(selectCanUseNotifications);
 }
 
-export function isRevenueCatReady(): boolean {
+/** Native App Store / Play Billing available (no third-party billing SDK). */
+export function isStoreBillingReady(): boolean {
   if (isAppFullyFree()) {
     return false;
   }
   return isNativeStoreBillingAvailable();
+}
+
+/** @deprecated Use isStoreBillingReady */
+export function isRevenueCatReady(): boolean {
+  return isStoreBillingReady();
 }

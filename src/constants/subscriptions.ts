@@ -1,11 +1,8 @@
-/** RevenueCat / store product identifiers (same on iOS and Android). */
+/** Store product identifiers (same IDs in App Store Connect and Google Play Console). */
 export const SUBSCRIPTION_PRODUCT_IDS = {
   monthly: 'trackit_pro_monthly',
   yearly: 'trackit_pro_yearly',
 } as const;
-
-/** RevenueCat entitlement identifier — grant Pro access when active. */
-export const REVENUECAT_ENTITLEMENT_ID = 'pro';
 
 /** Display pricing (fallback when store offerings are unavailable). */
 export const SUBSCRIPTION_DISPLAY_PRICING = {

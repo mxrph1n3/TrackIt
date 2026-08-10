@@ -1,10 +1,10 @@
 import { Platform } from 'react-native';
 
 import {
-  REVENUECAT_ENTITLEMENT_ID,
   SUBSCRIPTION_DISPLAY_PRICING,
   SUBSCRIPTION_PRODUCT_IDS,
 } from '../../constants/subscriptions';
+import { NATIVE_STORE_PACKAGE_ID } from '../../constants/legal';
 import { IS_WEB } from '../platform/constants';
 import { syncProStatusToServer } from './syncProStatus';
 import type {
@@ -14,55 +14,28 @@ import type {
   SubscriptionStatus,
 } from '../../types/subscription';
 
-type PurchasesModule = typeof import('react-native-purchases');
+const PRODUCT_IDS = [
+  SUBSCRIPTION_PRODUCT_IDS.monthly,
+  SUBSCRIPTION_PRODUCT_IDS.yearly,
+] as const;
 
-let purchasesModule: PurchasesModule | null = null;
-let purchasesLoadAttempted = false;
+type ExpoIapModule = typeof import('expo-iap');
+type ProductSubscription = import('expo-iap').ProductSubscription;
+type Purchase = import('expo-iap').Purchase;
+type ActiveSubscription = import('expo-iap').ActiveSubscription;
 
-function getRevenueCatApiKey(): string | null {
-  let key: string | null = null;
-  if (Platform.OS === 'ios') {
-    key = process.env.EXPO_PUBLIC_REVENUECAT_APPLE_KEY ?? null;
-  } else if (Platform.OS === 'android') {
-    key = process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY ?? null;
-  }
+let iapModule: ExpoIapModule | null = null;
+let iapLoadAttempted = false;
+let connectionPromise: Promise<boolean> | null = null;
 
-  // RevenueCat Test Store keys (`test_…`) force-quit Release builds with "Wrong API Key".
-  // Keep them for Debug only; Release/sim needs a real `appl_` / `goog_` public SDK key.
-  if (key?.startsWith('test_') && !__DEV__) {
-    return null;
-  }
-
-  return key;
-}
-
-export function isRevenueCatConfigured(): boolean {
-  return !IS_WEB && Boolean(getRevenueCatApiKey());
-}
-
-/** Whether in-app store purchase UI should be shown (native RevenueCat only). */
-export function isNativeStoreBillingAvailable(): boolean {
-  return isRevenueCatConfigured();
-}
-
-async function loadPurchasesModule(): Promise<PurchasesModule | null> {
-  if (purchasesLoadAttempted) {
-    return purchasesModule;
-  }
-
-  purchasesLoadAttempted = true;
-
-  if (!isRevenueCatConfigured()) {
-    return null;
-  }
-
-  try {
-    purchasesModule = await import('react-native-purchases');
-    return purchasesModule;
-  } catch (error) {
-    console.warn('[Subscription] react-native-purchases unavailable:', error);
-    return null;
-  }
+function emptyStatus(): SubscriptionStatus {
+  return {
+    isPro: false,
+    expirationDate: null,
+    willRenew: false,
+    productIdentifier: null,
+    isSandbox: false,
+  };
 }
 
 function fallbackPackage(productId: SubscriptionProductId): SubscriptionPackage {
@@ -80,55 +53,163 @@ function fallbackPackage(productId: SubscriptionProductId): SubscriptionPackage 
   };
 }
 
-function mapPackage(
-  productId: SubscriptionProductId,
-  storePackage: { product: { priceString: string; introPrice?: { priceString: string } | null } } | undefined,
-): SubscriptionPackage | null {
-  if (!storePackage) {
+/** Native store billing is available on iOS/Android builds (no API keys required). */
+export function isNativeStoreBillingAvailable(): boolean {
+  return !IS_WEB && (Platform.OS === 'ios' || Platform.OS === 'android');
+}
+
+/** @deprecated Use isStoreBillingReady — kept for call-site compatibility. */
+export function isRevenueCatConfigured(): boolean {
+  return isNativeStoreBillingAvailable();
+}
+
+async function loadIapModule(): Promise<ExpoIapModule | null> {
+  if (iapLoadAttempted) {
+    return iapModule;
+  }
+
+  iapLoadAttempted = true;
+
+  if (!isNativeStoreBillingAvailable()) {
+    return null;
+  }
+
+  try {
+    iapModule = await import('expo-iap');
+    return iapModule;
+  } catch (error) {
+    console.warn('[Subscription] expo-iap unavailable:', error);
+    return null;
+  }
+}
+
+async function ensureConnection(): Promise<ExpoIapModule | null> {
+  const IAP = await loadIapModule();
+  if (!IAP) {
+    return null;
+  }
+
+  if (!connectionPromise) {
+    connectionPromise = IAP.initConnection()
+      .then(() => true)
+      .catch((error) => {
+        console.warn('[Subscription] initConnection failed:', error);
+        connectionPromise = null;
+        return false;
+      });
+  }
+
+  const ok = await connectionPromise;
+  return ok ? IAP : null;
+}
+
+function msToIso(ms: number | null | undefined): string | null {
+  if (ms == null || !Number.isFinite(ms)) {
+    return null;
+  }
+  return new Date(ms).toISOString();
+}
+
+function mapActiveSubscription(sub: ActiveSubscription): SubscriptionStatus {
+  const willRenew =
+    sub.renewalInfoIOS?.willAutoRenew ??
+    sub.autoRenewingAndroid ??
+    true;
+
+  const productId = PRODUCT_IDS.includes(sub.productId as SubscriptionProductId)
+    ? (sub.productId as SubscriptionProductId)
+    : null;
+
+  return {
+    isPro: Boolean(sub.isActive),
+    expirationDate: msToIso(sub.expirationDateIOS ?? sub.renewalInfoIOS?.renewalDate ?? null),
+    willRenew: Boolean(willRenew),
+    productIdentifier: productId,
+    isSandbox: sub.environmentIOS === 'Sandbox' || __DEV__,
+  };
+}
+
+function pickBestActiveSubscription(subs: ActiveSubscription[]): ActiveSubscription | null {
+  const matching = subs.filter(
+    (sub) => sub.isActive && PRODUCT_IDS.includes(sub.productId as SubscriptionProductId),
+  );
+  if (matching.length === 0) {
+    return null;
+  }
+  matching.sort((a, b) => (b.expirationDateIOS ?? 0) - (a.expirationDateIOS ?? 0));
+  return matching[0] ?? null;
+}
+
+function mapStoreProduct(product: ProductSubscription | undefined, productId: SubscriptionProductId): SubscriptionPackage {
+  if (!product) {
     return fallbackPackage(productId);
   }
 
   return {
     identifier: productId,
-    priceString: storePackage.product.priceString,
-    introPriceString: storePackage.product.introPrice?.priceString ?? undefined,
+    priceString: product.displayPrice || fallbackPackage(productId).priceString,
+    introPriceString:
+      'introductoryPriceIOS' in product && product.introductoryPriceIOS
+        ? product.introductoryPriceIOS
+        : undefined,
   };
 }
 
-function emptyStatus(): SubscriptionStatus {
-  return {
-    isPro: false,
-    expirationDate: null,
-    willRenew: false,
-    productIdentifier: null,
-    isSandbox: false,
-  };
+function getAndroidOfferToken(product: ProductSubscription | undefined): string | null {
+  if (!product || product.platform !== 'android') {
+    return null;
+  }
+  const offers = product.subscriptionOffers ?? [];
+  const withToken = offers.find((offer) => Boolean(offer.offerTokenAndroid));
+  return withToken?.offerTokenAndroid ?? null;
 }
 
-export async function configureSubscriptionService(userId?: string | null): Promise<void> {
-  const Purchases = await loadPurchasesModule();
-  const apiKey = getRevenueCatApiKey();
+function waitForPurchase(IAP: ExpoIapModule, timeoutMs = 120_000): Promise<Purchase> {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Purchase timed out. Try again.'));
+    }, timeoutMs);
 
-  if (!Purchases || !apiKey) {
-    return;
-  }
+    const successSub = IAP.purchaseUpdatedListener((purchase) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanup();
+      resolve(purchase);
+    });
 
-  Purchases.default.setLogLevel(__DEV__ ? Purchases.LOG_LEVEL.DEBUG : Purchases.LOG_LEVEL.WARN);
-  Purchases.default.configure({ apiKey, appUserID: userId ?? undefined });
+    const errorSub = IAP.purchaseErrorListener((error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanup();
+      const code = String(error?.code ?? '');
+      const message = String(error?.message ?? 'Purchase failed.');
+      if (code.toLowerCase().includes('cancel') || message.toLowerCase().includes('cancel')) {
+        reject(new Error('Purchase cancelled.'));
+        return;
+      }
+      reject(new Error(message));
+    });
+
+    function cleanup() {
+      clearTimeout(timer);
+      successSub.remove();
+      errorSub.remove();
+    }
+  });
 }
 
-export async function syncSubscriptionUser(userId: string | null): Promise<void> {
-  const Purchases = await loadPurchasesModule();
-  if (!Purchases || !isRevenueCatConfigured()) {
-    return;
-  }
+export async function configureSubscriptionService(_userId?: string | null): Promise<void> {
+  await ensureConnection();
+}
 
-  if (userId) {
-    await Purchases.default.logIn(userId);
-    return;
-  }
-
-  await Purchases.default.logOut();
+export async function syncSubscriptionUser(_userId: string | null): Promise<void> {
+  // Direct store billing has no app-user login layer — no-op.
 }
 
 export async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
@@ -136,67 +217,55 @@ export async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
     return fetchWebSubscriptionStatus();
   }
 
-  const Purchases = await loadPurchasesModule();
-  if (!Purchases || !isRevenueCatConfigured()) {
+  const IAP = await ensureConnection();
+  if (!IAP) {
     return emptyStatus();
   }
 
-  const customerInfo = await Purchases.default.getCustomerInfo();
-  const entitlement = customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT_ID];
-
-  if (!entitlement) {
+  try {
+    const active = await IAP.getActiveSubscriptions([...PRODUCT_IDS]);
+    const best = pickBestActiveSubscription(active);
+    if (!best) {
+      return emptyStatus();
+    }
+    return mapActiveSubscription(best);
+  } catch (error) {
+    console.warn('[Subscription] getActiveSubscriptions failed:', error);
     return emptyStatus();
   }
-
-  const productId = entitlement.productIdentifier as SubscriptionProductId;
-
-  return {
-    isPro: true,
-    expirationDate: entitlement.expirationDate,
-    willRenew: entitlement.willRenew,
-    productIdentifier: productId,
-    isSandbox: customerInfo.requestDate ? __DEV__ : false,
-  };
 }
 
 export async function fetchSubscriptionOfferings(): Promise<SubscriptionOfferings> {
-  const Purchases = await loadPurchasesModule();
+  const IAP = await ensureConnection();
 
-  if (!Purchases || !isRevenueCatConfigured()) {
+  if (!IAP) {
     return {
       monthly: fallbackPackage(SUBSCRIPTION_PRODUCT_IDS.monthly),
       yearly: fallbackPackage(SUBSCRIPTION_PRODUCT_IDS.yearly),
     };
   }
 
-  const offerings = await Purchases.default.getOfferings();
-  const current = offerings.current;
+  try {
+    const products = (await IAP.fetchProducts({
+      skus: [...PRODUCT_IDS],
+      type: 'subs',
+    })) as ProductSubscription[] | null;
 
-  if (!current) {
+    const list = products ?? [];
+    const monthly = list.find((p) => p.id === SUBSCRIPTION_PRODUCT_IDS.monthly);
+    const yearly = list.find((p) => p.id === SUBSCRIPTION_PRODUCT_IDS.yearly);
+
+    return {
+      monthly: mapStoreProduct(monthly, SUBSCRIPTION_PRODUCT_IDS.monthly),
+      yearly: mapStoreProduct(yearly, SUBSCRIPTION_PRODUCT_IDS.yearly),
+    };
+  } catch (error) {
+    console.warn('[Subscription] fetchProducts failed:', error);
     return {
       monthly: fallbackPackage(SUBSCRIPTION_PRODUCT_IDS.monthly),
       yearly: fallbackPackage(SUBSCRIPTION_PRODUCT_IDS.yearly),
     };
   }
-
-  const monthly =
-    current.availablePackages.find(
-      (pkg) => pkg.product.identifier === SUBSCRIPTION_PRODUCT_IDS.monthly,
-    ) ??
-    current.monthly ??
-    current.availablePackages.find((pkg) => pkg.packageType === Purchases.PACKAGE_TYPE.MONTHLY);
-
-  const yearly =
-    current.availablePackages.find(
-      (pkg) => pkg.product.identifier === SUBSCRIPTION_PRODUCT_IDS.yearly,
-    ) ??
-    current.annual ??
-    current.availablePackages.find((pkg) => pkg.packageType === Purchases.PACKAGE_TYPE.ANNUAL);
-
-  return {
-    monthly: mapPackage(SUBSCRIPTION_PRODUCT_IDS.monthly, monthly),
-    yearly: mapPackage(SUBSCRIPTION_PRODUCT_IDS.yearly, yearly),
-  };
 }
 
 export async function purchaseSubscriptionProduct(
@@ -208,41 +277,57 @@ export async function purchaseSubscriptionProduct(
     );
   }
 
-  const Purchases = await loadPurchasesModule();
-
-  if (!Purchases || !isRevenueCatConfigured()) {
-    throw new Error('Subscriptions are not configured yet. Add RevenueCat API keys.');
+  const IAP = await ensureConnection();
+  if (!IAP) {
+    throw new Error('Store billing is unavailable on this device.');
   }
 
-  const offerings = await Purchases.default.getOfferings();
-  const current = offerings.current;
-
-  if (!current) {
-    throw new Error('No subscription offerings available.');
+  const products = (await IAP.fetchProducts({
+    skus: [...PRODUCT_IDS],
+    type: 'subs',
+  })) as ProductSubscription[] | null;
+  const product = (products ?? []).find((p) => p.id === productId);
+  if (!product) {
+    throw new Error('Selected plan is unavailable in the store. Create the subscription in App Store Connect / Google Play first.');
   }
 
-  const target =
-    current.availablePackages.find((pkg) => pkg.product.identifier === productId) ??
-    (productId === SUBSCRIPTION_PRODUCT_IDS.monthly ? current.monthly : current.annual);
+  const purchasePromise = waitForPurchase(IAP);
 
-  if (!target) {
-    throw new Error('Selected plan is unavailable in the store.');
+  const googleOfferToken = getAndroidOfferToken(product);
+  await IAP.requestPurchase({
+    type: 'subs',
+    request: {
+      apple: { sku: productId },
+      google: {
+        skus: [productId],
+        ...(googleOfferToken
+          ? { subscriptionOffers: [{ sku: productId, offerToken: googleOfferToken }] }
+          : {}),
+      },
+    },
+  });
+
+  const purchase = await purchasePromise;
+  await IAP.finishTransaction({ purchase, isConsumable: false });
+
+  const status = await fetchSubscriptionStatus();
+  if (!status.isPro) {
+    // Purchase just finished — treat matching product as Pro even if active query lags.
+    return {
+      isPro: true,
+      expirationDate: null,
+      willRenew: true,
+      productIdentifier: productId,
+      isSandbox: __DEV__,
+    };
   }
 
-  const { customerInfo } = await Purchases.default.purchasePackage(target);
-  const entitlement = customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT_ID];
-
-  if (!entitlement) {
-    throw new Error('Purchase completed but Pro access was not granted.');
-  }
-
-  return {
+  void syncProStatusToServer({
     isPro: true,
-    expirationDate: entitlement.expirationDate,
-    willRenew: entitlement.willRenew,
-    productIdentifier: entitlement.productIdentifier as SubscriptionProductId,
-    isSandbox: __DEV__,
-  };
+    expiresAt: status.expirationDate,
+  });
+
+  return status;
 }
 
 export async function restoreSubscriptionPurchases(): Promise<SubscriptionStatus> {
@@ -250,17 +335,49 @@ export async function restoreSubscriptionPurchases(): Promise<SubscriptionStatus
     return fetchWebSubscriptionStatus();
   }
 
-  const Purchases = await loadPurchasesModule();
-
-  if (!Purchases || !isRevenueCatConfigured()) {
-    throw new Error('Subscriptions are not configured yet. Add RevenueCat API keys.');
+  const IAP = await ensureConnection();
+  if (!IAP) {
+    throw new Error('Store billing is unavailable on this device.');
   }
 
-  await Purchases.default.restorePurchases();
-  return fetchSubscriptionStatus();
+  await IAP.restorePurchases();
+  const purchases = await IAP.getAvailablePurchases();
+  for (const purchase of purchases) {
+    try {
+      await IAP.finishTransaction({ purchase, isConsumable: false });
+    } catch {
+      // Already finished / not required.
+    }
+  }
+
+  const status = await fetchSubscriptionStatus();
+  void syncProStatusToServer({
+    isPro: status.isPro,
+    expiresAt: status.expirationDate,
+  });
+  return status;
 }
 
-/** Web/TMA: resolve Pro from server-side RevenueCat sync (profiles.is_pro). */
+/** Opens Apple / Google subscription management (cancel / auto-renew). */
+export async function openStoreManageSubscriptions(productId?: string | null): Promise<void> {
+  try {
+    const IAP = await ensureConnection();
+    if (IAP) {
+      await IAP.deepLinkToSubscriptions({
+        skuAndroid: productId ?? SUBSCRIPTION_PRODUCT_IDS.monthly,
+        packageNameAndroid: NATIVE_STORE_PACKAGE_ID,
+      });
+      return;
+    }
+  } catch (error) {
+    console.warn('[Subscription] deepLinkToSubscriptions failed:', error);
+  }
+
+  const { openNativeManageSubscriptions } = await import('../../constants/legal');
+  await openNativeManageSubscriptions(productId);
+}
+
+/** Web/TMA: resolve Pro from server profile (synced after native purchase). */
 export async function fetchWebSubscriptionStatus(): Promise<SubscriptionStatus> {
   const synced = await syncProStatusToServer();
   if (!synced?.isPro) {

@@ -1,58 +1,39 @@
-# Paid native builds (iOS + Android)
+# Native paid Pro (direct store IAP)
 
-TrackIt Pro via **RevenueCat** on **App Store** and **Google Play**. Soft **3-day trial**, then paywall.
+TrackIt Pro via **App Store** and **Google Play** subscriptions (`expo-iap`). Soft **3-day trial**, then paywall. No RevenueCat.
 
-## Client flags
+## Product IDs
 
-`src/constants/appAccess.ts`:
+Create these exact auto-renewable subscription IDs in both consoles:
 
-- `IOS_BILLING_ENABLED = true`
-- `ANDROID_BILLING_ENABLED = true`
+| ID | Price (display fallback) |
+| --- | --- |
+| `trackit_pro_monthly` | $5.00 / month |
+| `trackit_pro_yearly` | $50.00 / year |
 
-Product IDs: `trackit_pro_monthly`, `trackit_pro_yearly`  
-Entitlement: **`pro`**  
-Fallback price: **$5.00/month**
+## Android
 
-## Soft trial (3 days) — iOS + Android
+1. Play Console → Monetize → Subscriptions → create both products
+2. Activate / push to production (or license testers for sandbox)
+3. Requires Billing Library **v8+** (shipped via `expo-iap`)
 
-On first native launch:
+## iOS
 
-- Full Pro access during trial
-- **Subscribe** button visible in Profile (pay early)
-- After trial: Pro features lock, paywall opens once
-- Storage: `@trackit/soft_trial_started_at`
+1. App Store Connect → Subscriptions → create both products in one subscription group
+2. Sandbox testers for QA
 
-## Google Play Billing Library (deadline 31 Aug 2026)
+## App / EAS
 
-Requires Billing Library **v8+**. Project uses `react-native-purchases` **≥ 9.x**. Rebuild AAB after upgrade.
-
-## Store setup
-
-### Google Play
-
-1. Subscriptions `trackit_pro_monthly` / `trackit_pro_yearly`
-2. RevenueCat → Google app + `goog_…` key
-
-### App Store Connect
-
-1. Auto-renewable subscriptions with the same product IDs
-2. RevenueCat → Apple app + `appl_…` key
-3. Paid Apps Agreement + banking + tax complete
-
-## EAS env
+No billing API keys are required in the client. Ensure Supabase env is set:
 
 ```
 EXPO_PUBLIC_SUPABASE_URL=…
 EXPO_PUBLIC_SUPABASE_ANON_KEY=…
-EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY=goog_…
-EXPO_PUBLIC_REVENUECAT_APPLE_KEY=appl_…
 ```
 
-## Build
+After purchase/restore, the app syncs `profiles.is_pro` via `sync-subscription-status`.
 
-```bash
-npm run build:android
-npm run build:ios
-```
+## Restore / manage
 
-More detail (Play-focused): historically `docs/GOOGLE_PLAY_PAID.md` — same products apply to iOS.
+- Premium → **Restore purchases**
+- Premium → **Manage subscription** (opens Apple / Google subscription settings)

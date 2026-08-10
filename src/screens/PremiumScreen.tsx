@@ -22,7 +22,7 @@ import {
   SUBSCRIPTION_DISPLAY_PRICING,
   SUBSCRIPTION_PRODUCT_IDS,
 } from '../constants/subscriptions';
-import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL, openNativeManageSubscriptions } from '../constants/legal';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import {
   getTmaMonthlyPriceLabel,
   TMA_TRIAL_DAYS,
@@ -31,9 +31,10 @@ import { useAppSafeAreaInsets } from '../hooks/useAppSafeAreaInsets';
 import { PREMIUM_FEATURE_META } from '../lib/subscription/features';
 import { IS_WEB } from '../lib/platform/constants';
 import { triggerHaptic } from '../lib/platform/haptics';
+import { openStoreManageSubscriptions } from '../lib/subscription/subscriptionService';
 import { isTelegramMiniApp } from '../lib/telegram/telegramWebApp';
 import {
-  isRevenueCatReady,
+  isStoreBillingReady,
   selectAndroidTrial,
   selectHasPaidPro,
   useSubscriptionStore,
@@ -147,7 +148,7 @@ export function PremiumScreen({
 
   const handleManageSubscription = useCallback(() => {
     void triggerHaptic('selection');
-    void openNativeManageSubscriptions(subscriptionStatus.productIdentifier);
+    void openStoreManageSubscriptions(subscriptionStatus.productIdentifier);
   }, [subscriptionStatus.productIdentifier]);
 
   const accessUntilLabel = formatSubscriptionDate(
@@ -575,10 +576,10 @@ export function PremiumScreen({
           {!IS_WEB ? (
             <Pressable
               onPress={() => void handlePurchase()}
-              disabled={isPurchasing || isLoading || !isRevenueCatReady()}
+              disabled={isPurchasing || isLoading || !isStoreBillingReady()}
               style={[
                 styles.primaryButton,
-                (isPurchasing || isLoading || !isRevenueCatReady()) && { opacity: 0.7 },
+                (isPurchasing || isLoading || !isStoreBillingReady()) && { opacity: 0.7 },
               ]}
             >
               {isPurchasing ? (
@@ -620,7 +621,7 @@ export function PremiumScreen({
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          {!isRevenueCatReady() && !IS_WEB ? (
+          {!isStoreBillingReady() && !IS_WEB ? (
             <Text style={styles.configNote}>{t('premium.storeNotConfigured')}</Text>
           ) : null}
 

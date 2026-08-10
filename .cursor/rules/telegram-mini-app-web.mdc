@@ -34,7 +34,7 @@ if (Platform.OS === 'web') {
 | `expo-haptics` | No-op on web (`Platform.OS !== 'web'`) |
 | `expo-notifications` | Already gated; use TMA/deep-link alternatives on web |
 | `expo-secure-store` | Use `supabaseAuthStorage` web branch |
-| `react-native-purchases` | TMA billing / Telegram Stars — separate web path |
+| `react-native-purchases` | Removed — native uses `expo-iap`; TMA billing / Telegram Stars — separate web path |
 | `expo-apple-authentication` | Hide on web |
 | Reanimated | Prefer web-safe patterns; static fallbacks for animated SVG on Android already exist — extend to web if needed |
 

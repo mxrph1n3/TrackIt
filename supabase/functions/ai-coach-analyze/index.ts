@@ -36,7 +36,6 @@ const DEFAULT_USER_PROMPT =
   "Analyze my current TrackIt state from the JSON payload. Give today's battle plan.";
 const MAX_PROMPT_LENGTH = 500;
 const DAILY_AI_COACH_LIMIT = 20;
-const REVENUECAT_ENTITLEMENT = 'pro';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': Deno.env.get('ALLOWED_ORIGIN') ?? 'https://trackit.app',
@@ -59,44 +58,6 @@ function sanitizePrompt(raw: string | undefined): string {
 async function verifyProAccess(userId: string, authHeader: string): Promise<boolean> {
   if (isAppFullyFree()) {
     return true;
-  }
-
-  const rcSecret = Deno.env.get('REVENUECAT_SECRET_KEY');
-  if (rcSecret) {
-    try {
-      const response = await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(userId)}`, {
-        headers: {
-          Authorization: `Bearer ${rcSecret}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const json = await response.json();
-        const entitlement = json?.subscriber?.entitlements?.[REVENUECAT_ENTITLEMENT];
-        const expires = entitlement?.expires_date;
-        const isActive =
-          entitlement?.is_active === true ||
-          (typeof expires === 'string' && new Date(expires).getTime() > Date.now());
-
-        const serviceClient = createClient(
-          Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-        );
-
-        await serviceClient
-          .from('profiles')
-          .update({
-            is_pro: isActive,
-            pro_expires_at: typeof expires === 'string' ? expires : null,
-          })
-          .eq('id', userId);
-
-        return isActive;
-      }
-    } catch (error) {
-      console.error('[ai-coach-analyze] RevenueCat verify failed:', error);
-    }
   }
 
   const supabase = createClient(
