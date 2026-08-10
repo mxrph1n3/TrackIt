@@ -20,13 +20,20 @@ let purchasesModule: PurchasesModule | null = null;
 let purchasesLoadAttempted = false;
 
 function getRevenueCatApiKey(): string | null {
+  let key: string | null = null;
   if (Platform.OS === 'ios') {
-    return process.env.EXPO_PUBLIC_REVENUECAT_APPLE_KEY ?? null;
+    key = process.env.EXPO_PUBLIC_REVENUECAT_APPLE_KEY ?? null;
+  } else if (Platform.OS === 'android') {
+    key = process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY ?? null;
   }
-  if (Platform.OS === 'android') {
-    return process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY ?? null;
+
+  // RevenueCat Test Store keys (`test_…`) force-quit Release builds with "Wrong API Key".
+  // Keep them for Debug only; Release/sim needs a real `appl_` / `goog_` public SDK key.
+  if (key?.startsWith('test_') && !__DEV__) {
+    return null;
   }
-  return null;
+
+  return key;
 }
 
 export function isRevenueCatConfigured(): boolean {

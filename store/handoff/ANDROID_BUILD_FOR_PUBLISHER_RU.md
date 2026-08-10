@@ -5,15 +5,19 @@
 **Package:** `com.trackit.lifeos`  
 **versionCode (EAS):** 11  
 
-## Сборка (production AAB)
+## Сборка (production AAB) — готово
 
-Статус и скачивание:
-https://expo.dev/accounts/s4d1sms-team/projects/sadism/builds/c1a7e0f2-8a6d-433e-8163-65956609c25d
-
-Когда статус **Finished** → кнопка **Download** → файл `.aab`.
+| | |
+|--|--|
+| Status | **Finished** |
+| versionName | 1.0.0 |
+| versionCode | 11 |
+| EAS page | https://expo.dev/accounts/s4d1sms-team/projects/sadism/builds/c1a7e0f2-8a6d-433e-8163-65956609c25d |
+| Download AAB | https://expo.dev/artifacts/eas/ondk5Qh1unFCp9A4H2JbcoV12_8IgWQuGFx4MblK9aA.aab |
+| Локальная копия | `dist-android/publisher/TrackIt-1.0.0-vc11.aab` (не в git) |
 
 Передать посреднику:
-1. Этот `.aab`
+1. Файл `.aab` (ссылка выше или локальная копия)
 2. Документ `store/handoff/FOR_PUBLISHER_ANDROID_RU.md`
 3. Листинг `store/handoff/RELEASE_READY_RU.md`
 4. Репо: https://github.com/mxrph1n3/TrackIt (ветка `main`)

@@ -380,6 +380,7 @@
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
+					"-Wl,-ignore_auto_link_library,SwiftUICore",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.trackit.lifeos;
@@ -417,6 +418,7 @@
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
+					"-Wl,-ignore_auto_link_library,SwiftUICore",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.trackit.lifeos;

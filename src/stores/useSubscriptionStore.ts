@@ -318,11 +318,34 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
  * Live soft-trial check (wall clock vs trialEndsAt).
  * Do not trust cached `androidTrial.isInTrial` alone — app can stay open past expiry.
  */
+function androidTrialStatusEqual(a: AndroidTrialStatus, b: AndroidTrialStatus): boolean {
+  return (
+    a.started === b.started &&
+    a.isInTrial === b.isInTrial &&
+    a.isExpired === b.isExpired &&
+    a.trialDaysRemaining === b.trialDaysRemaining &&
+    a.trialStartedAt === b.trialStartedAt &&
+    a.trialEndsAt === b.trialEndsAt
+  );
+}
+
+/** Last live snapshot — selectors must be referentially stable for Zustand. */
+let lastLiveAndroidTrial: AndroidTrialStatus = EMPTY_ANDROID_TRIAL;
+
 function selectLiveAndroidTrial(state: SubscriptionState): AndroidTrialStatus {
   if (!canUseAndroidTrial()) {
     return EMPTY_ANDROID_TRIAL;
   }
-  return computeAndroidTrialStatus(state.androidTrial.trialStartedAt);
+  const live = computeAndroidTrialStatus(state.androidTrial.trialStartedAt);
+  if (androidTrialStatusEqual(live, state.androidTrial)) {
+    lastLiveAndroidTrial = state.androidTrial;
+    return state.androidTrial;
+  }
+  if (androidTrialStatusEqual(live, lastLiveAndroidTrial)) {
+    return lastLiveAndroidTrial;
+  }
+  lastLiveAndroidTrial = live;
+  return live;
 }
 
 function selectHasAndroidTrialAccess(state: SubscriptionState): boolean {
