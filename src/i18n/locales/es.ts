@@ -1237,10 +1237,19 @@ const es: TranslationSchema = {
     syncSubscription: 'Sincronizar suscripción',
     tmaBillingNote: 'Se cobra {{price}} con Telegram Stars al finalizar. La suscripción se renueva automáticamente; cancélala en Telegram → Ajustes → Stars.',
     subscribeNativeThenSync: 'Suscríbete en la app iOS o Android y luego sincroniza tu estado Pro aquí.',
-    storeLegal: 'El pago se cargará a tu Apple ID o cuenta de Google Play al confirmar. Las suscripciones se renuevan automáticamente salvo cancelación al menos 24 horas antes del fin del periodo actual. Gestiona o cancela en los ajustes de la cuenta tras la compra.',
-    storeNotConfigured: 'La facturación de la tienda no está configurada en este build. Añade EXPO_PUBLIC_REVENUECAT_APPLE_KEY (y la clave de Android) para habilitar compras.',
+    storeLegal:
+      'TrackIt Pro Monthly — {{monthlyPrice}}/mes. TrackIt Pro Yearly — {{yearlyPrice}}/año. El pago se carga a tu Apple ID o cuenta de Google Play al confirmar. La suscripción se renueva automáticamente salvo cancelación al menos 24 horas antes del fin del periodo actual. Gestiona o cancela: iOS — Ajustes → [Tu nombre] → Suscripciones; Android — Google Play → Pagos y suscripciones → Suscripciones.',
+    storeNotConfigured:
+      'La facturación de la tienda no está configurada en este build. Añade EXPO_PUBLIC_REVENUECAT_APPLE_KEY (y la clave de Android) para habilitar compras.',
+    manageSubscription: 'Gestionar suscripción',
+    autoRenewStatus: 'Renovación automática: {{status}}',
+    autoRenewOn: 'Activada',
+    autoRenewOff: 'Desactivada',
+    nextBilling: 'Próximo cobro / renovación: {{date}}',
+    accessUntil: 'Acceso hasta: {{date}}',
+    activeProduct: 'Plan: {{id}}',
     privacy: 'Política de privacidad',
-    terms: 'Términos del servicio',
+    terms: 'Términos de uso (EULA)',
   },
   trial: {
     bannerTitle: 'Prueba gratis · quedan {{remaining}} de {{total}} día(s)',

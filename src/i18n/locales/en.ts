@@ -1248,11 +1248,18 @@ const en = {
       'Billed at {{price}} via Telegram Stars at checkout. Subscription renews automatically; cancel in Telegram → Settings → Stars.',
     subscribeNativeThenSync: 'Subscribe on the iOS or Android app, then sync your Pro status here.',
     storeLegal:
-      'Payment will be charged to your Apple ID or Google Play account at confirmation. Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. Manage or cancel in Account Settings after purchase.',
+      'TrackIt Pro Monthly — {{monthlyPrice}}/month. TrackIt Pro Yearly — {{yearlyPrice}}/year. Payment is charged to your Apple ID or Google Play account at confirmation. Subscription automatically renews unless canceled at least 24 hours before the end of the current period. Manage or cancel anytime: iOS — Settings → [Your Name] → Subscriptions; Android — Google Play → Payments & subscriptions → Subscriptions.',
     storeNotConfigured:
       'Store billing is not configured in this build. Add EXPO_PUBLIC_REVENUECAT_APPLE_KEY (and Android key) to enable purchases.',
+    manageSubscription: 'Manage subscription',
+    autoRenewStatus: 'Auto-renewal: {{status}}',
+    autoRenewOn: 'On',
+    autoRenewOff: 'Off',
+    nextBilling: 'Next billing / renews: {{date}}',
+    accessUntil: 'Access until: {{date}}',
+    activeProduct: 'Plan: {{id}}',
     privacy: 'Privacy Policy',
-    terms: 'Terms of Service',
+    terms: 'Terms of Use (EULA)',
   },
   trial: {
     bannerTitle: 'Free trial · {{remaining}} of {{total}} day(s) left',

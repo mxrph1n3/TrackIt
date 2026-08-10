@@ -1237,10 +1237,19 @@ const ru: TranslationSchema = {
     syncSubscription: 'Синхронизировать подписку',
     tmaBillingNote: 'Оплата {{price}} через Telegram Stars при оформлении. Подписка продлевается автоматически; отмена в Telegram → Настройки → Stars.',
     subscribeNativeThenSync: 'Оформите подписку в приложении iOS или Android, затем синхронизируйте статус Pro здесь.',
-    storeLegal: 'Оплата спишется с вашего Apple ID или аккаунта Google Play при подтверждении. Подписки продлеваются автоматически, если не отменить минимум за 24 часа до конца текущего периода. Управляйте или отменяйте в настройках аккаунта после покупки.',
-    storeNotConfigured: 'Биллинг магазина не настроен в этой сборке. Добавьте EXPO_PUBLIC_REVENUECAT_APPLE_KEY (и Android-ключ), чтобы включить покупки.',
+    storeLegal:
+      'TrackIt Pro Monthly — {{monthlyPrice}}/мес. TrackIt Pro Yearly — {{yearlyPrice}}/год. Оплата списывается с Apple ID или аккаунта Google Play при подтверждении. Подписка продлевается автоматически, если не отменить минимум за 24 часа до конца текущего периода. Управление и отмена: iOS — Настройки → [Ваше имя] → Подписки; Android — Google Play → Платежи и подписки → Подписки.',
+    storeNotConfigured:
+      'Биллинг магазина не настроен в этой сборке. Добавьте EXPO_PUBLIC_REVENUECAT_APPLE_KEY (и Android-ключ), чтобы включить покупки.',
+    manageSubscription: 'Управление подпиской',
+    autoRenewStatus: 'Автопродление: {{status}}',
+    autoRenewOn: 'Вкл.',
+    autoRenewOff: 'Выкл.',
+    nextBilling: 'Следующее списание / продление: {{date}}',
+    accessUntil: 'Доступ до: {{date}}',
+    activeProduct: 'Тариф: {{id}}',
     privacy: 'Политика конфиденциальности',
-    terms: 'Условия использования',
+    terms: 'Условия использования (EULA)',
   },
   trial: {
     bannerTitle: 'Бесплатный триал · осталось {{remaining}} из {{total}} дн.',

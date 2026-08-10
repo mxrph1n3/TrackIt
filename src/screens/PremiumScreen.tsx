@@ -22,7 +22,7 @@ import {
   SUBSCRIPTION_DISPLAY_PRICING,
   SUBSCRIPTION_PRODUCT_IDS,
 } from '../constants/subscriptions';
-import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL, openNativeManageSubscriptions } from '../constants/legal';
 import {
   getTmaMonthlyPriceLabel,
   TMA_TRIAL_DAYS,
@@ -44,6 +44,20 @@ import { BRAND, RADIUS } from '../theme/designTokens';
 import { useTheme } from '../theme/ThemeContext';
 import type { PremiumFeatureId, SubscriptionProductId } from '../types/subscription';
 
+function formatSubscriptionDate(iso: string | null): string | null {
+  if (!iso) {
+    return null;
+  }
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
 type PremiumScreenProps = {
   /** When shown as a modal overlay, pass onClose instead of using profile module back. */
   onClose?: () => void;
@@ -66,6 +80,7 @@ export function PremiumScreen({
 
   const hasPaidPro = useSubscriptionStore(selectHasPaidPro);
   const androidTrial = useSubscriptionStore(selectAndroidTrial);
+  const subscriptionStatus = useSubscriptionStore((s) => s.status);
   const tmaAccess = useSubscriptionStore((s) => s.tmaAccess);
   const isTma = IS_WEB && isTelegramMiniApp();
   const monthlyPriceLabel = getTmaMonthlyPriceLabel();
@@ -129,6 +144,15 @@ export function PremiumScreen({
       handleClose();
     }
   }, [clearError, handleClose, restore]);
+
+  const handleManageSubscription = useCallback(() => {
+    void triggerHaptic('selection');
+    void openNativeManageSubscriptions(subscriptionStatus.productIdentifier);
+  }, [subscriptionStatus.productIdentifier]);
+
+  const accessUntilLabel = formatSubscriptionDate(
+    subscriptionStatus.expirationDate ?? tmaAccess.proExpiresAt,
+  );
 
   const styles = useMemo(
     () =>
@@ -364,9 +388,42 @@ export function PremiumScreen({
                   ? t('premium.starsActiveBody', { price: monthlyPriceLabel })
                   : t('premium.proActiveBody')}
             </Text>
+            {!IS_WEB ? (
+              <>
+                <Text style={[styles.planMeta, { marginTop: 10, textAlign: 'center' }]}>
+                  {t('premium.autoRenewStatus', {
+                    status: subscriptionStatus.willRenew
+                      ? t('premium.autoRenewOn')
+                      : t('premium.autoRenewOff'),
+                  })}
+                </Text>
+                {accessUntilLabel ? (
+                  <Text style={[styles.planMeta, { marginTop: 4, textAlign: 'center' }]}>
+                    {subscriptionStatus.willRenew
+                      ? t('premium.nextBilling', { date: accessUntilLabel })
+                      : t('premium.accessUntil', { date: accessUntilLabel })}
+                  </Text>
+                ) : null}
+                {subscriptionStatus.productIdentifier ? (
+                  <Text style={[styles.planMeta, { marginTop: 4, textAlign: 'center' }]}>
+                    {t('premium.activeProduct', { id: subscriptionStatus.productIdentifier })}
+                  </Text>
+                ) : null}
+              </>
+            ) : null}
             <Pressable onPress={() => void refresh()} style={styles.secondaryButton}>
               <Text style={styles.secondaryLabel}>{t('premium.refreshStatus')}</Text>
             </Pressable>
+            {!IS_WEB ? (
+              <>
+                <Pressable onPress={handleManageSubscription} style={styles.secondaryButton}>
+                  <Text style={styles.secondaryLabel}>{t('premium.manageSubscription')}</Text>
+                </Pressable>
+                <Pressable onPress={() => void handleRestore()} style={styles.secondaryButton}>
+                  <Text style={styles.secondaryLabel}>{t('common.restorePurchases')}</Text>
+                </Pressable>
+              </>
+            ) : null}
           </View>
         </GlassPanel>
       ) : (
@@ -551,9 +608,14 @@ export function PremiumScreen({
           )}
 
           {!IS_WEB ? (
-            <Pressable onPress={() => void handleRestore()} style={styles.secondaryButton}>
-              <Text style={styles.secondaryLabel}>{t('common.restorePurchases')}</Text>
-            </Pressable>
+            <>
+              <Pressable onPress={() => void handleRestore()} style={styles.secondaryButton}>
+                <Text style={styles.secondaryLabel}>{t('common.restorePurchases')}</Text>
+              </Pressable>
+              <Pressable onPress={handleManageSubscription} style={styles.secondaryButton}>
+                <Text style={styles.secondaryLabel}>{t('premium.manageSubscription')}</Text>
+              </Pressable>
+            </>
           ) : null}
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -563,10 +625,18 @@ export function PremiumScreen({
           ) : null}
 
           {!IS_WEB ? (
-            <Text style={styles.configNote}>{t('premium.storeLegal')}</Text>
+            <Text style={styles.configNote}>
+              {t('premium.storeLegal', { monthlyPrice, yearlyPrice })}
+            </Text>
           ) : null}
         </>
       )}
+
+      {!IS_WEB && hasPaidPro ? (
+        <Text style={[styles.configNote, { marginTop: 12 }]}>
+          {t('premium.storeLegal', { monthlyPrice, yearlyPrice })}
+        </Text>
+      ) : null}
 
       <View style={styles.legalRow}>
         <Pressable onPress={() => void Linking.openURL(PRIVACY_POLICY_URL)}>

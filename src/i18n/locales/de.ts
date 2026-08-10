@@ -1237,10 +1237,19 @@ const de: TranslationSchema = {
     syncSubscription: 'Abo synchronisieren',
     tmaBillingNote: 'Abrechnung von {{price}} über Telegram Stars beim Checkout. Das Abo verlängert sich automatisch; kündigen in Telegram → Einstellungen → Stars.',
     subscribeNativeThenSync: 'Abonniere in der iOS- oder Android-App und synchronisiere dann hier deinen Pro-Status.',
-    storeLegal: 'Die Zahlung wird bei Bestätigung deinem Apple ID- oder Google-Play-Konto belastet. Abos verlängern sich automatisch, sofern sie nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt werden. Verwalte oder kündige nach dem Kauf in den Kontoeinstellungen.',
-    storeNotConfigured: 'Store-Billing ist in diesem Build nicht konfiguriert. Füge EXPO_PUBLIC_REVENUECAT_APPLE_KEY (und den Android-Key) hinzu, um Käufe zu aktivieren.',
+    storeLegal:
+      'TrackIt Pro Monthly — {{monthlyPrice}}/Monat. TrackIt Pro Yearly — {{yearlyPrice}}/Jahr. Die Zahlung wird bei Bestätigung deinem Apple-ID- oder Google-Play-Konto belastet. Das Abo verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt wird. Verwalten oder kündigen: iOS — Einstellungen → [Dein Name] → Abos; Android — Google Play → Zahlungen & Abos → Abos.',
+    storeNotConfigured:
+      'Store-Billing ist in diesem Build nicht konfiguriert. Füge EXPO_PUBLIC_REVENUECAT_APPLE_KEY (und den Android-Key) hinzu, um Käufe zu aktivieren.',
+    manageSubscription: 'Abo verwalten',
+    autoRenewStatus: 'Automatische Verlängerung: {{status}}',
+    autoRenewOn: 'An',
+    autoRenewOff: 'Aus',
+    nextBilling: 'Nächste Abbuchung / Verlängerung: {{date}}',
+    accessUntil: 'Zugang bis: {{date}}',
+    activeProduct: 'Tarif: {{id}}',
     privacy: 'Datenschutz',
-    terms: 'Nutzungsbedingungen',
+    terms: 'Nutzungsbedingungen (EULA)',
   },
   trial: {
     bannerTitle: 'Kostenlose Testphase · noch {{remaining}} von {{total}} Tag(en)',
