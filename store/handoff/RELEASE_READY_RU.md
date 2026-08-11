@@ -30,9 +30,9 @@
 |------|----------|
 | Display Name | TrackIt |
 | Bundle / Package | `com.trackit.lifeos` |
-| Version | **1.0.0** |
-| iOS Build | **5** |
-| Android versionCode | **13** (AAB готов) |
+| Version | **1.0.1** |
+| iOS Build | **6** |
+| Android versionCode | **13** (AAB; при новой Android-сборке поднять) |
 | Encryption export (iOS) | `ITSAppUsesNonExemptEncryption = false` |
 | Billing flags | `IOS_BILLING_ENABLED` / `ANDROID_BILLING_ENABLED` = **true** |
 

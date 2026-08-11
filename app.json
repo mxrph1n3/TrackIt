@@ -2,7 +2,7 @@
   "expo": {
     "name": "TrackIt",
     "slug": "sadism",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon-light.png",
     "userInterfaceStyle": "automatic",
@@ -10,7 +10,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.trackit.lifeos",
-      "buildNumber": "5",
+      "buildNumber": "6",
       "infoPlist": {
         "CFBundleDisplayName": "TrackIt",
         "LSApplicationCategoryType": "public.app-category.healthcare-fitness",

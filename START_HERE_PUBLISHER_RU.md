@@ -3,7 +3,7 @@
 Репозиторий: https://github.com/mxrph1n3/TrackIt  
 Ветка: **`main`** или **`free-app`** (одинаковый код)  
 Package / Bundle ID: **`com.trackit.lifeos`**  
-Версия: **1.0.0**
+Версия: **1.0.1** (iOS build **6**)
 
 ## Модель приложения (важно)
 

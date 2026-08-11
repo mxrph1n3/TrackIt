@@ -8,27 +8,28 @@
 
 | Поле | Значение |
 |------|----------|
-| Version (CFBundleShortVersionString) | **1.0.0** |
-| iOS Build (CFBundleVersion) | **5** |
-| Android versionName | **1.0.0** |
-| Android versionCode | **13** (AAB уже собран) |
+| Version (CFBundleShortVersionString) | **1.0.1** |
+| iOS Build (CFBundleVersion) | **6** |
+| Android versionName | **1.0.1** (в app.json; AAB vc13 ещё на 1.0.0 — пересобрать при нужде) |
+| Android versionCode | **13** (текущий готовый AAB) |
 
-Менять version/build **не нужно** — Archive/Upload как есть.
+Менять version/build **не нужно** — Archive/Upload как есть.  
+В App Store Connect создай/открой версию **1.0.1** (не 1.0.0).
 
 ## Android AAB
 
-- Файл: `TrackIt-1.0.0-vc13.aab`
+- Файл: `TrackIt-1.0.0-vc13.aab` (versionName 1.0.0 / code 13)
 - Ссылка: https://expo.dev/artifacts/eas/Pnid2Z2XDTjomggSVoDZCCiNnrKTMUsVOCgvP24mDB0.aab
 
 ## iOS
 
-1. `git clone` → `git checkout free-app` → `npm run setup:ios`
+1. `git clone` → `git checkout free-app` → `git pull` → `npm run setup:ios`
 2. Signing → **ваша** Team
 3. Product → Archive (Any iOS Device)
 4. Distribute → App Store Connect → Upload
-5. В Connect: версия **1.0.0**, билд **5** → Submit
+5. В Connect: версия **1.0.1**, билд **6** → Submit
 
-Подписки (создаёт владелец контента / можно до Submit):
+Подписки:
 - `trackit_pro_monthly`
 - `trackit_pro_yearly`
 
