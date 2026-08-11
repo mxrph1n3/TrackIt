@@ -17,7 +17,7 @@
 | Soft-trial | **3 дня** полного Pro (в приложении, iOS + Android) |
 | Products | `trackit_pro_monthly` · `trackit_pro_yearly` |
 | Цена (fallback) | **$5.00 / month** · **$50 / year** |
-| Entitlement | RevenueCat **`pro`** |
+| Billing | Direct App Store / Play Billing (`expo-iap`) |
 | UI languages | English, Русский, Español, Deutsch |
 
 В сторах приложение остаётся **Free** (цена загрузки 0), монетизация — через IAP/Subscriptions.
@@ -31,7 +31,8 @@
 | Display Name | TrackIt |
 | Bundle / Package | `com.trackit.lifeos` |
 | Version | **1.0.0** |
-| iOS Build | **1** (EAS может autoIncrement) |
+| iOS Build | **5** |
+| Android versionCode | **13** (AAB готов) |
 | Encryption export (iOS) | `ITSAppUsesNonExemptEncryption = false` |
 | Billing flags | `IOS_BILLING_ENABLED` / `ANDROID_BILLING_ENABLED` = **true** |
 
@@ -72,7 +73,7 @@
 | `trackit_pro_yearly` | Auto-renewable | $49.99–50 / year |
 
 Подписочная группа: например **TrackIt Pro**.  
-RevenueCat: entitlement `pro`, offering `default`.
+Без RevenueCat — только native store IAP.
 
 ---
 
@@ -260,7 +261,7 @@ Das Abo wird über Apple ID / Google Play abgerechnet und verlängert sich autom
 ```
 TrackIt includes a 3-day soft trial with full Pro access on first launch (iOS/Android).
 After the trial, Pro features require an auto-renewable subscription:
-trackit_pro_monthly / trackit_pro_yearly (RevenueCat entitlement "pro").
+trackit_pro_monthly / trackit_pro_yearly (App Store / Google Play).
 
 Sign in: email and password only (no Google / Apple Sign-In).
 Account deletion: Settings → Account → Delete account.
