@@ -11,7 +11,7 @@
 
 ## Модель
 
-Free download + подписка **TrackIt Pro** (`trackit_pro_monthly` / `trackit_pro_yearly`). Soft-триал **3 дня**. Языки UI: EN / RU / ES / DE.
+Free download + подписка **TrackIt Pro** (`trackit_pro_monthly_v2` / `trackit_pro_yearly_v2`). Soft-триал **3 дня**. Языки UI: EN / RU / ES / DE.
 
 ## Сборка IPA
 
@@ -54,8 +54,8 @@ npx eas-cli submit --platform ios --profile production --latest
 
 | Product ID | Тип | Цена-ориентир |
 |------------|-----|----------------|
-| `trackit_pro_monthly` | Auto-renewable | ~$5 / month |
-| `trackit_pro_yearly` | Auto-renewable | ~$50 / year |
+| `trackit_pro_monthly_v2` | Auto-renewable | ~$5 / month |
+| `trackit_pro_yearly_v2` | Auto-renewable | ~$50 / year |
 
 Группа: TrackIt Pro. RevenueCat entitlement: **`pro`**.
 

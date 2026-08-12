@@ -17,7 +17,7 @@
 | | |
 |--|--|
 | Подписка | TrackIt Pro |
-| Product IDs | `trackit_pro_monthly`, `trackit_pro_yearly` |
+| Product IDs | `trackit_pro_monthly_v2`, `trackit_pro_yearly_v2` |
 | Цена (ориентир) | **$5.00 / месяц**, ~$50 / год |
 | Soft-trial в приложении | **3 дня** полного Pro (локально на устройстве) |
 | После триала | Paywall / Pro-фичи закрываются |
@@ -86,8 +86,8 @@ RevenueCat secret keys **не** коммитятся в git.
 
 1. **Monetize → Products → Subscriptions**  
 2. Создать:
-   - `trackit_pro_monthly` — auto-renewing, ~$4.99–5.00/месяц  
-   - `trackit_pro_yearly` — auto-renewing, ~$49.99–50/год  
+   - `trackit_pro_monthly_v2` — auto-renewing, ~$4.99–5.00/месяц  
+   - `trackit_pro_yearly_v2` — auto-renewing, ~$49.99–50/год  
 3. Активировать и привязать к приложению / base plan.  
 4. В RevenueCat: entitlement **`pro`**, offering **default**, оба продукта привязаны.
 
@@ -143,7 +143,7 @@ Notes (EN):
 ```
 TrackIt offers a 3-day soft trial with full Pro access on first launch.
 After the trial, Pro features require an auto-renewable subscription
-(trackit_pro_monthly / trackit_pro_yearly) via Google Play Billing.
+(trackit_pro_monthly_v2 / trackit_pro_yearly_v2) via Google Play Billing.
 
 Sign-in: email and password only.
 Account deletion: Settings → Account → Delete account.

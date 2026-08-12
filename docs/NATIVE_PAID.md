@@ -8,8 +8,8 @@ Create these exact auto-renewable subscription IDs in both consoles:
 
 | ID | Price (display fallback) |
 | --- | --- |
-| `trackit_pro_monthly` | $5.00 / month |
-| `trackit_pro_yearly` | $50.00 / year |
+| `trackit_pro_monthly_v2` | $5.00 / month |
+| `trackit_pro_yearly_v2` | $50.00 / year |
 
 ## Android
 

@@ -124,7 +124,7 @@
       "demoRequired": true,
       "demoUsername": "review@trackit.app",
       "demoPassword": "trackit",
-      "notes": "TrackIt includes a 3-day soft trial with full Pro access on first launch (iOS/Android).\nAfter the trial, Pro features require an auto-renewable subscription:\ntrackit_pro_monthly / trackit_pro_yearly (App Store / Google Play).\n\nSign in: email and password only (no Google / Apple Sign-In).\nAccount deletion: Settings → Account → Delete account.\nPush: opt-in only — enable Smart reminders in Settings.\n\nIn-app languages: English, Russian, Spanish, German (Settings → Language).\n\nPrivacy: https://track-it-umber-psi.vercel.app/privacy\nTerms: https://track-it-umber-psi.vercel.app/terms"
+      "notes": "TrackIt includes a 3-day soft trial with full Pro access on first launch (iOS/Android).\nAfter the trial, Pro features require an auto-renewable subscription:\ntrackit_pro_monthly_v2 / trackit_pro_yearly_v2 (App Store / Google Play).\n\nSign in: email and password only (no Google / Apple Sign-In).\nAccount deletion: Settings → Account → Delete account.\nPush: opt-in only — enable Smart reminders in Settings.\n\nIn-app languages: English, Russian, Spanish, German (Settings → Language).\n\nPrivacy: https://track-it-umber-psi.vercel.app/privacy\nTerms: https://track-it-umber-psi.vercel.app/terms"
     }
   }
 }

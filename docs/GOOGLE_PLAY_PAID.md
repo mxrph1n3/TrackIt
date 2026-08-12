@@ -4,8 +4,8 @@
 
 ## Product IDs
 
-- `trackit_pro_monthly`
-- `trackit_pro_yearly`
+- `trackit_pro_monthly_v2`
+- `trackit_pro_yearly_v2`
 
 ## Play Console
 

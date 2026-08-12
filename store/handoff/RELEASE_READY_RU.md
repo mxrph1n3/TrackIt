@@ -15,7 +15,7 @@
 |--|--|
 | Тип | Free download + **auto-renewable subscription** |
 | Soft-trial | **3 дня** полного Pro (в приложении, iOS + Android) |
-| Products | `trackit_pro_monthly` · `trackit_pro_yearly` |
+| Products | `trackit_pro_monthly_v2` · `trackit_pro_yearly_v2` |
 | Цена (fallback) | **$5.00 / month** · **$50 / year** |
 | Billing | Direct App Store / Play Billing (`expo-iap`) |
 | UI languages | English, Русский, Español, Deutsch |
@@ -31,7 +31,7 @@
 | Display Name | TrackIt |
 | Bundle / Package | `com.trackit.lifeos` |
 | Version | **1.0.1** |
-| iOS Build | **6** |
+| iOS Build | **7** |
 | Android versionCode | **13** (AAB; при новой Android-сборке поднять) |
 | Encryption export (iOS) | `ITSAppUsesNonExemptEncryption = false` |
 | Billing flags | `IOS_BILLING_ENABLED` / `ANDROID_BILLING_ENABLED` = **true** |
@@ -69,8 +69,8 @@
 
 | Product ID | Тип | Ориентир цены |
 |------------|-----|----------------|
-| `trackit_pro_monthly` | Auto-renewable | $4.99–5.00 / month |
-| `trackit_pro_yearly` | Auto-renewable | $49.99–50 / year |
+| `trackit_pro_monthly_v2` | Auto-renewable | $4.99–5.00 / month |
+| `trackit_pro_yearly_v2` | Auto-renewable | $49.99–50 / year |
 
 Подписочная группа: например **TrackIt Pro**.  
 Без RevenueCat — только native store IAP.
@@ -261,7 +261,7 @@ Das Abo wird über Apple ID / Google Play abgerechnet und verlängert sich autom
 ```
 TrackIt includes a 3-day soft trial with full Pro access on first launch (iOS/Android).
 After the trial, Pro features require an auto-renewable subscription:
-trackit_pro_monthly / trackit_pro_yearly (App Store / Google Play).
+trackit_pro_monthly_v2 / trackit_pro_yearly_v2 (App Store / Google Play).
 
 Sign in: email and password only (no Google / Apple Sign-In).
 Account deletion: Settings → Account → Delete account.
@@ -279,7 +279,7 @@ Terms: https://track-it-umber-psi.vercel.app/terms
 
 ### iOS
 - [ ] App создан, Bundle ID `com.trackit.lifeos`
-- [ ] Подписки `trackit_pro_monthly` / `yearly` созданы и в Review
+- [ ] Подписки `trackit_pro_monthly_v2` / `yearly_v2` созданы и в Review
 - [ ] Paid Apps Agreement + banking/tax OK
 - [ ] Локали EN (+ RU/ES/DE по возможности)
 - [ ] Скриншоты 6.9" (6 шт.)

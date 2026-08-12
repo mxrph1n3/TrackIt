@@ -32,7 +32,7 @@ Bundle/Package: com.trackit.lifeos
 Версия: 1.0.0
 
 Модель: free download + TrackIt Pro subscription
-Products: trackit_pro_monthly, trackit_pro_yearly (~$5/mo, ~$50/yr)
+Products: trackit_pro_monthly_v2, trackit_pro_yearly_v2 (~$5/mo, ~$50/yr)
 Soft trial: 3 days full Pro
 Languages in app: EN, RU, ES, DE
 

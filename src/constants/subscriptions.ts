@@ -1,7 +1,7 @@
 /** Store product identifiers (same IDs in App Store Connect and Google Play Console). */
 export const SUBSCRIPTION_PRODUCT_IDS = {
-  monthly: 'trackit_pro_monthly',
-  yearly: 'trackit_pro_yearly',
+  monthly: 'trackit_pro_monthly_v2',
+  yearly: 'trackit_pro_yearly_v2',
 } as const;
 
 /** Display pricing (fallback when store offerings are unavailable). */

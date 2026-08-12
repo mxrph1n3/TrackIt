@@ -69,7 +69,7 @@ No code. Block everything else until these exist.
 
 **App Store Connect:**
 - [ ] Create app `com.trackit`
-- [ ] Subscriptions: `trackit_pro_monthly`, `trackit_pro_yearly`, 7-day trial
+- [ ] Subscriptions: `trackit_pro_monthly_v2`, `trackit_pro_yearly_v2`, 7-day trial
 - [ ] Privacy Policy URL, screenshots, description, support URL
 - [ ] Privacy Nutrition Labels questionnaire
 - [ ] Demo account for App Review
@@ -237,7 +237,7 @@ flowchart LR
 | Disable purchase when `!isRevenueCatReady()` | ✅ | Button disabled + config note shown |
 
 **Current constants** (`src/constants/subscriptions.ts`):
-- Products: `trackit_pro_monthly`, `trackit_pro_yearly`
+- Products: `trackit_pro_monthly_v2`, `trackit_pro_yearly_v2`
 - Entitlement: `pro`
 - Hardcoded trial: `FREE_TRIAL_DAYS = 7` — **must match** App Store Connect / Play Console trial config
 - Fallback prices: `$5.99` / `$59.99` — hide when store offerings unavailable
@@ -357,8 +357,8 @@ Set in **Supabase Edge Function secrets**:
 | Step | iOS (App Store Connect) | Android (Play Console) |
 |------|-------------------------|------------------------|
 | Create subscription group | TrackIt Pro | TrackIt Pro |
-| Monthly product ID | `trackit_pro_monthly` | `trackit_pro_monthly` |
-| Yearly product ID | `trackit_pro_yearly` | `trackit_pro_yearly` |
+| Monthly product ID | `trackit_pro_monthly_v2` | `trackit_pro_monthly_v2` |
+| Yearly product ID | `trackit_pro_yearly_v2` | `trackit_pro_yearly_v2` |
 | Free trial | 7 days (match `FREE_TRIAL_DAYS`) | 7 days |
 | Prices | $5.99/mo, $59.99/yr | Match or localize |
 | RevenueCat entitlement | `pro` | `pro` |

@@ -26,15 +26,15 @@
 - Paid Pro + soft-trial 3 дня
 - i18n EN / RU / ES / DE
 - Биллинг: Google Play Billing напрямую (`expo-iap`), без RevenueCat
-- Product IDs: `trackit_pro_monthly` / `trackit_pro_yearly`
+- Product IDs: `trackit_pro_monthly_v2` / `trackit_pro_yearly_v2`
 
 ## Play Console
 
 1. Создать приложение `com.trackit.lifeos` (если ещё нет).
 2. Загрузить этот AAB в Internal testing / Production.
 3. Подписки:
-   - `trackit_pro_monthly`
-   - `trackit_pro_yearly`
+   - `trackit_pro_monthly_v2`
+   - `trackit_pro_yearly_v2`
 4. Data Safety + Privacy Policy URL из `RELEASE_READY_RU.md`.
 
 ## Signing

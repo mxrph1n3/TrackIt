@@ -3,13 +3,13 @@
 Репозиторий: https://github.com/mxrph1n3/TrackIt  
 Ветка: **`main`** или **`free-app`** (одинаковый код)  
 Package / Bundle ID: **`com.trackit.lifeos`**  
-Версия: **1.0.1** (iOS build **6**)
+Версия: **1.0.1** (iOS build **7**)
 
 ## Модель приложения (важно)
 
 - **Не полностью бесплатное.** Есть подписка **TrackIt Pro** (~$5/мес, есть годовой план).
 - На **iOS и Android**: soft-триал **3 дня** полного Pro, затем paywall.
-- Product IDs: `trackit_pro_monthly`, `trackit_pro_yearly` (создать в App Store Connect / Play Console)
+- Product IDs: `trackit_pro_monthly_v2`, `trackit_pro_yearly_v2` (создать в App Store Connect / Play Console)
 - Оплата только через Apple / Google (без RevenueCat)
 - В приложении языки: **English / Русский / Español / Deutsch** (Settings → Language или боковое меню).
 

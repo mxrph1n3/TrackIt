@@ -10,7 +10,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.trackit.lifeos",
-      "buildNumber": "6",
+      "buildNumber": "7",
       "infoPlist": {
         "CFBundleDisplayName": "TrackIt",
         "LSApplicationCategoryType": "public.app-category.healthcare-fitness",

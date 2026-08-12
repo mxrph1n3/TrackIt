@@ -6,7 +6,7 @@
 **Bundle ID:** `com.trackit.lifeos`  
 **Имя приложения:** TrackIt  
 
-**Модель:** free download + подписка TrackIt Pro (`trackit_pro_monthly` / `trackit_pro_yearly`), soft-триал **3 дня**.  
+**Модель:** free download + подписка TrackIt Pro (`trackit_pro_monthly_v2` / `trackit_pro_yearly_v2`), soft-триал **3 дня**.  
 **Языки UI:** EN / RU / ES / DE.  
 **Старт + Android:** [`../../START_HERE_PUBLISHER_RU.md`](../../START_HERE_PUBLISHER_RU.md) · [`FOR_PUBLISHER_ANDROID_RU.md`](./FOR_PUBLISHER_ANDROID_RU.md)  
 **Листинг / IAP / тексты:** [`RELEASE_READY_RU.md`](./RELEASE_READY_RU.md)
@@ -188,7 +188,7 @@ Bundle ID: `com.trackit.lifeos`. Сначала выполните блок **«
    - SKU: `trackit-lifeos-001`  
    - Primary category: **Health & Fitness** · Secondary: **Productivity**
 
-2. Создать подписки **`trackit_pro_monthly`** и **`trackit_pro_yearly`** (см. `RELEASE_READY_RU.md`).  
+2. Создать подписки **`trackit_pro_monthly_v2`** и **`trackit_pro_yearly_v2`** (см. `RELEASE_READY_RU.md`).  
    Paid Apps Agreement + banking/tax должны быть активны.
 
 3. Метаданные + скриншоты + Privacy (+ локали RU/ES/DE):  
