@@ -7,7 +7,7 @@ export const SUBSCRIPTION_PRODUCT_IDS = {
 /** Display pricing (fallback when store offerings are unavailable). */
 export const SUBSCRIPTION_DISPLAY_PRICING = {
   monthly: {
-    price: '$5.00',
+    price: '$5.99',
     period: 'month',
     label: 'Monthly',
   },
@@ -15,7 +15,7 @@ export const SUBSCRIPTION_DISPLAY_PRICING = {
     price: '$50.00',
     period: 'year',
     label: 'Yearly',
-    savingsLabel: 'Save 17%',
+    savingsLabel: 'Save 30%',
   },
 } as const;
 

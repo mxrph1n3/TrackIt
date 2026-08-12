@@ -7,7 +7,7 @@ Package / Bundle ID: **`com.trackit.lifeos`**
 
 ## Модель приложения (важно)
 
-- **Не полностью бесплатное.** Есть подписка **TrackIt Pro** (~$5/мес, есть годовой план).
+- **Не полностью бесплатное.** Есть подписка **TrackIt Pro** (~$5.99/мес, есть годовой план).
 - На **iOS и Android**: soft-триал **3 дня** полного Pro, затем paywall.
 - Product IDs: `trackit_pro_monthly_v2`, `trackit_pro_yearly_v2` (создать в App Store Connect / Play Console)
 - Оплата только через Apple / Google (без RevenueCat)

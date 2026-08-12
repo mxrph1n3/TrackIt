@@ -16,7 +16,7 @@
 | Тип | Free download + **auto-renewable subscription** |
 | Soft-trial | **3 дня** полного Pro (в приложении, iOS + Android) |
 | Products | `trackit_pro_monthly_v2` · `trackit_pro_yearly_v2` |
-| Цена (fallback) | **$5.00 / month** · **$50 / year** |
+| Цена (fallback) | **$5.99 / month** · **$50 / year** |
 | Billing | Direct App Store / Play Billing (`expo-iap`) |
 | UI languages | English, Русский, Español, Deutsch |
 
@@ -69,7 +69,7 @@
 
 | Product ID | Тип | Ориентир цены |
 |------------|-----|----------------|
-| `trackit_pro_monthly_v2` | Auto-renewable | $4.99–5.00 / month |
+| `trackit_pro_monthly_v2` | Auto-renewable | $5.99 / month |
 | `trackit_pro_yearly_v2` | Auto-renewable | $49.99–50 / year |
 
 Подписочная группа: например **TrackIt Pro**.  

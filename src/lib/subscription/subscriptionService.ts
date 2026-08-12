@@ -43,7 +43,7 @@ function fallbackPackage(productId: SubscriptionProductId): SubscriptionPackage 
     return {
       identifier: productId,
       priceString: SUBSCRIPTION_DISPLAY_PRICING.yearly.price,
-      pricePerMonthString: '$5.00',
+      pricePerMonthString: '$5.99',
     };
   }
 
