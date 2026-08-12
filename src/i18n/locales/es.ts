@@ -1211,7 +1211,7 @@ const es: TranslationSchema = {
     month: 'mes',
     year: 'año',
     flexibleMonthly: 'Facturación mensual flexible',
-    savingsLabel: 'Ahorra 17%',
+    savingsLabel: 'Ahorra 30%',
     whatsIncluded: 'Qué incluye',
     benefits: {
       b1: 'Programas de entrenamiento estructurados',

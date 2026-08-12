@@ -1211,7 +1211,7 @@ const ru: TranslationSchema = {
     month: 'месяц',
     year: 'год',
     flexibleMonthly: 'Гибкая ежемесячная оплата',
-    savingsLabel: 'Экономия 17%',
+    savingsLabel: 'Экономия 30%',
     whatsIncluded: 'Что входит',
     benefits: {
       b1: 'Структурированные программы тренировок',

@@ -1219,7 +1219,7 @@ const en = {
     month: 'month',
     year: 'year',
     flexibleMonthly: 'Flexible monthly billing',
-    savingsLabel: 'Save 17%',
+    savingsLabel: 'Save 30%',
     whatsIncluded: "What's included",
     benefits: {
       b1: 'Structured workout programs',
