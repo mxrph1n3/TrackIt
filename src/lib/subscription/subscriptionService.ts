@@ -155,13 +155,38 @@ function mapStoreProduct(product: ProductSubscription | undefined, productId: Su
   };
 }
 
+function readOfferToken(offer: unknown): string | null {
+  if (!offer || typeof offer !== 'object') {
+    return null;
+  }
+  const record = offer as Record<string, unknown>;
+  const candidates = [
+    record.offerTokenAndroid,
+    record.offerToken,
+    record.offer_token,
+  ];
+  for (const value of candidates) {
+    if (typeof value === 'string' && value.length > 0) {
+      return value;
+    }
+  }
+  return null;
+}
+
+/** Google Play Billing 5+ requires an offer token for every subscription purchase. */
 function getAndroidOfferToken(product: ProductSubscription | undefined): string | null {
   if (!product || product.platform !== 'android') {
     return null;
   }
-  const offers = product.subscriptionOffers ?? [];
-  const withToken = offers.find((offer) => Boolean(offer.offerTokenAndroid));
-  return withToken?.offerTokenAndroid ?? null;
+
+  const offers = [
+    ...(product.subscriptionOffers ?? []),
+    ...(((product as { subscriptionOfferDetailsAndroid?: unknown[] }).subscriptionOfferDetailsAndroid ??
+      []) as unknown[]),
+  ];
+
+  const withToken = offers.find((offer) => Boolean(readOfferToken(offer)));
+  return withToken ? readOfferToken(withToken) : null;
 }
 
 function waitForPurchase(IAP: ExpoIapModule, timeoutMs = 120_000): Promise<Purchase> {
@@ -293,19 +318,31 @@ export async function purchaseSubscriptionProduct(
 
   const purchasePromise = waitForPurchase(IAP);
 
-  const googleOfferToken = getAndroidOfferToken(product);
-  await IAP.requestPurchase({
-    type: 'subs',
-    request: {
-      apple: { sku: productId },
-      google: {
-        skus: [productId],
-        ...(googleOfferToken
-          ? { subscriptionOffers: [{ sku: productId, offerToken: googleOfferToken }] }
-          : {}),
+  if (Platform.OS === 'android') {
+    const googleOfferToken = getAndroidOfferToken(product);
+    if (!googleOfferToken) {
+      throw new Error(
+        'Google Play did not return an offer token. Activate the base plan for this subscription and wait a few hours, then reinstall from the testing track.',
+      );
+    }
+
+    await IAP.requestPurchase({
+      type: 'subs',
+      request: {
+        google: {
+          skus: [productId],
+          subscriptionOffers: [{ sku: productId, offerToken: googleOfferToken }],
+        },
       },
-    },
-  });
+    });
+  } else {
+    await IAP.requestPurchase({
+      type: 'subs',
+      request: {
+        apple: { sku: productId },
+      },
+    });
+  }
 
   const purchase = await purchasePromise;
   await IAP.finishTransaction({ purchase, isConsumable: false });
