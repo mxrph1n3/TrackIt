@@ -1,8 +1,23 @@
-/** Store product identifiers (same IDs in App Store Connect and Google Play Console). */
-export const SUBSCRIPTION_PRODUCT_IDS = {
+import { Platform } from 'react-native';
+
+/** Google Play product IDs — must match Play Console exactly. */
+export const ANDROID_SUBSCRIPTION_PRODUCT_IDS = {
+  monthly: 'trackit_pro_monthly',
+  yearly: 'trackit_pro_yearly',
+} as const;
+
+/**
+ * App Store product IDs. `_v2` because the original IDs were already used
+ * as non-subscription IAPs and cannot be reused.
+ */
+export const IOS_SUBSCRIPTION_PRODUCT_IDS = {
   monthly: 'trackit_pro_monthly_v2',
   yearly: 'trackit_pro_yearly_v2',
 } as const;
+
+/** Store product identifiers for the current platform. */
+export const SUBSCRIPTION_PRODUCT_IDS =
+  Platform.OS === 'android' ? ANDROID_SUBSCRIPTION_PRODUCT_IDS : IOS_SUBSCRIPTION_PRODUCT_IDS;
 
 /** Display pricing (fallback when store offerings are unavailable). */
 export const SUBSCRIPTION_DISPLAY_PRICING = {

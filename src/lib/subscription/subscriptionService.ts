@@ -164,29 +164,145 @@ function readOfferToken(offer: unknown): string | null {
     record.offerTokenAndroid,
     record.offerToken,
     record.offer_token,
+    record.token,
   ];
   for (const value of candidates) {
-    if (typeof value === 'string' && value.length > 0) {
+    if (typeof value === 'string' && value.length > 8) {
       return value;
     }
   }
   return null;
 }
 
+function looksLikePlayOfferToken(value: string): boolean {
+  if (value.length < 40 || /\s/.test(value)) {
+    return false;
+  }
+  if ((PRODUCT_IDS as readonly string[]).includes(value)) {
+    return false;
+  }
+  return /^[A-Za-z0-9+/=_-]+$/.test(value);
+}
+
+function collectOfferTokens(value: unknown, depth = 0, acc: string[] = []): string[] {
+  if (depth > 6 || value == null) {
+    return acc;
+  }
+  if (typeof value === 'string') {
+    if (looksLikePlayOfferToken(value)) {
+      acc.push(value);
+    }
+    return acc;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const token = readOfferToken(item);
+      if (token) {
+        acc.push(token);
+      }
+      collectOfferTokens(item, depth + 1, acc);
+    }
+    return acc;
+  }
+  if (typeof value === 'object') {
+    const token = readOfferToken(value);
+    if (token) {
+      acc.push(token);
+    }
+    for (const nested of Object.values(value as Record<string, unknown>)) {
+      collectOfferTokens(nested, depth + 1, acc);
+    }
+  }
+  return acc;
+}
+
+function offerPeriodUnit(offer: unknown): 'year' | 'month' | 'other' {
+  if (!offer || typeof offer !== 'object') {
+    return 'other';
+  }
+  const record = offer as Record<string, unknown>;
+  const period = record.period as { unit?: string } | undefined;
+  const unit = String(period?.unit ?? '').toLowerCase();
+  if (unit === 'year' || unit === 'yearly') {
+    return 'year';
+  }
+  if (unit === 'month' || unit === 'monthly') {
+    return 'month';
+  }
+
+  const basePlan = String(
+    record.basePlanIdAndroid ?? record.basePlanId ?? record.id ?? '',
+  ).toLowerCase();
+  if (basePlan.includes('year')) {
+    return 'year';
+  }
+  if (basePlan.includes('month')) {
+    return 'month';
+  }
+  return 'other';
+}
+
+function listAndroidOffers(product: ProductSubscription): unknown[] {
+  const record = product as ProductSubscription & Record<string, unknown>;
+  return [
+    ...(Array.isArray(record.subscriptionOffers) ? record.subscriptionOffers : []),
+    ...(Array.isArray(record.subscriptionOfferDetailsAndroid)
+      ? record.subscriptionOfferDetailsAndroid
+      : []),
+    ...(Array.isArray(record.subscriptionOfferDetails) ? record.subscriptionOfferDetails : []),
+    ...(Array.isArray(record.subscriptionOffersAndroid) ? record.subscriptionOffersAndroid : []),
+  ];
+}
+
 /** Google Play Billing 5+ requires an offer token for every subscription purchase. */
-function getAndroidOfferToken(product: ProductSubscription | undefined): string | null {
-  if (!product || product.platform !== 'android') {
+function getAndroidOfferToken(
+  product: ProductSubscription | undefined,
+  productId: SubscriptionProductId,
+): string | null {
+  if (!product) {
     return null;
   }
 
-  const offers = [
-    ...(product.subscriptionOffers ?? []),
-    ...(((product as { subscriptionOfferDetailsAndroid?: unknown[] }).subscriptionOfferDetailsAndroid ??
-      []) as unknown[]),
-  ];
+  const preferYearly = productId === SUBSCRIPTION_PRODUCT_IDS.yearly;
+  const offers = listAndroidOffers(product);
+  const withToken = offers.filter((offer) => Boolean(readOfferToken(offer)));
+  const matched = withToken.find((offer) =>
+    preferYearly ? offerPeriodUnit(offer) === 'year' : offerPeriodUnit(offer) === 'month',
+  );
+  const chosen = matched ?? withToken[0];
+  const fromOffer = chosen ? readOfferToken(chosen) : null;
+  if (fromOffer) {
+    return fromOffer;
+  }
 
-  const withToken = offers.find((offer) => Boolean(readOfferToken(offer)));
-  return withToken ? readOfferToken(withToken) : null;
+  const walked = collectOfferTokens(product);
+  return walked[0] ?? null;
+}
+
+function androidProductUnavailableReason(product: ProductSubscription | undefined): string | null {
+  if (!product) {
+    return null;
+  }
+  const status = String(
+    (product as ProductSubscription & { productStatusAndroid?: string }).productStatusAndroid ?? '',
+  ).toLowerCase();
+  if (status.includes('not-found')) {
+    return 'Play does not know this product ID on this app package. Use trackit_pro_monthly_v2 / trackit_pro_yearly_v2.';
+  }
+  if (status.includes('no-offers')) {
+    return 'The base plan has no active offers. In Play Console open the subscription → base plan → Activate.';
+  }
+  return null;
+}
+
+function findStoreProduct(
+  products: ProductSubscription[],
+  productId: SubscriptionProductId,
+): ProductSubscription | undefined {
+  return products.find((product) => {
+    const record = product as ProductSubscription & { productId?: string };
+    return record.id === productId || record.productId === productId;
+  });
 }
 
 function waitForPurchase(IAP: ExpoIapModule, timeoutMs = 120_000): Promise<Purchase> {
@@ -260,6 +376,27 @@ export async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
   }
 }
 
+async function fetchStoreProducts(IAP: ExpoIapModule): Promise<ProductSubscription[]> {
+  const asList = (value: ProductSubscription[] | null | undefined) => value ?? [];
+
+  const subs = asList(
+    (await IAP.fetchProducts({
+      skus: [...PRODUCT_IDS],
+      type: 'subs',
+    })) as ProductSubscription[] | null,
+  );
+  if (subs.length > 0) {
+    return subs;
+  }
+
+  return asList(
+    (await IAP.fetchProducts({
+      skus: [...PRODUCT_IDS],
+      type: 'all',
+    })) as ProductSubscription[] | null,
+  );
+}
+
 export async function fetchSubscriptionOfferings(): Promise<SubscriptionOfferings> {
   const IAP = await ensureConnection();
 
@@ -271,14 +408,9 @@ export async function fetchSubscriptionOfferings(): Promise<SubscriptionOffering
   }
 
   try {
-    const products = (await IAP.fetchProducts({
-      skus: [...PRODUCT_IDS],
-      type: 'subs',
-    })) as ProductSubscription[] | null;
-
-    const list = products ?? [];
-    const monthly = list.find((p) => p.id === SUBSCRIPTION_PRODUCT_IDS.monthly);
-    const yearly = list.find((p) => p.id === SUBSCRIPTION_PRODUCT_IDS.yearly);
+    const list = await fetchStoreProducts(IAP);
+    const monthly = findStoreProduct(list, SUBSCRIPTION_PRODUCT_IDS.monthly);
+    const yearly = findStoreProduct(list, SUBSCRIPTION_PRODUCT_IDS.yearly);
 
     return {
       monthly: mapStoreProduct(monthly, SUBSCRIPTION_PRODUCT_IDS.monthly),
@@ -307,31 +439,38 @@ export async function purchaseSubscriptionProduct(
     throw new Error('Store billing is unavailable on this device.');
   }
 
-  const products = (await IAP.fetchProducts({
-    skus: [...PRODUCT_IDS],
-    type: 'subs',
-  })) as ProductSubscription[] | null;
-  const product = (products ?? []).find((p) => p.id === productId);
+  const products = await fetchStoreProducts(IAP);
+  const product = findStoreProduct(products, productId);
   if (!product) {
-    throw new Error('Selected plan is unavailable in the store. Create the subscription in App Store Connect / Google Play first.');
+    throw new Error(
+      'Selected plan is unavailable in the store. Create active subscriptions trackit_pro_monthly_v2 and trackit_pro_yearly_v2 in Play Console.',
+    );
   }
 
   const purchasePromise = waitForPurchase(IAP);
 
   if (Platform.OS === 'android') {
-    const googleOfferToken = getAndroidOfferToken(product);
+    const statusReason = androidProductUnavailableReason(product);
+    const googleOfferToken = getAndroidOfferToken(product, productId);
     if (!googleOfferToken) {
+      console.warn('[Subscription] Android product without offer token:', {
+        id: product.id,
+        keys: Object.keys(product),
+        status: (product as ProductSubscription & { productStatusAndroid?: string }).productStatusAndroid,
+      });
       throw new Error(
-        'Google Play did not return an offer token. Activate the base plan for this subscription and wait a few hours, then reinstall from the testing track.',
+        statusReason ??
+          'Play returned the product without a base-plan offer token. In Play Console: Monetize → Subscriptions → open the product → Base plan → Activate. Package must be com.trackit.lifeos. Install the app from Internal testing, not a side-loaded APK.',
       );
     }
 
+    const purchaseSku = product.id || productId;
     await IAP.requestPurchase({
       type: 'subs',
       request: {
         google: {
-          skus: [productId],
-          subscriptionOffers: [{ sku: productId, offerToken: googleOfferToken }],
+          skus: [purchaseSku],
+          subscriptionOffers: [{ sku: purchaseSku, offerToken: googleOfferToken }],
         },
       },
     });

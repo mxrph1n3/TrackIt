@@ -9,7 +9,20 @@ import {
 } from 'react';
 
 import { toAuthErrorMessage, validateAuthForm } from '../lib/auth/validation';
+import { getAuthRedirectUrl } from '../lib/auth/deepLinking';
+import { IS_WEB } from '../lib/platform/constants';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
+
+function getSignUpEmailRedirectTo(): string {
+  if (IS_WEB) {
+    const webApp = (process.env.EXPO_PUBLIC_WEB_APP_URL ?? 'https://track-it-umber-psi.vercel.app').replace(
+      /\/$/,
+      '',
+    );
+    return `${webApp}/auth/callback`;
+  }
+  return getAuthRedirectUrl();
+}
 
 type AuthProviderProps = PropsWithChildren<{
   session: Session | null;
@@ -92,6 +105,9 @@ function useAuthProvider(session: Session | null): UseAuthResult {
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
+          options: {
+            emailRedirectTo: getSignUpEmailRedirectTo(),
+          },
         });
 
         if (error) {

@@ -113,6 +113,10 @@ export function PremiumScreen({
     offerings.monthly?.priceString ?? SUBSCRIPTION_DISPLAY_PRICING.monthly.price;
   const yearlyPrice =
     offerings.yearly?.priceString ?? SUBSCRIPTION_DISPLAY_PRICING.yearly.price;
+  const selectedIsYearly = selectedPlan === SUBSCRIPTION_PRODUCT_IDS.yearly;
+  const selectedPriceLabel = selectedIsYearly
+    ? `${yearlyPrice}/${t('premium.year')}`
+    : `${monthlyPrice}/${t('premium.month')}`;
 
   const handlePurchase = useCallback(async () => {
     void triggerHaptic('medium');
@@ -589,8 +593,8 @@ export function PremiumScreen({
                   {FREE_TRIAL_DAYS > 0
                     ? t('premium.startTrial', { days: FREE_TRIAL_DAYS })
                     : androidTrial.isInTrial
-                      ? t('premium.subscribeNow', { price: `${monthlyPrice}/mo` })
-                      : t('premium.upgradeCta', { price: `${monthlyPrice}/mo` })}
+                      ? t('premium.subscribeNow', { price: selectedPriceLabel })
+                      : t('premium.upgradeCta', { price: selectedPriceLabel })}
                 </Text>
               )}
             </Pressable>

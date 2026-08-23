@@ -1,6 +1,6 @@
 {
   "name": "trackit2",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.ts",
   "dependencies": {
     "@g9k/expo-dynamic-app-icon": "^2.0.8",

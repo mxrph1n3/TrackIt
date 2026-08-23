@@ -1,7 +1,11 @@
-import type { SUBSCRIPTION_PRODUCT_IDS } from '../constants/subscriptions';
+import type {
+  ANDROID_SUBSCRIPTION_PRODUCT_IDS,
+  IOS_SUBSCRIPTION_PRODUCT_IDS,
+} from '../constants/subscriptions';
 
 export type SubscriptionProductId =
-  (typeof SUBSCRIPTION_PRODUCT_IDS)[keyof typeof SUBSCRIPTION_PRODUCT_IDS];
+  | (typeof ANDROID_SUBSCRIPTION_PRODUCT_IDS)[keyof typeof ANDROID_SUBSCRIPTION_PRODUCT_IDS]
+  | (typeof IOS_SUBSCRIPTION_PRODUCT_IDS)[keyof typeof IOS_SUBSCRIPTION_PRODUCT_IDS];
 
 /** Premium capabilities that can be gated independently. */
 export type PremiumFeatureId =
