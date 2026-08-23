@@ -28,6 +28,7 @@
       ],
       "predictiveBackGestureEnabled": false,
       "package": "com.trackit.lifeos",
+      "versionCode": 16,
       "intentFilters": [
         {
           "action": "VIEW",
