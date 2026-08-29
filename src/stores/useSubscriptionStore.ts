@@ -6,6 +6,7 @@ import {
   canUseAndroidTrial,
   computeAndroidTrialStatus,
   ensureAndroidTrialStarted,
+  expireAndroidTrialNow,
   loadAndroidTrialStatus,
   markAndroidTrialExpiredPrompted,
   shouldPromptAndroidTrialExpired,
@@ -57,6 +58,7 @@ type SubscriptionState = {
   purchaseWithStars: () => Promise<boolean>;
   restore: () => Promise<boolean>;
   consumeTrialExpiredPrompt: () => void;
+  expireSoftTrial: () => Promise<void>;
   setDevProOverride: (enabled: boolean) => void;
   clearError: () => void;
 };
@@ -316,6 +318,17 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   consumeTrialExpiredPrompt: () => {
     void markAndroidTrialExpiredPrompted();
     set({ trialExpiredPromptPending: false });
+  },
+
+  expireSoftTrial: async () => {
+    if (!canUseAndroidTrial()) {
+      return;
+    }
+    const androidTrial = await expireAndroidTrialNow();
+    set({
+      androidTrial,
+      trialExpiredPromptPending: androidTrial.isExpired,
+    });
   },
 
   setDevProOverride: (enabled) => set({ devProOverride: enabled }),

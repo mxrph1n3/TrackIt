@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
+  InputAccessoryView,
+  Keyboard,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -15,7 +18,6 @@ import { logMealQuick, toQuickActionErrorMessage } from '../../lib/quickActions/
 import { fetchTodayNutrition } from '../../lib/health/nutritionService';
 import { useGamificationStore } from '../../stores/useGamificationStore';
 import { useHealthStore } from '../../stores/useHealthStore';
-import type { MealSlot } from '../../types/health';
 import { useThemedStyles } from '../../hooks/useThemedStyles';
 import { useTheme } from '../../theme/ThemeContext';
 
@@ -25,6 +27,8 @@ const MEAL_SLOTS = [
   { id: 'dinner' },
   { id: 'snack' },
 ] as const;
+
+const CALORIES_ACCESSORY_ID = 'trackit-meal-calories-done';
 
 type MealMiniFormProps = {
   onSuccess: () => void;
@@ -42,6 +46,7 @@ export function MealMiniForm({
   const { t } = useTranslation();
   const { theme } = useTheme();
   const { text, surfaces } = useThemedStyles();
+  const caloriesRef = useRef<TextInput>(null);
   const [slot, setSlot] = useState<(typeof MEAL_SLOTS)[number]['id']>('breakfast');
   const [mealName, setMealName] = useState(initialMealName);
   const [calories, setCalories] = useState(initialCalories);
@@ -49,6 +54,7 @@ export function MealMiniForm({
   const [error, setError] = useState<string | null>(null);
 
   const handleSave = async () => {
+    Keyboard.dismiss();
     const trimmed = mealName.trim();
     const parsedCalories = Number.parseInt(calories, 10);
     if (!trimmed || !Number.isFinite(parsedCalories) || parsedCalories <= 0 || isSubmitting) {
@@ -110,22 +116,54 @@ export function MealMiniForm({
         onChangeText={setMealName}
         placeholder={t('common.name')}
         placeholderTextColor={theme.textMuted}
+        returnKeyType="next"
+        blurOnSubmit={false}
+        onSubmitEditing={() => caloriesRef.current?.focus()}
         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderSubtle }]}
       />
 
       <TextInput
+        ref={caloriesRef}
         value={calories}
         onChangeText={setCalories}
         placeholder={t('common.calories')}
         placeholderTextColor={theme.textMuted}
         keyboardType="number-pad"
+        inputAccessoryViewID={Platform.OS === 'ios' ? CALORIES_ACCESSORY_ID : undefined}
         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderSubtle }]}
       />
+
+      {Platform.OS === 'ios' ? (
+        <InputAccessoryView nativeID={CALORIES_ACCESSORY_ID}>
+          <View
+            style={[
+              styles.accessory,
+              { backgroundColor: theme.cardFrosted, borderTopColor: theme.borderSubtle },
+            ]}
+          >
+            <Pressable
+              onPress={() => Keyboard.dismiss()}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.done')}
+              style={styles.accessoryButton}
+            >
+              <Text style={[styles.accessoryText, { color: theme.primary }]}>{t('common.done')}</Text>
+            </Pressable>
+          </View>
+        </InputAccessoryView>
+      ) : null}
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <View style={styles.actions}>
-        <Pressable onPress={onBack} style={[styles.secondaryButton, { borderColor: theme.borderSubtle }]}>
+        <Pressable
+          onPress={() => {
+            Keyboard.dismiss();
+            onBack();
+          }}
+          style={[styles.secondaryButton, { borderColor: theme.borderSubtle }]}
+        >
           <Text style={[styles.secondaryText, { color: theme.textSecondary }]}>{t('actionHub.forms.back')}</Text>
         </Pressable>
         <Pressable
@@ -160,6 +198,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     marginBottom: 12,
+  },
+  accessory: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  accessoryButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  accessoryText: {
+    fontSize: 16,
+    fontWeight: '700',
   },
   error: { color: '#F87171', fontSize: 13, marginBottom: 12 },
   actions: { flexDirection: 'row', gap: 10, marginTop: 8 },

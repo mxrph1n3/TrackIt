@@ -1,6 +1,6 @@
 {
   "name": "trackit2",
-  "version": "1.0.2",
+  "version": "2.0",
   "main": "index.ts",
   "dependencies": {
     "@g9k/expo-dynamic-app-icon": "^2.0.8",
@@ -15,6 +15,7 @@
     "expo": "~56.0.15",
     "expo-auth-session": "~56.0.15",
     "expo-blur": "^56.0.3",
+    "expo-build-properties": "~56.0.26",
     "expo-haptics": "^56.0.3",
     "expo-iap": "^5.2.2",
     "expo-linear-gradient": "^56.0.4",

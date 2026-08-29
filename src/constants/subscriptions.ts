@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-/** Google Play product IDs — must match Play Console exactly. */
+/** Google Play product IDs — must match Play Console exactly (no `_v2`). */
 export const ANDROID_SUBSCRIPTION_PRODUCT_IDS = {
   monthly: 'trackit_pro_monthly',
   yearly: 'trackit_pro_yearly',
@@ -16,8 +16,16 @@ export const IOS_SUBSCRIPTION_PRODUCT_IDS = {
 } as const;
 
 /** Store product identifiers for the current platform. */
-export const SUBSCRIPTION_PRODUCT_IDS =
-  Platform.OS === 'android' ? ANDROID_SUBSCRIPTION_PRODUCT_IDS : IOS_SUBSCRIPTION_PRODUCT_IDS;
+export function getStoreProductIds() {
+  return Platform.OS === 'android' ? ANDROID_SUBSCRIPTION_PRODUCT_IDS : IOS_SUBSCRIPTION_PRODUCT_IDS;
+}
+
+/** Resolve monthly/yearly plan → store product id for the active platform. */
+export function getStoreProductIdForPlan(plan: 'monthly' | 'yearly'): string {
+  return getStoreProductIds()[plan];
+}
+
+export const SUBSCRIPTION_PRODUCT_IDS = getStoreProductIds();
 
 /** Display pricing (fallback when store offerings are unavailable). */
 export const SUBSCRIPTION_DISPLAY_PRICING = {

@@ -48,6 +48,8 @@ export function SubscriptionBootstrap() {
       if (!wasBackground || next !== 'active') {
         return;
       }
+      // Do NOT reset BillingClient here — Play purchase sheets toggle AppState and
+      // endConnection mid-flow causes "Invalid arguments provided to the API".
       void recheckSoftTrialAfterExpiry();
     });
 

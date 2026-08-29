@@ -28,7 +28,7 @@ import { reportSyncError, reportSyncSuccess } from '../lib/sync/reportSyncError'
 import { useProfileModuleStore } from '../stores/useProfileModuleStore';
 import { useFeatureGate } from '../hooks/useFeatureGate';
 import { usePaywallStore } from '../stores/usePaywallStore';
-import { useSubscriptionStore, selectCanUseNotifications } from '../stores/useSubscriptionStore';
+import { useSubscriptionStore, selectAndroidTrial, selectCanUseNotifications } from '../stores/useSubscriptionStore';
 import { useNotificationSettingsStore } from '../stores/useNotificationSettingsStore';
 import { useTheme } from '../theme/ThemeContext';
 import type { AppThemeMode } from '../theme/themes';
@@ -115,6 +115,8 @@ export function SettingsScreen() {
   const openPaywall = usePaywallStore((s) => s.openPaywall);
   const devProOverride = useSubscriptionStore((s) => s.devProOverride);
   const setDevProOverride = useSubscriptionStore((s) => s.setDevProOverride);
+  const androidTrial = useSubscriptionStore(selectAndroidTrial);
+  const expireSoftTrial = useSubscriptionStore((s) => s.expireSoftTrial);
   const { profile, updateUsername, isUpdatingUsername, syncProfile } = useGamification();
   const { signOut } = useAuth();
   const bodyWeight = useHealthStore((s) => s.bodyStats.weightKg);
@@ -774,6 +776,29 @@ export function SettingsScreen() {
               thumbColor="#FFFFFF"
             />
           </View>
+        </GlassPanel>
+      ) : null}
+
+      {!isAppFullyFree() && androidTrial.isInTrial ? (
+        <GlassPanel borderRadius={24} style={{ marginBottom: 16 }}>
+          <Pressable
+            onPress={() => {
+              void expireSoftTrial().then(() => {
+                reportSyncSuccess(t('settings.softTrialEnded'));
+              });
+            }}
+            className="p-5 active:opacity-80"
+          >
+            <Text className="text-[10px] font-bold uppercase tracking-[2px]" style={{ color: theme.textMuted }}>
+              {t('settings.developer')}
+            </Text>
+            <Text className="mt-2 text-base font-bold" style={{ color: theme.textPrimary }}>
+              {t('settings.endSoftTrial')}
+            </Text>
+            <Text className="mt-1 text-sm" style={{ color: theme.textSecondary }}>
+              {t('settings.endSoftTrialHint')}
+            </Text>
+          </Pressable>
         </GlassPanel>
       ) : null}
 

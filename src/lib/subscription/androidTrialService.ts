@@ -24,7 +24,11 @@ function daysRemaining(endsAt: Date, now: Date): number {
   if (ms <= 0) {
     return 0;
   }
-  return Math.max(1, Math.ceil(ms / (24 * 60 * 60 * 1000)));
+  // Whole calendar days left (UTC), so the counter drops each day instead of
+  // staying on "3" for the first ~24 hours of a 3-day trial.
+  const utcDay = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  const diffDays = Math.round((utcDay(endsAt) - utcDay(now)) / (24 * 60 * 60 * 1000));
+  return Math.max(1, diffDays);
 }
 
 /** Soft trial on native store builds (iOS App Store + Google Play). */
@@ -78,16 +82,35 @@ export async function ensureAndroidTrialStarted(): Promise<AndroidTrialStatus> {
   try {
     const existing = await readTrialStartedAt();
     if (existing) {
-      return computeAndroidTrialStatus(existing);
+      const parsed = Date.parse(existing);
+      if (Number.isFinite(parsed)) {
+        return computeAndroidTrialStatus(existing);
+      }
     }
 
     const startedAt = new Date().toISOString();
     await AsyncStorage.setItem(STORAGE_KEY, startedAt);
-    return computeAndroidTrialStatus(startedAt);
+    // Verify persist — if storage is flaky, still return this session's clock.
+    const verified = await AsyncStorage.getItem(STORAGE_KEY);
+    return computeAndroidTrialStatus(verified || startedAt);
   } catch (error) {
     console.warn('[SoftTrial] failed to read/write trial start:', error);
     return EMPTY_ANDROID_TRIAL;
   }
+}
+
+/** Force the soft trial to end immediately (for QA / review). */
+export async function expireAndroidTrialNow(): Promise<AndroidTrialStatus> {
+  if (!canUseAndroidTrial()) {
+    return EMPTY_ANDROID_TRIAL;
+  }
+
+  const startedAt = new Date(
+    Date.now() - NATIVE_SOFT_TRIAL_DAYS * 24 * 60 * 60 * 1000 - 60_000,
+  ).toISOString();
+  await AsyncStorage.setItem(STORAGE_KEY, startedAt);
+  await AsyncStorage.removeItem(EXPIRED_PROMPT_KEY);
+  return computeAndroidTrialStatus(startedAt);
 }
 
 export async function loadAndroidTrialStatus(): Promise<AndroidTrialStatus> {

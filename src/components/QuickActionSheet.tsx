@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   BackHandler,
+  Keyboard,
   Platform,
   Pressable,
   ScrollView,
@@ -13,6 +14,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { KeyboardAvoidingViewCompat } from '../lib/platform/keyboard';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -516,51 +518,65 @@ export function QuickActionSheet({
           ]}
         >
           {activeForm && activeAction ? (
-            <View
-              style={[
-                styles.formPanel,
-                styles.formPanelBottom,
-                {
-                  borderColor: theme.border,
-                  backgroundColor: isDark ? theme.cardFrosted : '#FFFFFF',
-                  paddingBottom: insets.bottom + 12,
-                },
-              ]}
+            <KeyboardAvoidingViewCompat
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              style={styles.formAvoiding}
+              keyboardVerticalOffset={0}
             >
-              <View style={styles.formHeader}>
-                {(() => {
-                  const FormIcon = activeAction.icon;
-                  return (
-                    <View
-                      style={[
-                        styles.formIconBadge,
-                        {
-                          backgroundColor: `${activeAction.accent}18`,
-                          borderColor: `${activeAction.accent}44`,
-                        },
-                      ]}
-                    >
-                      <FormIcon color={activeAction.accent} size={22} strokeWidth={1.8} />
-                    </View>
-                  );
-                })()}
-                <View style={styles.formHeaderCopy}>
-                  <Text style={[styles.formTitle, { color: theme.textPrimary }]}>{activeAction.title}</Text>
-                  <Text style={[styles.formSubtitle, { color: theme.textMuted }]}>{activeAction.subtitle}</Text>
+              <View
+                style={[
+                  styles.formPanel,
+                  styles.formPanelBottom,
+                  {
+                    borderColor: theme.border,
+                    backgroundColor: isDark ? theme.cardFrosted : '#FFFFFF',
+                    paddingBottom: insets.bottom + 12,
+                  },
+                ]}
+              >
+                <View style={styles.formHeader}>
+                  {(() => {
+                    const FormIcon = activeAction.icon;
+                    return (
+                      <View
+                        style={[
+                          styles.formIconBadge,
+                          {
+                            backgroundColor: `${activeAction.accent}18`,
+                            borderColor: `${activeAction.accent}44`,
+                          },
+                        ]}
+                      >
+                        <FormIcon color={activeAction.accent} size={22} strokeWidth={1.8} />
+                      </View>
+                    );
+                  })()}
+                  <View style={styles.formHeaderCopy}>
+                    <Text style={[styles.formTitle, { color: theme.textPrimary }]}>{activeAction.title}</Text>
+                    <Text style={[styles.formSubtitle, { color: theme.textMuted }]}>{activeAction.subtitle}</Text>
+                  </View>
                 </View>
+                <ScrollView
+                  keyboardShouldPersistTaps="handled"
+                  keyboardDismissMode="interactive"
+                  showsVerticalScrollIndicator={false}
+                  bounces={false}
+                >
+                  <QuickActionMiniForm
+                    actionId={activeForm}
+                    radialKey={activeRadialKey}
+                    seed={formSeed}
+                    onSuccess={handleFormSuccess}
+                    onBack={() => {
+                      Keyboard.dismiss();
+                      setActiveForm(null);
+                      setActiveRadialKey(undefined);
+                      setFormSeed({});
+                    }}
+                  />
+                </ScrollView>
               </View>
-              <QuickActionMiniForm
-                actionId={activeForm}
-                radialKey={activeRadialKey}
-                seed={formSeed}
-                onSuccess={handleFormSuccess}
-                onBack={() => {
-                  setActiveForm(null);
-                  setActiveRadialKey(undefined);
-                  setFormSeed({});
-                }}
-              />
-            </View>
+            </KeyboardAvoidingViewCompat>
           ) : (
             <ScrollView
               showsVerticalScrollIndicator={false}
@@ -643,6 +659,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     paddingHorizontal: 0,
+  },
+  formAvoiding: {
+    width: '100%',
+    justifyContent: 'flex-end',
   },
   hubScrollContent: {
     flexGrow: 1,

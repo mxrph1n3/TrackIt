@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Check, Crown, Sparkles, X } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
@@ -20,7 +21,7 @@ import {
   ANDROID_TRIAL_DAYS,
   PREMIUM_BENEFITS,
   SUBSCRIPTION_DISPLAY_PRICING,
-  SUBSCRIPTION_PRODUCT_IDS,
+  getStoreProductIdForPlan,
 } from '../constants/subscriptions';
 import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import {
@@ -44,6 +45,8 @@ import { useProfileModuleStore } from '../stores/useProfileModuleStore';
 import { BRAND, RADIUS } from '../theme/designTokens';
 import { useTheme } from '../theme/ThemeContext';
 import type { PremiumFeatureId, SubscriptionProductId } from '../types/subscription';
+
+type BillingPlan = 'monthly' | 'yearly';
 
 function formatSubscriptionDate(iso: string | null): string | null {
   if (!iso) {
@@ -94,9 +97,7 @@ export function PremiumScreen({
   const clearError = useSubscriptionStore((s) => s.clearError);
   const purchaseWithStars = useSubscriptionStore((s) => s.purchaseWithStars);
 
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionProductId>(
-    SUBSCRIPTION_PRODUCT_IDS.monthly,
-  );
+  const [selectedPlan, setSelectedPlan] = useState<BillingPlan>('monthly');
 
   const handleClose = useCallback(() => {
     if (onClose) {
@@ -113,7 +114,7 @@ export function PremiumScreen({
     offerings.monthly?.priceString ?? SUBSCRIPTION_DISPLAY_PRICING.monthly.price;
   const yearlyPrice =
     offerings.yearly?.priceString ?? SUBSCRIPTION_DISPLAY_PRICING.yearly.price;
-  const selectedIsYearly = selectedPlan === SUBSCRIPTION_PRODUCT_IDS.yearly;
+  const selectedIsYearly = selectedPlan === 'yearly';
   const selectedPriceLabel = selectedIsYearly
     ? `${yearlyPrice}/${t('premium.year')}`
     : `${monthlyPrice}/${t('premium.month')}`;
@@ -121,7 +122,9 @@ export function PremiumScreen({
   const handlePurchase = useCallback(async () => {
     void triggerHaptic('medium');
     clearError();
-    const success = await purchase(selectedPlan);
+    const success = await purchase(
+      getStoreProductIdForPlan(selectedPlan) as SubscriptionProductId,
+    );
     if (success) {
       void triggerHaptic('success');
       handleClose();
@@ -458,6 +461,14 @@ export function PremiumScreen({
                       {t('premium.trialLeft', {
                         remaining: androidTrial.trialDaysRemaining,
                         price: monthlyPrice,
+                        endsAt: androidTrial.trialEndsAt
+                          ? new Date(androidTrial.trialEndsAt).toLocaleString(undefined, {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : '—',
                       })}
                     </Text>
                   </View>
@@ -469,10 +480,10 @@ export function PremiumScreen({
               ) : null}
 
               <Pressable
-                onPress={() => setSelectedPlan(SUBSCRIPTION_PRODUCT_IDS.monthly)}
+                onPress={() => setSelectedPlan('monthly')}
                 style={[
                   styles.planCard,
-                  selectedPlan === SUBSCRIPTION_PRODUCT_IDS.monthly && styles.planCardSelected,
+                  selectedPlan === 'monthly' && styles.planCardSelected,
                 ]}
               >
                 <View style={styles.planRow}>
@@ -485,10 +496,10 @@ export function PremiumScreen({
               </Pressable>
 
               <Pressable
-                onPress={() => setSelectedPlan(SUBSCRIPTION_PRODUCT_IDS.yearly)}
+                onPress={() => setSelectedPlan('yearly')}
                 style={[
                   styles.planCard,
-                  selectedPlan === SUBSCRIPTION_PRODUCT_IDS.yearly && styles.planCardSelected,
+                  selectedPlan === 'yearly' && styles.planCardSelected,
                 ]}
               >
                 <View style={styles.planRow}>
@@ -643,6 +654,17 @@ export function PremiumScreen({
         </Text>
       ) : null}
 
+      <Text style={[styles.configNote, { marginTop: 8 }]}>
+        {Constants.nativeAppVersion ||
+          Constants.expoConfig?.version ||
+          '—'}{' '}
+        (
+        {Constants.nativeBuildVersion ||
+          (Constants.expoConfig?.android?.versionCode != null
+            ? String(Constants.expoConfig.android.versionCode)
+            : '—')}
+        )
+      </Text>
       <View style={styles.legalRow}>
         <Pressable onPress={() => void Linking.openURL(PRIVACY_POLICY_URL)}>
           <Text style={styles.legalLink}>{t('premium.privacy')}</Text>

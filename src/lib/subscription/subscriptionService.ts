@@ -1,8 +1,10 @@
 import { Platform } from 'react-native';
 
 import {
+  ANDROID_SUBSCRIPTION_PRODUCT_IDS,
+  IOS_SUBSCRIPTION_PRODUCT_IDS,
   SUBSCRIPTION_DISPLAY_PRICING,
-  SUBSCRIPTION_PRODUCT_IDS,
+  getStoreProductIds,
 } from '../../constants/subscriptions';
 import { NATIVE_STORE_PACKAGE_ID } from '../../constants/legal';
 import { IS_WEB } from '../platform/constants';
@@ -14,10 +16,39 @@ import type {
   SubscriptionStatus,
 } from '../../types/subscription';
 
-const PRODUCT_IDS = [
-  SUBSCRIPTION_PRODUCT_IDS.monthly,
-  SUBSCRIPTION_PRODUCT_IDS.yearly,
+const ANDROID_QUERY_SKUS = [
+  ANDROID_SUBSCRIPTION_PRODUCT_IDS.monthly,
+  ANDROID_SUBSCRIPTION_PRODUCT_IDS.yearly,
 ] as const;
+
+function currentProductIds() {
+  return getStoreProductIds();
+}
+
+function skuCandidates(productId: string): string[] {
+  const yearly = productId.toLowerCase().includes('yearly');
+  if (Platform.OS === 'android') {
+    return [
+      yearly
+        ? ANDROID_SUBSCRIPTION_PRODUCT_IDS.yearly
+        : ANDROID_SUBSCRIPTION_PRODUCT_IDS.monthly,
+    ];
+  }
+  if (Platform.OS === 'ios') {
+    return [
+      yearly ? IOS_SUBSCRIPTION_PRODUCT_IDS.yearly : IOS_SUBSCRIPTION_PRODUCT_IDS.monthly,
+    ];
+  }
+  return yearly
+    ? [ANDROID_SUBSCRIPTION_PRODUCT_IDS.yearly, IOS_SUBSCRIPTION_PRODUCT_IDS.yearly]
+    : [ANDROID_SUBSCRIPTION_PRODUCT_IDS.monthly, IOS_SUBSCRIPTION_PRODUCT_IDS.monthly];
+}
+
+function expectedAndroidSku(productId: string): string {
+  return productId.toLowerCase().includes('yearly')
+    ? ANDROID_SUBSCRIPTION_PRODUCT_IDS.yearly
+    : ANDROID_SUBSCRIPTION_PRODUCT_IDS.monthly;
+}
 
 type ExpoIapModule = typeof import('expo-iap');
 type ProductSubscription = import('expo-iap').ProductSubscription;
@@ -27,6 +58,27 @@ type ActiveSubscription = import('expo-iap').ActiveSubscription;
 let iapModule: ExpoIapModule | null = null;
 let iapLoadAttempted = false;
 let connectionPromise: Promise<boolean> | null = null;
+/** Prevent overlapping launchBillingFlow calls — Play returns DEVELOPER_ERROR. */
+let purchaseInFlight: Promise<SubscriptionStatus> | null = null;
+let lastPurchaseAttemptAt = 0;
+/** Serialize Android BillingClient reconnects (endConnection + initConnection). */
+let reconnectLock: Promise<ExpoIapModule | null> | null = null;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error ?? '');
+}
+
+function allKnownSkus(): string[] {
+  if (Platform.OS === 'android') {
+    return [...ANDROID_QUERY_SKUS];
+  }
+  const ids = currentProductIds();
+  return [ids.monthly, ids.yearly];
+}
 
 function emptyStatus(): SubscriptionStatus {
   return {
@@ -39,7 +91,7 @@ function emptyStatus(): SubscriptionStatus {
 }
 
 function fallbackPackage(productId: SubscriptionProductId): SubscriptionPackage {
-  if (productId === SUBSCRIPTION_PRODUCT_IDS.yearly) {
+  if (String(productId).includes('yearly')) {
     return {
       identifier: productId,
       priceString: SUBSCRIPTION_DISPLAY_PRICING.yearly.price,
@@ -83,6 +135,47 @@ async function loadIapModule(): Promise<ExpoIapModule | null> {
   }
 }
 
+function isPlayBillingDisconnected(error: unknown): boolean {
+  return /not connected|service disconnected|billing.?unavailable|play store service/i.test(
+    errorText(error),
+  );
+}
+
+/** Card / Google Payments decline — not a BillingClient bug. */
+function isPaymentDeclinedError(error: unknown): boolean {
+  return /or-fgemf|payment.?declined|transaction was declined|unsuccessful|another payment method|choose another payment|billing.?response.?code.?7|item.?not.?owned/i.test(
+    errorText(error),
+  );
+}
+
+/**
+ * Stale Play Billing session after cancel / failed sheet / process death.
+ * Safe to endConnection + initConnection and retry once.
+ */
+function isBillingSessionError(error: unknown): boolean {
+  if (isPaymentDeclinedError(error)) {
+    return false;
+  }
+  return (
+    isPlayBillingDisconnected(error) ||
+    /invalid arguments provided to the api|developer\.?error|developer_error|service.?timeout|dead.?client|billing.?client/i.test(
+      errorText(error),
+    )
+  );
+}
+
+function playBillingNotConnectedError(): Error {
+  return new Error(
+    'Google Play Billing is not connected. Open the Play Store, sign in, install TrackIt from Google Play, then try again.',
+  );
+}
+
+function paymentDeclinedError(): Error {
+  return new Error(
+    'Google Play declined this payment method (card / account / country mismatch). Change the payment method in Play Store — this is not an app bug.',
+  );
+}
+
 async function ensureConnection(): Promise<ExpoIapModule | null> {
   const IAP = await loadIapModule();
   if (!IAP) {
@@ -90,17 +183,70 @@ async function ensureConnection(): Promise<ExpoIapModule | null> {
   }
 
   if (!connectionPromise) {
-    connectionPromise = IAP.initConnection()
-      .then(() => true)
-      .catch((error) => {
+    connectionPromise = (async () => {
+      try {
+        const result = await IAP.initConnection();
+        if (result === false) {
+          connectionPromise = null;
+          return false;
+        }
+        return true;
+      } catch (error) {
         console.warn('[Subscription] initConnection failed:', error);
         connectionPromise = null;
         return false;
-      });
+      }
+    })();
   }
 
   const ok = await connectionPromise;
   return ok ? IAP : null;
+}
+
+/** True while launchBillingFlow / purchase listeners are active. */
+export function isStorePurchaseInFlight(): boolean {
+  return purchaseInFlight != null;
+}
+
+/**
+ * Tear down and re-open BillingClient. Call after session errors or when
+ * returning to foreground — avoids forcing the user to kill the app.
+ */
+export async function resetStoreBillingConnection(options?: {
+  /** Bypass in-flight purchase guard (used by purchase retry). */
+  force?: boolean;
+}): Promise<boolean> {
+  if (!isNativeStoreBillingAvailable()) {
+    return false;
+  }
+  if (purchaseInFlight && !options?.force) {
+    return true;
+  }
+  if (reconnectLock) {
+    return Boolean(await reconnectLock);
+  }
+
+  reconnectLock = (async () => {
+    const IAP = await loadIapModule();
+    if (!IAP) {
+      return null;
+    }
+    connectionPromise = null;
+    try {
+      await IAP.endConnection();
+    } catch (error) {
+      console.warn('[Subscription] endConnection:', error);
+    }
+    await sleep(450);
+    return ensureConnection();
+  })();
+
+  try {
+    const client = await reconnectLock;
+    return Boolean(client);
+  } finally {
+    reconnectLock = null;
+  }
 }
 
 function msToIso(ms: number | null | undefined): string | null {
@@ -116,7 +262,7 @@ function mapActiveSubscription(sub: ActiveSubscription): SubscriptionStatus {
     sub.autoRenewingAndroid ??
     true;
 
-  const productId = PRODUCT_IDS.includes(sub.productId as SubscriptionProductId)
+  const productId = allKnownSkus().includes(sub.productId)
     ? (sub.productId as SubscriptionProductId)
     : null;
 
@@ -131,7 +277,7 @@ function mapActiveSubscription(sub: ActiveSubscription): SubscriptionStatus {
 
 function pickBestActiveSubscription(subs: ActiveSubscription[]): ActiveSubscription | null {
   const matching = subs.filter(
-    (sub) => sub.isActive && PRODUCT_IDS.includes(sub.productId as SubscriptionProductId),
+    (sub) => sub.isActive && allKnownSkus().includes(sub.productId),
   );
   if (matching.length === 0) {
     return null;
@@ -155,6 +301,9 @@ function mapStoreProduct(product: ProductSubscription | undefined, productId: Su
   };
 }
 
+/** Real Play Billing offer tokens are long opaque strings — never base-plan ids. */
+const MIN_PLAY_OFFER_TOKEN_LENGTH = 16;
+
 function readOfferToken(offer: unknown): string | null {
   if (!offer || typeof offer !== 'object') {
     return null;
@@ -163,120 +312,85 @@ function readOfferToken(offer: unknown): string | null {
   const candidates = [
     record.offerTokenAndroid,
     record.offerToken,
-    record.offer_token,
-    record.token,
+    record.offerIdToken,
   ];
   for (const value of candidates) {
-    if (typeof value === 'string' && value.length > 8) {
+    if (
+      typeof value === 'string' &&
+      value.length >= MIN_PLAY_OFFER_TOKEN_LENGTH &&
+      !/\s/.test(value)
+    ) {
       return value;
     }
   }
   return null;
 }
 
-function looksLikePlayOfferToken(value: string): boolean {
-  if (value.length < 40 || /\s/.test(value)) {
-    return false;
-  }
-  if ((PRODUCT_IDS as readonly string[]).includes(value)) {
-    return false;
-  }
-  return /^[A-Za-z0-9+/=_-]+$/.test(value);
-}
-
-function collectOfferTokens(value: unknown, depth = 0, acc: string[] = []): string[] {
-  if (depth > 6 || value == null) {
-    return acc;
-  }
-  if (typeof value === 'string') {
-    if (looksLikePlayOfferToken(value)) {
-      acc.push(value);
-    }
-    return acc;
-  }
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      const token = readOfferToken(item);
-      if (token) {
-        acc.push(token);
-      }
-      collectOfferTokens(item, depth + 1, acc);
-    }
-    return acc;
-  }
-  if (typeof value === 'object') {
-    const token = readOfferToken(value);
-    if (token) {
-      acc.push(token);
-    }
-    for (const nested of Object.values(value as Record<string, unknown>)) {
-      collectOfferTokens(nested, depth + 1, acc);
-    }
-  }
-  return acc;
-}
-
-function offerPeriodUnit(offer: unknown): 'year' | 'month' | 'other' {
+/** Prefer the default base-plan offer (empty offer id) over promos/win-backs. */
+function isLikelyBasePlanOffer(offer: unknown): boolean {
   if (!offer || typeof offer !== 'object') {
-    return 'other';
+    return false;
   }
   const record = offer as Record<string, unknown>;
-  const period = record.period as { unit?: string } | undefined;
-  const unit = String(period?.unit ?? '').toLowerCase();
-  if (unit === 'year' || unit === 'yearly') {
-    return 'year';
-  }
-  if (unit === 'month' || unit === 'monthly') {
-    return 'month';
-  }
-
-  const basePlan = String(
-    record.basePlanIdAndroid ?? record.basePlanId ?? record.id ?? '',
-  ).toLowerCase();
-  if (basePlan.includes('year')) {
-    return 'year';
-  }
-  if (basePlan.includes('month')) {
-    return 'month';
-  }
-  return 'other';
+  const offerId = String(record.id ?? record.offerIdAndroid ?? record.offerId ?? '').trim();
+  return offerId.length === 0;
 }
 
 function listAndroidOffers(product: ProductSubscription): unknown[] {
   const record = product as ProductSubscription & Record<string, unknown>;
+  const primary = Array.isArray(record.subscriptionOffers) ? record.subscriptionOffers : [];
+  if (primary.some((offer) => Boolean(readOfferToken(offer)))) {
+    return primary;
+  }
   return [
-    ...(Array.isArray(record.subscriptionOffers) ? record.subscriptionOffers : []),
+    ...primary,
     ...(Array.isArray(record.subscriptionOfferDetailsAndroid)
       ? record.subscriptionOfferDetailsAndroid
       : []),
     ...(Array.isArray(record.subscriptionOfferDetails) ? record.subscriptionOfferDetails : []),
-    ...(Array.isArray(record.subscriptionOffersAndroid) ? record.subscriptionOffersAndroid : []),
   ];
 }
 
 /** Google Play Billing 5+ requires an offer token for every subscription purchase. */
-function getAndroidOfferToken(
-  product: ProductSubscription | undefined,
-  productId: SubscriptionProductId,
-): string | null {
+function getAndroidOfferToken(product: ProductSubscription | undefined): string | null {
   if (!product) {
     return null;
   }
 
-  const preferYearly = productId === SUBSCRIPTION_PRODUCT_IDS.yearly;
   const offers = listAndroidOffers(product);
   const withToken = offers.filter((offer) => Boolean(readOfferToken(offer)));
-  const matched = withToken.find((offer) =>
-    preferYearly ? offerPeriodUnit(offer) === 'year' : offerPeriodUnit(offer) === 'month',
-  );
-  const chosen = matched ?? withToken[0];
-  const fromOffer = chosen ? readOfferToken(chosen) : null;
-  if (fromOffer) {
-    return fromOffer;
+  if (withToken.length === 0) {
+    return null;
   }
 
-  const walked = collectOfferTokens(product);
-  return walked[0] ?? null;
+  // Product is already the monthly or yearly SKU — prefer base-plan offer, else first token.
+  const baseOffer = withToken.find(isLikelyBasePlanOffer);
+  const chosen = baseOffer ?? withToken[0];
+  return chosen ? readOfferToken(chosen) : null;
+}
+
+function coercePurchase(result: unknown): Purchase | null {
+  if (!result) {
+    return null;
+  }
+  if (Array.isArray(result)) {
+    for (const item of result) {
+      const purchase = coercePurchase(item);
+      if (purchase) {
+        return purchase;
+      }
+    }
+    return null;
+  }
+  if (typeof result !== 'object') {
+    return null;
+  }
+  const record = result as Record<string, unknown>;
+  const productId = String(record.productId ?? record.id ?? '').trim();
+  if (!productId) {
+    return null;
+  }
+  return result as Purchase;
 }
 
 function androidProductUnavailableReason(product: ProductSubscription | undefined): string | null {
@@ -287,7 +401,7 @@ function androidProductUnavailableReason(product: ProductSubscription | undefine
     (product as ProductSubscription & { productStatusAndroid?: string }).productStatusAndroid ?? '',
   ).toLowerCase();
   if (status.includes('not-found')) {
-    return 'Play does not know this product ID on this app package. Use trackit_pro_monthly_v2 / trackit_pro_yearly_v2.';
+    return 'Play does not know this product ID. Use trackit_pro_monthly / trackit_pro_yearly on Google Play.';
   }
   if (status.includes('no-offers')) {
     return 'The base plan has no active offers. In Play Console open the subscription → base plan → Activate.';
@@ -305,15 +419,47 @@ function findStoreProduct(
   });
 }
 
-function waitForPurchase(IAP: ExpoIapModule, timeoutMs = 120_000): Promise<Purchase> {
-  return new Promise((resolve, reject) => {
-    let settled = false;
-    const timer = setTimeout(() => {
+function findPlanProduct(
+  products: ProductSubscription[],
+  productId: string,
+): ProductSubscription | undefined {
+  for (const sku of skuCandidates(productId)) {
+    const found = findStoreProduct(products, sku as SubscriptionProductId);
+    if (found) {
+      return found;
+    }
+  }
+  return undefined;
+}
+
+function createPurchaseWait(IAP: ExpoIapModule, timeoutMs = 120_000) {
+  let settled = false;
+  let successSub: { remove: () => void } | null = null;
+  let errorSub: { remove: () => void } | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  function cleanup() {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    successSub?.remove();
+    errorSub?.remove();
+    successSub = null;
+    errorSub = null;
+  }
+
+  const promise = new Promise<Purchase>((resolve, reject) => {
+    timer = setTimeout(() => {
+      if (settled) {
+        return;
+      }
+      settled = true;
       cleanup();
       reject(new Error('Purchase timed out. Try again.'));
     }, timeoutMs);
 
-    const successSub = IAP.purchaseUpdatedListener((purchase) => {
+    successSub = IAP.purchaseUpdatedListener((purchase) => {
       if (settled) {
         return;
       }
@@ -322,7 +468,7 @@ function waitForPurchase(IAP: ExpoIapModule, timeoutMs = 120_000): Promise<Purch
       resolve(purchase);
     });
 
-    const errorSub = IAP.purchaseErrorListener((error) => {
+    errorSub = IAP.purchaseErrorListener((error) => {
       if (settled) {
         return;
       }
@@ -336,13 +482,18 @@ function waitForPurchase(IAP: ExpoIapModule, timeoutMs = 120_000): Promise<Purch
       }
       reject(new Error(message));
     });
-
-    function cleanup() {
-      clearTimeout(timer);
-      successSub.remove();
-      errorSub.remove();
-    }
   });
+
+  return {
+    promise,
+    cancel() {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanup();
+    },
+  };
 }
 
 export async function configureSubscriptionService(_userId?: string | null): Promise<void> {
@@ -364,7 +515,7 @@ export async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
   }
 
   try {
-    const active = await IAP.getActiveSubscriptions([...PRODUCT_IDS]);
+    const active = await IAP.getActiveSubscriptions(allKnownSkus());
     const best = pickBestActiveSubscription(active);
     if (!best) {
       return emptyStatus();
@@ -377,50 +528,89 @@ export async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
 }
 
 async function fetchStoreProducts(IAP: ExpoIapModule): Promise<ProductSubscription[]> {
-  const asList = (value: ProductSubscription[] | null | undefined) => value ?? [];
+  const list = await IAP.fetchProducts({
+    skus: allKnownSkus(),
+    type: 'subs',
+  });
+  return (list as ProductSubscription[] | null | undefined) ?? [];
+}
 
-  const subs = asList(
-    (await IAP.fetchProducts({
-      skus: [...PRODUCT_IDS],
-      type: 'subs',
-    })) as ProductSubscription[] | null,
-  );
-  if (subs.length > 0) {
-    return subs;
+function androidPurchaseSku(product: ProductSubscription, productId: string): string {
+  const expected = expectedAndroidSku(productId);
+  const record = product as ProductSubscription & { productId?: string };
+  const fromStore = String(record.id || record.productId || '').trim();
+  // Always purchase the canonical Play product id — never an iOS `_v2` sku.
+  if (fromStore === expected) {
+    return expected;
   }
+  if (
+    fromStore === ANDROID_SUBSCRIPTION_PRODUCT_IDS.monthly ||
+    fromStore === ANDROID_SUBSCRIPTION_PRODUCT_IDS.yearly
+  ) {
+    return fromStore;
+  }
+  return expected;
+}
 
-  return asList(
-    (await IAP.fetchProducts({
-      skus: [...PRODUCT_IDS],
-      type: 'all',
-    })) as ProductSubscription[] | null,
+function isRetryableAndroidPurchaseError(error: unknown): boolean {
+  if (isPaymentDeclinedError(error) || isUserCancelledPurchase(error)) {
+    return false;
+  }
+  return (
+    isBillingSessionError(error) ||
+    /invalid arguments provided to the api|offer.?token|item.?unavailable|billing.?response.?code.?4/i.test(
+      errorText(error),
+    )
   );
 }
 
+function isUserCancelledPurchase(error: unknown): boolean {
+  return /cancel/i.test(errorText(error));
+}
+
+function mapPurchaseFailure(error: unknown): Error {
+  if (isUserCancelledPurchase(error)) {
+    return error instanceof Error ? error : new Error('Purchase cancelled.');
+  }
+  if (isPaymentDeclinedError(error)) {
+    return paymentDeclinedError();
+  }
+  if (isPlayBillingDisconnected(error)) {
+    return playBillingNotConnectedError();
+  }
+  if (/invalid arguments provided to the api/i.test(errorText(error))) {
+    return new Error(
+      'Google Play rejected the purchase request. Close TrackIt completely, reopen from Play Store, then try Subscribe once.',
+    );
+  }
+  return error instanceof Error ? error : new Error(errorText(error) || 'Purchase failed.');
+}
+
 export async function fetchSubscriptionOfferings(): Promise<SubscriptionOfferings> {
+  const ids = currentProductIds();
   const IAP = await ensureConnection();
 
   if (!IAP) {
     return {
-      monthly: fallbackPackage(SUBSCRIPTION_PRODUCT_IDS.monthly),
-      yearly: fallbackPackage(SUBSCRIPTION_PRODUCT_IDS.yearly),
+      monthly: fallbackPackage(ids.monthly),
+      yearly: fallbackPackage(ids.yearly),
     };
   }
 
   try {
     const list = await fetchStoreProducts(IAP);
-    const monthly = findStoreProduct(list, SUBSCRIPTION_PRODUCT_IDS.monthly);
-    const yearly = findStoreProduct(list, SUBSCRIPTION_PRODUCT_IDS.yearly);
+    const monthly = findPlanProduct(list, ids.monthly);
+    const yearly = findPlanProduct(list, ids.yearly);
 
     return {
-      monthly: mapStoreProduct(monthly, SUBSCRIPTION_PRODUCT_IDS.monthly),
-      yearly: mapStoreProduct(yearly, SUBSCRIPTION_PRODUCT_IDS.yearly),
+      monthly: mapStoreProduct(monthly, ids.monthly),
+      yearly: mapStoreProduct(yearly, ids.yearly),
     };
   } catch (error) {
     console.warn('[Subscription] fetchProducts failed:', error);
     return {
-      monthly: fallbackPackage(SUBSCRIPTION_PRODUCT_IDS.monthly),
-      yearly: fallbackPackage(SUBSCRIPTION_PRODUCT_IDS.yearly),
+      monthly: fallbackPackage(ids.monthly),
+      yearly: fallbackPackage(ids.yearly),
     };
   }
 }
@@ -434,76 +624,168 @@ export async function purchaseSubscriptionProduct(
     );
   }
 
-  const IAP = await ensureConnection();
-  if (!IAP) {
-    throw new Error('Store billing is unavailable on this device.');
+  if (purchaseInFlight) {
+    throw new Error('A purchase is already in progress. Wait a moment and try again.');
   }
 
-  const products = await fetchStoreProducts(IAP);
-  const product = findStoreProduct(products, productId);
-  if (!product) {
-    throw new Error(
-      'Selected plan is unavailable in the store. Create active subscriptions trackit_pro_monthly_v2 and trackit_pro_yearly_v2 in Play Console.',
-    );
+  const elapsed = Date.now() - lastPurchaseAttemptAt;
+  // Give Play Billing time to settle after a previous sheet (cancel / decline).
+  if (Platform.OS === 'android' && elapsed > 0 && elapsed < 2200) {
+    await sleep(2200 - elapsed);
   }
 
-  const purchasePromise = waitForPurchase(IAP);
+  const attempt = (async (): Promise<SubscriptionStatus> => {
+    lastPurchaseAttemptAt = Date.now();
 
-  if (Platform.OS === 'android') {
-    const statusReason = androidProductUnavailableReason(product);
-    const googleOfferToken = getAndroidOfferToken(product, productId);
-    if (!googleOfferToken) {
-      console.warn('[Subscription] Android product without offer token:', {
-        id: product.id,
-        keys: Object.keys(product),
-        status: (product as ProductSubscription & { productStatusAndroid?: string }).productStatusAndroid,
-      });
-      throw new Error(
-        statusReason ??
-          'Play returned the product without a base-plan offer token. In Play Console: Monetize → Subscriptions → open the product → Base plan → Activate. Package must be com.trackit.lifeos. Install the app from Internal testing, not a side-loaded APK.',
-      );
+    // Wait out any in-flight reconnect so we don't launchBillingFlow on a dying client.
+    if (reconnectLock) {
+      await reconnectLock;
     }
 
-    const purchaseSku = product.id || productId;
-    await IAP.requestPurchase({
-      type: 'subs',
-      request: {
-        google: {
-          skus: [purchaseSku],
-          subscriptionOffers: [{ sku: purchaseSku, offerToken: googleOfferToken }],
-        },
-      },
-    });
-  } else {
-    await IAP.requestPurchase({
-      type: 'subs',
-      request: {
-        apple: { sku: productId },
-      },
-    });
-  }
+    let client = await ensureConnection();
+    if (!client) {
+      if (Platform.OS === 'android') {
+        const recovered = await resetStoreBillingConnection({ force: true });
+        client = recovered ? await ensureConnection() : null;
+      }
+      if (!client) {
+        throw playBillingNotConnectedError();
+      }
+    }
 
-  const purchase = await purchasePromise;
-  await IAP.finishTransaction({ purchase, isConsumable: false });
+    const run = async (iap: ExpoIapModule): Promise<Purchase> => {
+      const products = await fetchStoreProducts(iap);
+      const product = findPlanProduct(products, productId);
+      if (!product) {
+        throw new Error(
+          Platform.OS === 'android'
+            ? 'Selected plan is unavailable in the store. On Google Play activate trackit_pro_monthly and trackit_pro_yearly (Active base plans).'
+            : 'Selected plan is unavailable in the App Store. Activate trackit_pro_monthly_v2 / trackit_pro_yearly_v2.',
+        );
+      }
 
-  const status = await fetchSubscriptionStatus();
-  if (!status.isPro) {
-    // Purchase just finished — treat matching product as Pro even if active query lags.
-    return {
-      isPro: true,
-      expirationDate: null,
-      willRenew: true,
-      productIdentifier: productId,
-      isSandbox: __DEV__,
+      const wait = createPurchaseWait(iap);
+      try {
+        if (Platform.OS === 'android') {
+          const purchaseSku = androidPurchaseSku(product, productId);
+          if (
+            purchaseSku !== ANDROID_SUBSCRIPTION_PRODUCT_IDS.monthly &&
+            purchaseSku !== ANDROID_SUBSCRIPTION_PRODUCT_IDS.yearly
+          ) {
+            throw new Error(
+              `Invalid Play subscription id "${purchaseSku}". Expected trackit_pro_monthly or trackit_pro_yearly.`,
+            );
+          }
+          const googleOfferToken = getAndroidOfferToken(product);
+          if (!googleOfferToken) {
+            throw new Error(
+              androidProductUnavailableReason(product) ??
+                'Google Play did not return a subscription offer token. Activate the base plan offers for trackit_pro_monthly / trackit_pro_yearly.',
+            );
+          }
+
+          const result = await iap.requestPurchase({
+            type: 'subs',
+            request: {
+              google: {
+                skus: [purchaseSku],
+                subscriptionOffers: [{ sku: purchaseSku, offerToken: googleOfferToken }],
+              },
+            },
+          });
+
+          const fromRequest = coercePurchase(result);
+          if (fromRequest) {
+            wait.cancel();
+            return fromRequest;
+          }
+          // Some Play / OpenIAP builds deliver only via purchaseUpdatedListener.
+          return await wait.promise;
+        }
+
+        const result = await iap.requestPurchase({
+          type: 'subs',
+          request: {
+            apple: { sku: productId },
+          },
+        });
+        const fromRequest = coercePurchase(result);
+        if (fromRequest) {
+          wait.cancel();
+          return fromRequest;
+        }
+        return await wait.promise;
+      } catch (error) {
+        wait.cancel();
+        throw error;
+      }
     };
+
+    let purchase: Purchase;
+    try {
+      purchase = await run(client);
+    } catch (error) {
+      if (isUserCancelledPurchase(error) || isPaymentDeclinedError(error)) {
+        throw mapPurchaseFailure(error);
+      }
+      if (Platform.OS === 'android' && isRetryableAndroidPurchaseError(error)) {
+        // Soft retry first (fresh ProductDetails on same client) — avoids killing a healthy session.
+        await sleep(1500);
+        try {
+          purchase = await run(client);
+        } catch (softRetryError) {
+          if (isUserCancelledPurchase(softRetryError) || isPaymentDeclinedError(softRetryError)) {
+            throw mapPurchaseFailure(softRetryError);
+          }
+          await sleep(1500);
+          const reconnected = await resetStoreBillingConnection({ force: true });
+          if (!reconnected) {
+            throw playBillingNotConnectedError();
+          }
+          const fresh = await ensureConnection();
+          if (!fresh) {
+            throw playBillingNotConnectedError();
+          }
+          client = fresh;
+          try {
+            purchase = await run(client);
+          } catch (hardRetryError) {
+            throw mapPurchaseFailure(hardRetryError);
+          }
+        }
+      } else {
+        throw mapPurchaseFailure(error);
+      }
+    }
+
+    await client.finishTransaction({ purchase, isConsumable: false });
+
+    const status = await fetchSubscriptionStatus();
+    if (!status.isPro) {
+      return {
+        isPro: true,
+        expirationDate: null,
+        willRenew: true,
+        productIdentifier: productId,
+        isSandbox: __DEV__,
+      };
+    }
+
+    void syncProStatusToServer({
+      isPro: true,
+      expiresAt: status.expirationDate,
+    });
+
+    return status;
+  })();
+
+  purchaseInFlight = attempt;
+  try {
+    return await attempt;
+  } finally {
+    purchaseInFlight = null;
+    lastPurchaseAttemptAt = Date.now();
   }
-
-  void syncProStatusToServer({
-    isPro: true,
-    expiresAt: status.expirationDate,
-  });
-
-  return status;
 }
 
 export async function restoreSubscriptionPurchases(): Promise<SubscriptionStatus> {
@@ -540,7 +822,7 @@ export async function openStoreManageSubscriptions(productId?: string | null): P
     const IAP = await ensureConnection();
     if (IAP) {
       await IAP.deepLinkToSubscriptions({
-        skuAndroid: productId ?? SUBSCRIPTION_PRODUCT_IDS.monthly,
+        skuAndroid: productId ?? currentProductIds().monthly,
         packageNameAndroid: NATIVE_STORE_PACKAGE_ID,
       });
       return;

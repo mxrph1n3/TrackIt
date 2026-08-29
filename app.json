@@ -2,7 +2,7 @@
   "expo": {
     "name": "TrackIt",
     "slug": "sadism",
-    "version": "1.0.2",
+    "version": "2.0",
     "orientation": "portrait",
     "icon": "./assets/icon-light.png",
     "userInterfaceStyle": "automatic",
@@ -10,7 +10,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.trackit.lifeos",
-      "buildNumber": "7",
+      "buildNumber": "8",
       "infoPlist": {
         "CFBundleDisplayName": "TrackIt",
         "LSApplicationCategoryType": "public.app-category.healthcare-fitness",
@@ -28,7 +28,7 @@
       ],
       "predictiveBackGestureEnabled": false,
       "package": "com.trackit.lifeos",
-      "versionCode": 17,
+      "versionCode": 31,
       "intentFilters": [
         {
           "action": "VIEW",
@@ -92,7 +92,16 @@
         }
       ],
       "expo-localization",
-      "expo-iap"
+      "expo-iap",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
+      ]
     ],
     "extra": {
       "eas": {
