@@ -8,6 +8,7 @@ import {
 } from '../../constants/subscriptions';
 import { NATIVE_STORE_PACKAGE_ID } from '../../constants/legal';
 import { IS_WEB } from '../platform/constants';
+import { assertNativePaymentsAllowed } from './paymentEligibility';
 import { syncProStatusToServer } from './syncProStatus';
 import type {
   SubscriptionOfferings,
@@ -165,6 +166,11 @@ function isBillingSessionError(error: unknown): boolean {
 }
 
 function playBillingNotConnectedError(): Error {
+  if (Platform.OS === 'ios') {
+    return new Error(
+      'App Store billing is not available. Sign in with an Apple ID, install TrackIt from TestFlight or the App Store, then try again.',
+    );
+  }
   return new Error(
     'Google Play Billing is not connected. Open the Play Store, sign in, install TrackIt from Google Play, then try again.',
   );
@@ -627,6 +633,8 @@ export async function purchaseSubscriptionProduct(
   if (purchaseInFlight) {
     throw new Error('A purchase is already in progress. Wait a moment and try again.');
   }
+
+  await assertNativePaymentsAllowed();
 
   const elapsed = Date.now() - lastPurchaseAttemptAt;
   // Give Play Billing time to settle after a previous sheet (cancel / decline).

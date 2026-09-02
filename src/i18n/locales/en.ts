@@ -1255,6 +1255,8 @@ const en = {
       'TrackIt Pro Monthly — {{monthlyPrice}}/month. TrackIt Pro Yearly — {{yearlyPrice}}/year. Payment is charged to your Apple ID or Google Play account at confirmation. Subscription automatically renews unless canceled at least 24 hours before the end of the current period. Manage or cancel anytime: iOS — Settings → [Your Name] → Subscriptions; Android — Google Play → Payments & subscriptions → Subscriptions.',
     storeNotConfigured:
       'In-app purchases are unavailable in this build. Use a production or store build on a real device.',
+    regionPaymentsBlocked:
+      'Subscriptions are not available in your region.',
     manageSubscription: 'Manage subscription',
     autoRenewStatus: 'Auto-renewal: {{status}}',
     autoRenewOn: 'On',

@@ -4,13 +4,19 @@ export type StarsInvoicePayload = {
   user_id: string;
   kind: 'pro_monthly';
   type: 'premium_1m';
+  /** ISO country captured at invoice creation (CDN header). */
+  country?: string | null;
 };
 
-export function buildStarsInvoicePayload(userId: string): string {
+export function buildStarsInvoicePayload(
+  userId: string,
+  country?: string | null,
+): string {
   const payload: StarsInvoicePayload = {
     user_id: userId,
     kind: 'pro_monthly',
     type: 'premium_1m',
+    country: country ?? null,
   };
   return JSON.stringify(payload);
 }

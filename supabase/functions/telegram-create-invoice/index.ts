@@ -3,6 +3,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { corsHeaders, validateTelegramInitData } from '../_shared/tmaAccess.ts';
 import { getTmaStarsPrice } from '../_shared/tmaBilling.ts';
 import { buildStarsInvoiceBody, buildStarsInvoicePayload } from '../_shared/starsInvoice.ts';
+import {
+  PAYMENT_REGION_BLOCKED_MESSAGE,
+  countryFromRequestHeaders,
+  isPaymentCountryBlocked,
+} from '../_shared/paymentRegions.ts';
 
 type RequestBody = {
   initData?: string;
@@ -63,7 +68,22 @@ Deno.serve(async (req) => {
       });
     }
 
-    const payload = buildStarsInvoicePayload(userData.user.id);
+    const requestCountry = countryFromRequestHeaders(req.headers);
+    if (isPaymentCountryBlocked(requestCountry)) {
+      return new Response(
+        JSON.stringify({
+          error: PAYMENT_REGION_BLOCKED_MESSAGE,
+          code: 'region_blocked',
+          country: requestCountry,
+        }),
+        {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      );
+    }
+
+    const payload = buildStarsInvoicePayload(userData.user.id, requestCountry);
 
     const invoiceResponse = await fetch(
       `https://api.telegram.org/bot${botToken}/createInvoiceLink`,

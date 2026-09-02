@@ -1242,6 +1242,7 @@ const de: TranslationSchema = {
       'TrackIt Pro Monthly — {{monthlyPrice}}/Monat. TrackIt Pro Yearly — {{yearlyPrice}}/Jahr. Die Zahlung wird bei Bestätigung deinem Apple-ID- oder Google-Play-Konto belastet. Das Abo verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt wird. Verwalten oder kündigen: iOS — Einstellungen → [Dein Name] → Abos; Android — Google Play → Zahlungen & Abos → Abos.',
     storeNotConfigured:
       'In-App-Käufe sind in diesem Build nicht verfügbar. Nutze einen Production-/Store-Build auf einem echten Gerät.',
+    regionPaymentsBlocked: 'Abonnements sind in deiner Region nicht verfügbar.',
     manageSubscription: 'Abo verwalten',
     autoRenewStatus: 'Automatische Verlängerung: {{status}}',
     autoRenewOn: 'An',

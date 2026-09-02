@@ -92,6 +92,7 @@ export function PremiumScreen({
   const isPurchasing = useSubscriptionStore((s) => s.isPurchasing);
   const isLoading = useSubscriptionStore((s) => s.isLoading);
   const error = useSubscriptionStore((s) => s.error);
+  const paymentEligibility = useSubscriptionStore((s) => s.paymentEligibility);
   const purchase = useSubscriptionStore((s) => s.purchase);
   const restore = useSubscriptionStore((s) => s.restore);
   const clearError = useSubscriptionStore((s) => s.clearError);
@@ -589,26 +590,32 @@ export function PremiumScreen({
           </GlassPanel>
 
           {!IS_WEB ? (
-            <Pressable
-              onPress={() => void handlePurchase()}
-              disabled={isPurchasing || isLoading || !isStoreBillingReady()}
-              style={[
-                styles.primaryButton,
-                (isPurchasing || isLoading || !isStoreBillingReady()) && { opacity: 0.7 },
-              ]}
-            >
-              {isPurchasing ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <Text style={styles.primaryButtonLabel}>
-                  {FREE_TRIAL_DAYS > 0
-                    ? t('premium.startTrial', { days: FREE_TRIAL_DAYS })
-                    : androidTrial.isInTrial
-                      ? t('premium.subscribeNow', { price: selectedPriceLabel })
-                      : t('premium.upgradeCta', { price: selectedPriceLabel })}
-                </Text>
-              )}
-            </Pressable>
+            paymentEligibility.allowed ? (
+              <Pressable
+                onPress={() => void handlePurchase()}
+                disabled={isPurchasing || isLoading || !isStoreBillingReady()}
+                style={[
+                  styles.primaryButton,
+                  (isPurchasing || isLoading || !isStoreBillingReady()) && { opacity: 0.7 },
+                ]}
+              >
+                {isPurchasing ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.primaryButtonLabel}>
+                    {FREE_TRIAL_DAYS > 0
+                      ? t('premium.startTrial', { days: FREE_TRIAL_DAYS })
+                      : androidTrial.isInTrial
+                        ? t('premium.subscribeNow', { price: selectedPriceLabel })
+                        : t('premium.upgradeCta', { price: selectedPriceLabel })}
+                  </Text>
+                )}
+              </Pressable>
+            ) : (
+              <Text style={[styles.errorText, { marginBottom: 12 }]}>
+                {t('premium.regionPaymentsBlocked')}
+              </Text>
+            )
           ) : isTma ? null : (
             <Pressable
               onPress={() => void handleRestore()}

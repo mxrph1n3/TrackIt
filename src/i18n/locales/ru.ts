@@ -1245,6 +1245,7 @@ const ru: TranslationSchema = {
       'TrackIt Pro Monthly — {{monthlyPrice}}/мес. TrackIt Pro Yearly — {{yearlyPrice}}/год. Оплата списывается с Apple ID или аккаунта Google Play при подтверждении. Подписка продлевается автоматически, если не отменить минимум за 24 часа до конца текущего периода. Управление и отмена: iOS — Настройки → [Ваше имя] → Подписки; Android — Google Play → Платежи и подписки → Подписки.',
     storeNotConfigured:
       'Покупки недоступны в этой сборке. Используйте production/store-сборку на реальном устройстве.',
+    regionPaymentsBlocked: 'Подписки недоступны в вашем регионе.',
     manageSubscription: 'Управление подпиской',
     autoRenewStatus: 'Автопродление: {{status}}',
     autoRenewOn: 'Вкл.',

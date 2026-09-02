@@ -20,6 +20,10 @@ import {
   restoreSubscriptionPurchases,
   syncSubscriptionUser,
 } from '../lib/subscription/subscriptionService';
+import {
+  resolveNativePaymentEligibility,
+  type PaymentEligibility,
+} from '../lib/subscription/paymentEligibility';
 import { syncProStatusToServer } from '../lib/subscription/syncProStatus';
 import {
   canSyncTmaAccess,
@@ -50,6 +54,8 @@ type SubscriptionState = {
   androidTrial: AndroidTrialStatus;
   /** One-shot soft paywall after Android trial expires. */
   trialExpiredPromptPending: boolean;
+  /** Native storefront payment eligibility (Russia blocked). */
+  paymentEligibility: PaymentEligibility;
   devProOverride: boolean;
   initialize: (userId: string | null) => Promise<void>;
   refresh: () => Promise<void>;
@@ -87,6 +93,7 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   tmaAccessReady: false,
   androidTrial: EMPTY_ANDROID_TRIAL,
   trialExpiredPromptPending: false,
+  paymentEligibility: { allowed: true, countryCode: null, reason: 'ok' },
   devProOverride: false,
 
   initialize: async (userId) => {
@@ -105,6 +112,7 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         tmaAccessReady: !canSyncTmaAccess() || Boolean(userId),
         androidTrial: EMPTY_ANDROID_TRIAL,
         trialExpiredPromptPending: false,
+        paymentEligibility: { allowed: true, countryCode: null, reason: 'ok' },
         isReady: true,
         isLoading: false,
         error: null,
@@ -118,13 +126,14 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
       await configureSubscriptionService(userId);
       await syncSubscriptionUser(userId);
 
-      const [status, offerings, tmaAccess, androidTrial, shouldPromptExpired] =
+      const [status, offerings, tmaAccess, androidTrial, shouldPromptExpired, paymentEligibility] =
         await Promise.all([
           fetchSubscriptionStatus(),
           fetchSubscriptionOfferings(),
           userId && canSyncTmaAccess() ? syncTmaAccess() : Promise.resolve(EMPTY_TMA_ACCESS),
           canUseAndroidTrial() ? ensureAndroidTrialStarted() : Promise.resolve(EMPTY_ANDROID_TRIAL),
           canUseAndroidTrial() ? shouldPromptAndroidTrialExpired() : Promise.resolve(false),
+          resolveNativePaymentEligibility({ force: true }),
         ]);
 
       set({
@@ -134,6 +143,7 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         tmaAccessReady: !canSyncTmaAccess() || Boolean(userId),
         androidTrial,
         trialExpiredPromptPending: !status.isPro && shouldPromptExpired,
+        paymentEligibility,
         isReady: true,
       });
 
@@ -172,17 +182,19 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     }
 
     try {
-      const [status, offerings, tmaAccess, androidTrial] = await Promise.all([
+      const [status, offerings, tmaAccess, androidTrial, paymentEligibility] = await Promise.all([
         fetchSubscriptionStatus(),
         fetchSubscriptionOfferings(),
         canSyncTmaAccess() ? syncTmaAccess() : Promise.resolve(get().tmaAccess),
         canUseAndroidTrial() ? loadAndroidTrialStatus() : Promise.resolve(EMPTY_ANDROID_TRIAL),
+        resolveNativePaymentEligibility({ force: true }),
       ]);
       set({
         status,
         offerings,
         tmaAccess,
         androidTrial,
+        paymentEligibility,
         trialExpiredPromptPending:
           status.isPro || !androidTrial.isExpired ? false : get().trialExpiredPromptPending,
         error: null,

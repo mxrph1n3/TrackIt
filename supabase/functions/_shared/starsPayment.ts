@@ -11,6 +11,10 @@ import { grantStarsPro } from './tmaAccess.ts';
 import type { BotConfig } from './telegramBot.ts';
 import { sendPaymentSuccessMessage } from './telegramBot.ts';
 import type { StarsInvoicePayload } from './starsInvoice.ts';
+import {
+  PAYMENT_REGION_BLOCKED_MESSAGE,
+  isPaymentCountryBlocked,
+} from './paymentRegions.ts';
 
 export type PreCheckoutQuery = {
   id: string;
@@ -74,6 +78,9 @@ export async function answerPreCheckoutQuery(
   } else if (!payload?.user_id) {
     ok = false;
     errorMessage = 'Invalid invoice. Open TrackIt → Statistics → Pro and try again.';
+  } else if (isPaymentCountryBlocked(payload.country)) {
+    ok = false;
+    errorMessage = PAYMENT_REGION_BLOCKED_MESSAGE;
   }
 
   const body: Record<string, unknown> = {
@@ -105,6 +112,15 @@ export async function handleSuccessfulPayment(
   const payload = parseInvoicePayload(payment.invoice_payload);
   if (!payload?.user_id) {
     console.error('[stars-payment] successful_payment with invalid payload');
+    return;
+  }
+
+  if (isPaymentCountryBlocked(payload.country)) {
+    console.warn(
+      '[stars-payment] Refusing to grant Pro for blocked region:',
+      payload.country,
+      payment.telegram_payment_charge_id,
+    );
     return;
   }
 

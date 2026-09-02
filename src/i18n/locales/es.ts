@@ -1242,6 +1242,7 @@ const es: TranslationSchema = {
       'TrackIt Pro Monthly — {{monthlyPrice}}/mes. TrackIt Pro Yearly — {{yearlyPrice}}/año. El pago se carga a tu Apple ID o cuenta de Google Play al confirmar. La suscripción se renueva automáticamente salvo cancelación al menos 24 horas antes del fin del periodo actual. Gestiona o cancela: iOS — Ajustes → [Tu nombre] → Suscripciones; Android — Google Play → Pagos y suscripciones → Suscripciones.',
     storeNotConfigured:
       'Las compras no están disponibles en este build. Usa un build de producción o de tienda en un dispositivo real.',
+    regionPaymentsBlocked: 'Las suscripciones no están disponibles en tu región.',
     manageSubscription: 'Gestionar suscripción',
     autoRenewStatus: 'Renovación automática: {{status}}',
     autoRenewOn: 'Activada',
