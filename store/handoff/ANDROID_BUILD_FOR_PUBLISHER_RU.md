@@ -1,43 +1,39 @@
 # Android AAB для посредника
 
-**Дата:** 2026-08-10  
+**Дата:** 2026-09-02  
 **Package:** `com.trackit.lifeos`  
-**versionCode (EAS):** 13  
+**Ветка:** `free-app`  
+**versionCode:** **31** (актуальный production)
 
-## Сборка (production AAB) — готово
+## Сборка
 
-| | |
-|--|--|
-| Status | **Finished** |
-| versionName | 1.0.0 |
-| versionCode | 13 |
-| EAS page | https://expo.dev/accounts/s4d1sms-team/projects/sadism/builds/e4b7effd-1a1b-4b17-bf90-38d152fd542d |
-| Download AAB | https://expo.dev/artifacts/eas/Pnid2Z2XDTjomggSVoDZCCiNnrKTMUsVOCgvP24mDB0.aab |
-| Локальная копия | `dist-android/publisher/TrackIt-1.0.0-vc13.aab` (не в git) |
+Предпочтительно взять готовый AAB у владельца:  
+`dist-android/publisher/TrackIt-1.0.3-vc31.aab` (не в git).
+
+Или собрать:
+
+```bash
+git checkout free-app && git pull && npm install
+npx --yes eas-cli build --platform android --profile production
+```
 
 Передать посреднику:
-1. Файл `.aab` (ссылка выше или локальная копия)
-2. Документ `store/handoff/FOR_PUBLISHER_ANDROID_RU.md`
-3. Листинг `store/handoff/RELEASE_READY_RU.md`
-4. Репо: https://github.com/mxrph1n3/TrackIt (ветка `free-app`)
+1. Файл `.aab` (versionCode ≥ 31)
+2. `store/handoff/FOR_PUBLISHER_ANDROID_RU.md`
+3. `store/handoff/RELEASE_READY_RU.md`
+4. Репо: https://github.com/mxrph1n3/TrackIt (`free-app`)
 
-## Что внутри этой сборки
+## Что внутри
 
 - Paid Pro + soft-trial 3 дня
 - i18n EN / RU / ES / DE
-- Биллинг: Google Play Billing напрямую (`expo-iap`), без RevenueCat
-- Product IDs: `trackit_pro_monthly_v2` / `trackit_pro_yearly_v2`
+- Биллинг: Play Billing (`expo-iap`), без RevenueCat
+- Product IDs: `trackit_pro_monthly` / `trackit_pro_yearly` (**без** `_v2`)
+- Блок storefront Russia в приложении
 
 ## Play Console
 
-1. Создать приложение `com.trackit.lifeos` (если ещё нет).
-2. Загрузить этот AAB в Internal testing / Production.
-3. Подписки:
-   - `trackit_pro_monthly_v2`
-   - `trackit_pro_yearly_v2`
-4. Data Safety + Privacy Policy URL из `RELEASE_READY_RU.md`.
-
-## Signing
-
-AAB подписан **EAS remote keystore** (Expo).  
-Если посредник хочет свой upload key — нужна отдельная переподпись / новый keystore; обычно для первого релиза достаточно этого AAB + Play App Signing.
+1. Загрузить AAB в Internal testing / Production.
+2. Подписки Active: `trackit_pro_monthly`, `trackit_pro_yearly`.
+3. **Countries → exclude Russia.**
+4. Data Safety + Privacy URL из `RELEASE_READY_RU.md`.

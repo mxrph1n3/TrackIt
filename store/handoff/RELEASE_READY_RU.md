@@ -15,10 +15,12 @@
 |--|--|
 | Тип | Free download + **auto-renewable subscription** |
 | Soft-trial | **3 дня** полного Pro (в приложении, iOS + Android) |
-| Products | `trackit_pro_monthly_v2` · `trackit_pro_yearly_v2` |
+| Products iOS | `trackit_pro_monthly_v2` · `trackit_pro_yearly_v2` |
+| Products Android | `trackit_pro_monthly` · `trackit_pro_yearly` |
 | Цена (fallback) | **$5.99 / month** · **$50 / year** |
-| Billing | Direct App Store / Play Billing (`expo-iap`) |
+| Billing | Direct App Store / Play Billing (`expo-iap`) — **no RevenueCat** |
 | UI languages | English, Русский, Español, Deutsch |
+| Blocked region | **Russia** — exclude in both consoles |
 
 В сторах приложение остаётся **Free** (цена загрузки 0), монетизация — через IAP/Subscriptions.
 
@@ -30,9 +32,9 @@
 |------|----------|
 | Display Name | TrackIt |
 | Bundle / Package | `com.trackit.lifeos` |
-| Version | **1.0.1** |
-| iOS Build | **7** |
-| Android versionCode | **13** (AAB; при новой Android-сборке поднять) |
+| Version | **2.0** |
+| iOS Build | **8** |
+| Android versionCode | **31** |
 | Encryption export (iOS) | `ITSAppUsesNonExemptEncryption = false` |
 | Billing flags | `IOS_BILLING_ENABLED` / `ANDROID_BILLING_ENABLED` = **true** |
 
@@ -67,13 +69,24 @@
 
 Создать **до** или сразу после первого билда:
 
+### App Store Connect
+
 | Product ID | Тип | Ориентир цены |
 |------------|-----|----------------|
 | `trackit_pro_monthly_v2` | Auto-renewable | $5.99 / month |
 | `trackit_pro_yearly_v2` | Auto-renewable | $49.99–50 / year |
 
-Подписочная группа: например **TrackIt Pro**.  
+### Google Play
+
+| Product ID | Тип | Ориентир цены |
+|------------|-----|----------------|
+| `trackit_pro_monthly` | Auto-renewable | $5.99 / month |
+| `trackit_pro_yearly` | Auto-renewable | $49.99–50 / year |
+
+Подписочная группа iOS: например **TrackIt Pro**.  
 Без RevenueCat — только native store IAP.
+
+**Availability:** исключить **Russia** в App Store и Google Play.
 
 ---
 
@@ -261,7 +274,8 @@ Das Abo wird über Apple ID / Google Play abgerechnet und verlängert sich autom
 ```
 TrackIt includes a 3-day soft trial with full Pro access on first launch (iOS/Android).
 After the trial, Pro features require an auto-renewable subscription:
-trackit_pro_monthly_v2 / trackit_pro_yearly_v2 (App Store / Google Play).
+App Store: trackit_pro_monthly_v2 / trackit_pro_yearly_v2
+Google Play: trackit_pro_monthly / trackit_pro_yearly
 
 Sign in: email and password only (no Google / Apple Sign-In).
 Account deletion: Settings → Account → Delete account.
@@ -279,8 +293,10 @@ Terms: https://track-it-umber-psi.vercel.app/terms
 
 ### iOS
 - [ ] App создан, Bundle ID `com.trackit.lifeos`
+- [ ] Версия **2.0** / build **8**
 - [ ] Подписки `trackit_pro_monthly_v2` / `yearly_v2` созданы и в Review
 - [ ] Paid Apps Agreement + banking/tax OK
+- [ ] **Availability: Russia excluded**
 - [ ] Локали EN (+ RU/ES/DE по возможности)
 - [ ] Скриншоты 6.9" (6 шт.)
 - [ ] Privacy labels
@@ -290,8 +306,9 @@ Terms: https://track-it-umber-psi.vercel.app/terms
 
 ### Android
 - [ ] App `com.trackit.lifeos`
-- [ ] Подписки созданы и активны
-- [ ] AAB загружен (internal → production)
+- [ ] Подписки `trackit_pro_monthly` / `yearly` (**без** `_v2`) Active
+- [ ] AAB versionCode **≥ 31**
+- [ ] **Countries: Russia excluded**
 - [ ] Листинг + Data safety
 - [ ] Feature graphic / screenshots
 - [ ] Content rating questionnaire

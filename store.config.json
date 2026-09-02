@@ -1,9 +1,12 @@
 {
   "configVersion": 0,
   "apple": {
-    "version": "1.0.0",
+    "version": "2.0",
     "copyright": "2026 TrackIt",
-    "categories": ["HEALTH_AND_FITNESS", "PRODUCTIVITY"],
+    "categories": [
+      "HEALTH_AND_FITNESS",
+      "PRODUCTIVITY"
+    ],
     "release": {
       "automaticRelease": false
     },

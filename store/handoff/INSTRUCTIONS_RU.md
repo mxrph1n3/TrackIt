@@ -57,7 +57,8 @@ npx eas-cli submit --platform ios --profile production --latest
 | `trackit_pro_monthly_v2` | Auto-renewable | ~$5.99 / month |
 | `trackit_pro_yearly_v2` | Auto-renewable | ~$50 / year |
 
-Группа: TrackIt Pro. RevenueCat entitlement: **`pro`**.
+Группа: TrackIt Pro. Без RevenueCat.  
+**Availability: исключить Russia.**
 
 ---
 

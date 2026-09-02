@@ -2,12 +2,14 @@
 
 **Кому:** тому, кто загружает приложение в App Store Connect  
 **Репозиторий:** https://github.com/mxrph1n3/TrackIt  
-**Ветка:** `main` или `free-app` (одинаковый код для стора)  
+**Ветка:** **`free-app`** (актуальный код)  
 **Bundle ID:** `com.trackit.lifeos`  
 **Имя приложения:** TrackIt  
+**Версия / Build:** **2.0** / **8**
 
 **Модель:** free download + подписка TrackIt Pro (`trackit_pro_monthly_v2` / `trackit_pro_yearly_v2`), soft-триал **3 дня**.  
 **Языки UI:** EN / RU / ES / DE.  
+**Россия:** в Availability **исключить Russia**.  
 **Старт + Android:** [`../../START_HERE_PUBLISHER_RU.md`](../../START_HERE_PUBLISHER_RU.md) · [`FOR_PUBLISHER_ANDROID_RU.md`](./FOR_PUBLISHER_ANDROID_RU.md)  
 **Листинг / IAP / тексты:** [`RELEASE_READY_RU.md`](./RELEASE_READY_RU.md)
 
@@ -28,7 +30,7 @@
 ```bash
 git clone https://github.com/mxrph1n3/TrackIt.git
 cd TrackIt
-git checkout main
+git checkout free-app
 npm run setup:ios
 ```
 
@@ -189,7 +191,8 @@ Bundle ID: `com.trackit.lifeos`. Сначала выполните блок **«
    - Primary category: **Health & Fitness** · Secondary: **Productivity**
 
 2. Создать подписки **`trackit_pro_monthly_v2`** и **`trackit_pro_yearly_v2`** (см. `RELEASE_READY_RU.md`).  
-   Paid Apps Agreement + banking/tax должны быть активны.
+   Paid Apps Agreement + banking/tax должны быть активны.  
+   **Pricing and Availability → исключить Russia.**
 
 3. Метаданные + скриншоты + Privacy (+ локали RU/ES/DE):  
    **`RELEASE_READY_RU.md`** · **`INSTRUCTIONS_RU.md`** · **`screenshots/`**  

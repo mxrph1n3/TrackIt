@@ -46,8 +46,9 @@ Privacy: https://track-it-umber-psi.vercel.app/privacy
 
 ## Важно для владельца перед передачей
 
-1. **Закоммитить и запушить** текущий код (i18n + paid billing) — иначе посредник соберёт старую free-версию.  
-2. Проверить демо-аккаунт в Supabase.  
+1. **Закоммитить и запушить** ветку `free-app` (актуальный paid billing).  
+2. Проверить демо-аккаунт в Supabase (`review@trackit.app` / `trackit`).  
 3. Подставить телефон E.164 в `store.config.json` → `apple.review.phone`.  
-4. Убедиться, что в EAS / env есть RevenueCat keys (`appl_…`, `goog_…`).  
-5. Paid Apps Agreement (Apple) и Play payments profile активны у публикатора.
+4. Supabase URL/anon уже в `.env.production` / defaults — RevenueCat **не нужен**.  
+5. Paid Apps Agreement (Apple) и Play payments profile активны у публикатора.  
+6. **Исключить Russia** в Availability / Countries.
