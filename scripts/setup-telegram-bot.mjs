@@ -34,9 +34,9 @@ const BOT_DESCRIPTION = `TrackIt — your productivity companion inside Telegram
 📋 Plan tasks & daily goals
 💪 Log workouts & track progress
 🍎 Nutrition, habits & finance
-🤖 AI Coach & analytics (Pro)
+📊 Analytics & Premium themes (Pro)
 
-Open the Mini App for a free 3-day Pro trial. After that, subscribe at ${monthlyPriceLabel} (paid with Telegram Stars at checkout).
+Open the Mini App for a free 3-day Pro trial. After that, subscribe at ${monthlyPriceLabel} (paid with Telegram Stars at checkout). Subscriptions are not available in Russia.
 
 Smart reminders are delivered right here in chat — morning motivation, task nudges, workout prompts, and evening wrap-ups (08:00–22:00). Enable them in Settings → Telegram Reminders.`;
 

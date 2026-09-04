@@ -270,6 +270,7 @@ export function buildHelpMessage(config: BotConfig): string {
     '',
     '<b>Payment</b>',
     'Stars checkout works only inside the Mini App — not in this chat. Use /pro for step-by-step instructions.',
+    'Subscriptions are not available in Russia.',
     '',
     '<b>Reminder schedule</b>',
     '08:00 Morning · 12:00 Midday · 16:00 Progress',
@@ -318,6 +319,7 @@ export async function handlePaySupportCommand(config: BotConfig, chatId: number)
         '• Payment issues: describe your problem here in this chat.',
         '• Subscription status: /status',
         '• Buy or renew Pro: open Mini App → Statistics → Pro (or /pro for steps)',
+        '• Region: subscriptions are not sold in Russia.',
         '',
         'Telegram Support cannot help with in-bot Star purchases — contact us via this bot.',
       ].join('\n');
@@ -332,11 +334,12 @@ export async function handleTermsCommand(config: BotConfig, chatId: number): Pro
     [
       '<b>TrackIt Pro — Terms</b>',
       '',
-      `• <b>Product:</b> TrackIt Pro — digital subscription (AI Coach, analytics, reminders).`,
+      `• <b>Product:</b> TrackIt Pro — digital subscription (analytics, reminders, full Pro features).`,
       `• <b>Price:</b> ${config.monthlyPriceLabel} (paid with Telegram Stars at checkout).`,
       '• <b>Billing:</b> Renews automatically via Telegram Stars until cancelled in Telegram → Settings → Stars.',
       '• <b>Delivery:</b> Pro access is activated immediately after successful payment in the Mini App.',
       '• <b>Refunds:</b> Contact /paysupport — refunds are processed per Telegram Stars policy.',
+      '• <b>Regions:</b> Subscriptions are not available in Russia.',
       '',
       'By paying, you agree to these terms.',
     ].join('\n'),
@@ -481,9 +484,9 @@ export const BOT_DESCRIPTION = `TrackIt — your productivity companion inside T
 📋 Plan tasks & daily goals
 💪 Log workouts & track progress
 🍎 Nutrition, habits & finance
-🤖 AI Coach & analytics (Pro)
+📊 Analytics & Premium themes (Pro)
 
-Open the Mini App for a free 3-day Pro trial. After that, subscribe at $5.99/month (paid with Telegram Stars at checkout).
+Open the Mini App for a free 3-day Pro trial. After that, subscribe at $5.99/month (paid with Telegram Stars at checkout). Subscriptions are not available in Russia.
 
 Smart reminders are delivered right here in chat — morning motivation, task nudges, workout prompts, and evening wrap-ups (08:00–22:00). Enable them in Settings → Telegram Reminders.`;
 

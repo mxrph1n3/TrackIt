@@ -116,6 +116,8 @@ flowchart TB
 
 **In-chat payment is not supported.** Stars checkout works only inside the Mini App.
 
+**Russia:** Stars invoices are blocked server-side for country `RU`/`RUS` (same policy as native stores). Set `APP_FULLY_FREE=false` so Pro gating and paid copy are active.
+
 **From the bot (instructions only):**
 
 1. `/pro` or tap **Buy Premium — N Stars**
@@ -194,6 +196,7 @@ https://track-it-umber-psi.vercel.app/auth/callback
 | `SUPABASE_URL` | Project URL |
 | `SUPABASE_ANON_KEY` | Anon key |
 | `CRON_SECRET` | Random secret for scheduled reminder job |
+| `APP_FULLY_FREE` | Must be **`false`** so Stars / Pro gating are enforced (default without this secret = fully free) |
 
 ### Step 5 — Deploy Edge Functions
 
@@ -201,13 +204,13 @@ https://track-it-umber-psi.vercel.app/auth/callback
 npx supabase login
 npx supabase link --project-ref vvdakzkcfnmczddukgtg
 npx supabase db push
-npx supabase functions deploy telegram-auth
-npx supabase functions deploy telegram-webhook
-npx supabase functions deploy tma-access
-npx supabase functions deploy telegram-create-invoice
-npx supabase functions deploy telegram-send-reminders
-npx supabase functions deploy telegram-reminder-welcome
+npx supabase secrets set APP_FULLY_FREE=false
+npm run deploy:telegram
+# or individually:
+# npx supabase functions deploy telegram-auth --no-verify-jwt
+# …
 npx supabase secrets set CRON_SECRET="$(openssl rand -hex 32)"
+npm run setup:telegram-bot
 ```
 
 ### Step 5b — Schedule chat reminders (pg_cron)
