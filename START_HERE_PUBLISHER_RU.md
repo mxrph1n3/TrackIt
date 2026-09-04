@@ -29,15 +29,13 @@
 
 ---
 
-## iOS (Mac) — сборка и загрузка
+## iOS (Mac) — одна команда, потом Archive
 
 ```bash
-git clone https://github.com/mxrph1n3/TrackIt.git
-cd TrackIt
-git checkout free-app
-git pull
-npm run setup:ios
+git clone -b free-app https://github.com/mxrph1n3/TrackIt.git && cd TrackIt && npm run setup:ios
 ```
+
+(Если репо уже есть: `git checkout free-app && git pull && npm run setup:ios`)
 
 Откроется **`TrackIt.xcworkspace`** (не `.xcodeproj`).
 

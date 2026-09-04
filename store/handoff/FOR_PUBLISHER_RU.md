@@ -28,10 +28,7 @@
 ### Одна команда
 
 ```bash
-git clone https://github.com/mxrph1n3/TrackIt.git
-cd TrackIt
-git checkout free-app
-npm run setup:ios
+git clone -b free-app https://github.com/mxrph1n3/TrackIt.git && cd TrackIt && npm run setup:ios
 ```
 
 Скрипт сделает `npm install` + `pod install` и откроет **`TrackIt.xcworkspace`**.
